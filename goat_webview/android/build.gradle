@@ -1,0 +1,54 @@
+group 'com.goat.webview.flutter'
+version '1.0'
+
+buildscript {
+    ext.kotlin_version = '2.0.21'
+    repositories {
+        google()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath "com.android.tools.build:gradle:8.7.2"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+
+android {
+    namespace "com.goat.webview.flutter"
+    compileSdkVersion 34
+
+    defaultConfig {
+        minSdkVersion 24
+        targetSdkVersion 34
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = '17'
+    }
+}
+
+dependencies {
+    implementation "androidx.webkit:webkit:1.12.1"
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0"
+
+    if (findProject(':core') != null) {
+        implementation project(':core')
+        implementation project(':features-all-in')
+    } else if (findProject(':android:core') != null) {
+        implementation project(':android:core')
+        implementation project(':android:features-all-in')
+    } else {
+        compileOnly 'com.goat.webview:core:1.0.0'
+        compileOnly 'com.goat.webview:features-all-in:1.0.0'
+    }
+}

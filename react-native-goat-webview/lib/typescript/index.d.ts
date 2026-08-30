@@ -1,0 +1,10 @@
+import React from 'react';
+import { GoatWebViewProps } from './types';
+export * from './types';
+export * from './GoatBridge';
+export * from './useGoatBridge';
+export * from './GoatCapabilityPlugin';
+export { default as GoatWebViewNativeComponent } from './GoatWebViewNativeComponent';
+export { default as NativeGoatWebViewModule } from './NativeGoatWebViewModule';
+export declare const GoatWebView: React.FC<GoatWebViewProps>;
+export default GoatWebView;

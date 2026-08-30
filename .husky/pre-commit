@@ -1,0 +1,50 @@
+echo "================================================================"
+echo "🐐 [Goat WebView] Running Full Pre-Commit Verification Pipeline..."
+echo "================================================================"
+
+echo "🧪 [1/5] Running Android Core Unit Tests..."
+./android/gradlew -p android test --quiet
+if [ $? -ne 0 ]; then
+  echo "❌ Android Unit Tests Failed! Commit aborted."
+  exit 1
+fi
+
+echo "🧪 [2/5] Running React Native Library Unit Tests..."
+npm --prefix react-native-goat-webview test -- --silent
+if [ $? -ne 0 ]; then
+  echo "❌ React Native Unit Tests Failed! Commit aborted."
+  exit 1
+fi
+
+echo "🧪 [3/5] Running Flutter Plugin Unit Tests..."
+(cd goat_webview && flutter test)
+if [ $? -ne 0 ]; then
+  echo "❌ Flutter Plugin Unit Tests Failed! Commit aborted."
+  exit 1
+fi
+
+echo "📱 [4/5] Verifying Flutter Example Application..."
+(cd goat_webview/example && flutter analyze)
+if [ $? -ne 0 ]; then
+  echo "❌ Flutter Example Analysis Failed! Commit aborted."
+  exit 1
+fi
+
+echo "📦 [5/6] Running Web Mini-App SDK Unit Tests..."
+npm --prefix miniapp-web test > /dev/null
+if [ $? -ne 0 ]; then
+  echo "❌ Web Mini-App Unit Tests Failed! Commit aborted."
+  exit 1
+fi
+
+echo "📦 [6/6] Verifying Web Mini-App Bundle Compilation..."
+npm --prefix miniapp-web run build > /dev/null
+if [ $? -ne 0 ]; then
+  echo "❌ Web Mini-App Build Failed! Commit aborted."
+  exit 1
+fi
+
+echo "================================================================"
+echo "✅ [Goat WebView] All Libraries & Example Apps Passed Tests!"
+echo "================================================================"
+exit 0

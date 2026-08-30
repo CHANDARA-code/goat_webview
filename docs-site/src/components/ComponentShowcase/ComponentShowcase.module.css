@@ -1,0 +1,171 @@
+/* Component Showcase Styles */
+
+.showcaseWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+}
+
+.tabBar {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--ifm-color-emphasis-200, #334155);
+}
+
+.tabItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--ifm-color-emphasis-300, #475569);
+  background: var(--ifm-color-emphasis-100, #1e293b);
+  color: var(--ifm-color-emphasis-700, #94a3b8);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.tabItem:hover {
+  background: var(--ifm-color-emphasis-200, #334155);
+  color: #ffffff;
+}
+
+.tabItem.activeTab {
+  background: var(--ifm-color-primary, #6366f1);
+  color: #ffffff;
+  border-color: var(--ifm-color-primary, #6366f1);
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.35);
+}
+
+.playgroundCard {
+  background: var(--ifm-background-surface-color, #1e293b);
+  border: 1px solid var(--ifm-color-emphasis-300, #334155);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.cardHeader {
+  display: flex;
+  justifyContent: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--ifm-color-emphasis-200, #334155);
+}
+
+.cardTitle {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ifm-heading-color, #ffffff);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cardDesc {
+  font-size: 13px;
+  color: var(--ifm-color-emphasis-600, #94a3b8);
+  margin-top: 4px;
+  line-height: 1.4;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.formField {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fieldLabel {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--ifm-color-emphasis-700, #94a3b8);
+}
+
+.textInput {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--ifm-color-emphasis-300, #475569);
+  background: var(--ifm-color-emphasis-100, #0f172a);
+  color: #ffffff;
+  font-size: 13px;
+  outline: none;
+}
+
+.textInput:focus {
+  border-color: var(--ifm-color-primary, #6366f1);
+}
+
+.colorPresets {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.colorCircle {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: transform 0.15s;
+}
+
+.colorCircle:hover {
+  transform: scale(1.15);
+}
+
+.colorCircle.selectedColor {
+  border-color: #ffffff;
+  box-shadow: 0 0 0 2px var(--ifm-color-primary, #6366f1);
+}
+
+.actionButton {
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: none;
+  background: var(--ifm-color-primary, #6366f1);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: opacity 0.2s;
+}
+
+.actionButton:hover {
+  opacity: 0.9;
+}
+
+.secondaryButton {
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: 1px solid var(--ifm-color-emphasis-400, #475569);
+  background: transparent;
+  color: var(--ifm-color-emphasis-800, #cbd5e1);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.secondaryButton:hover {
+  background: var(--ifm-color-emphasis-200, #334155);
+}

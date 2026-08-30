@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Goat WebView - API Reference Portal</title>
+  <style>
+    :root {
+      --bg: #0b1120;
+      --card-bg: #1e293b;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --border: #334155;
+      --primary: #38bdf8;
+      --accent: #818cf8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 0;
+      line-height: 1.6;
+    }
+    header {
+      background: linear-gradient(180deg, #1e293b 0%, #0b1120 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 3.5rem 2rem 2.5rem;
+      text-align: center;
+    }
+    .logo-container {
+      font-size: 3.5rem;
+      margin-bottom: 0.5rem;
+    }
+    h1 {
+      font-size: 2.75rem;
+      font-weight: 800;
+      margin: 0;
+      background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .tagline {
+      font-size: 1.15rem;
+      color: var(--muted);
+      max-width: 680px;
+      margin: 1rem auto 0;
+    }
+    .main-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 3rem 2rem;
+    }
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 3rem;
+    }
+    .stat-box {
+      background: rgba(30, 41, 59, 0.6);
+      border: 1px solid var(--border);
+      border-radius: 0.75rem;
+      padding: 1.25rem;
+      text-align: center;
+      backdrop-filter: blur(8px);
+    }
+    .stat-number {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    .stat-label {
+      font-size: 0.85rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-top: 0.25rem;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.75rem;
+    }
+    .platform-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+      text-decoration: none;
+      color: inherit;
+    }
+    .platform-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--primary);
+      box-shadow: 0 12px 30px -10px rgba(56, 189, 248, 0.2);
+    }
+    .card-top {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .platform-icon {
+      font-size: 2.25rem;
+    }
+    .platform-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin: 0;
+      color: var(--text);
+    }
+    .platform-badge {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-top: 0.25rem;
+    }
+    .badge-android { background: rgba(56, 189, 248, 0.15); color: #38bdf8; }
+    .badge-ios { background: rgba(244, 63, 94, 0.15); color: #f43f5e; }
+    .badge-rn { background: rgba(97, 218, 251, 0.15); color: #61dafb; }
+    .badge-flutter { background: rgba(2, 132, 199, 0.15); color: #38bdf8; }
+    .badge-web { background: rgba(234, 179, 8, 0.15); color: #eab308; }
+    .card-desc {
+      color: var(--muted);
+      font-size: 0.95rem;
+      margin-bottom: 1.5rem;
+      flex-grow: 1;
+    }
+    .card-cta {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--primary);
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+    footer {
+      border-top: 1px solid var(--border);
+      text-align: center;
+      padding: 2.5rem;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo-container">🐐</div>
+    <h1>Goat WebView API Reference</h1>
+    <p class="tagline">Comprehensive, type-safe API documentation across all 5 official Goat WebView platforms and native bridge specifications.</p>
+  </header>
+
+  <div class="main-container">
+    <div class="stats-row">
+      <div class="stat-box">
+        <div class="stat-number">185</div>
+        <div class="stat-label">Standard Bridge Actions</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-number">5</div>
+        <div class="stat-label">SDK Platforms</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-number">&lt; 35 KB</div>
+        <div class="stat-label">Web JS Bundle Size</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-number">100%</div>
+        <div class="stat-label">Type &amp; Parity Coverage</div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <!-- Android -->
+      <a href="./android/index.html" class="platform-card">
+        <div>
+          <div class="card-top">
+            <span class="platform-icon">🤖</span>
+            <div>
+              <h2 class="platform-title">Android Core SDK</h2>
+              <span class="platform-badge badge-android">Dokka / Kotlin 2.0</span>
+            </div>
+          </div>
+          <p class="card-desc">Kotlin classes, composited GoatView, coroutine bridge action handlers, and Keystore enclave security.</p>
+        </div>
+        <div class="card-cta">Browse Android Docs →</div>
+      </a>
+
+      <!-- iOS -->
+      <a href="./ios/index.html" class="platform-card">
+        <div>
+          <div class="card-top">
+            <span class="platform-icon">🍎</span>
+            <div>
+              <h2 class="platform-title">iOS Swift Framework</h2>
+              <span class="platform-badge badge-ios">Swift-DocC / Swift 5.9+</span>
+            </div>
+          </div>
+          <p class="card-desc">Hardware-accelerated WKWebView container, async script message handling, and Keychain access group storage.</p>
+        </div>
+        <div class="card-cta">Browse iOS Docs →</div>
+      </a>
+
+      <!-- React Native -->
+      <a href="./react-native/index.html" class="platform-card">
+        <div>
+          <div class="card-top">
+            <span class="platform-icon">⚛️</span>
+            <div>
+              <h2 class="platform-title">React Native SDK</h2>
+              <span class="platform-badge badge-rn">TypeDoc / TurboModule</span>
+            </div>
+          </div>
+          <p class="card-desc">TurboModule and Fabric components, JSI bridge bindings, useGoatBridge hooks, and modular plugin SPI.</p>
+        </div>
+        <div class="card-cta">Browse React Native Docs →</div>
+      </a>
+
+      <!-- Flutter -->
+      <a href="./flutter/index.html" class="platform-card">
+        <div>
+          <div class="card-top">
+            <span class="platform-icon">🎯</span>
+            <div>
+              <h2 class="platform-title">Flutter Package</h2>
+              <span class="platform-badge badge-flutter">dartdoc / Flutter 3.29+</span>
+            </div>
+          </div>
+          <p class="card-desc">PlatformView embeddings, MethodChannel executeAction delegation, and cross-mini-app windowed containers.</p>
+        </div>
+        <div class="card-cta">Browse Flutter Docs →</div>
+      </a>
+
+      <!-- Web JS SDK -->
+      <a href="./web/index.html" class="platform-card">
+        <div>
+          <div class="card-top">
+            <span class="platform-icon">🌐</span>
+            <div>
+              <h2 class="platform-title">Web JS SDK</h2>
+              <span class="platform-badge badge-web">TypeDoc / TypeScript</span>
+            </div>
+          </div>
+          <p class="card-desc">Client-side bridge API, custom React hooks, WebMessageListener IPC, and type-safe action definitions.</p>
+        </div>
+        <div class="card-cta">Browse Web JS SDK Docs →</div>
+      </a>
+    </div>
+  </div>
+
+  <footer>
+    <p>Goat WebView Mini-App Engine &copy; 2026. Built with high-performance multi-platform documentation tooling.</p>
+  </footer>
+</body>
+</html>

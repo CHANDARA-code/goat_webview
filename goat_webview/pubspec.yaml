@@ -1,0 +1,36 @@
+name: goat_webview
+description: "High-Performance Embedded Mini-App Engine for Flutter powered by Goat WebView."
+version: 1.0.0-alpha.1
+homepage: https://github.com/CHANDARA-code/goat_webview
+repository: https://github.com/CHANDARA-code/goat_webview/tree/main/goat_webview
+issue_tracker: https://github.com/CHANDARA-code/goat_webview/issues
+topics:
+  - webview
+  - miniapp
+  - bridge
+  - security
+  - performance
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+  flutter: ">=3.10.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  integration_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        package: com.goat.webview.flutter
+        pluginClass: GoatWebViewPlugin
+      ios:
+        pluginClass: GoatWebViewPlugin

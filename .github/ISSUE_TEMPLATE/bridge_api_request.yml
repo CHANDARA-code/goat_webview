@@ -1,0 +1,33 @@
+name: "🔌 New SuperApp Bridge API Proposal"
+description: Propose a new native hardware or platform capability bridge action.
+title: "[Bridge API]: "
+labels: ["bridge-api", "enhancement"]
+body:
+  - type: input
+    id: action_name
+    attributes:
+      label: Action Name (UPPER_SNAKE_CASE)
+      placeholder: "e.g., BIOMETRIC_AUTH, BLE_START_SCAN, GET_BATTERY_INFO"
+    validations:
+      required: true
+  - type: textarea
+    id: rationale
+    attributes:
+      label: Use Case & Rationale
+      placeholder: "Why is this API needed? Which SuperApp capability (WeChat wx.* / Alipay my.* / Native) does it match?"
+    validations:
+      required: true
+  - type: textarea
+    id: schema_request
+    attributes:
+      label: Request JSON Schema
+      placeholder: '{"id": "req_1", "action": "ACTION_NAME", "payload": { ... }}'
+    validations:
+      required: true
+  - type: textarea
+    id: schema_response
+    attributes:
+      label: Response JSON Schema
+      placeholder: '{"id": "req_1", "success": true, "data": { ... }, "error": null}'
+    validations:
+      required: true

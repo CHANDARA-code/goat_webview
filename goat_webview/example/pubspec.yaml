@@ -1,0 +1,42 @@
+name: goat_webview_example
+description: Demonstrates how to use the goat_webview plugin and companion capability packages.
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+  flutter: '>=3.10.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  goat_webview:
+    path: ../
+  goat_webview_biometrics:
+    path: ../../packages/flutter/goat_webview_biometrics
+  goat_webview_bluetooth:
+    path: ../../packages/flutter/goat_webview_bluetooth
+  goat_webview_location:
+    path: ../../packages/flutter/goat_webview_location
+  goat_webview_media:
+    path: ../../packages/flutter/goat_webview_media
+  goat_webview_network:
+    path: ../../packages/flutter/goat_webview_network
+  goat_webview_payments:
+    path: ../../packages/flutter/goat_webview_payments
+  goat_webview_scanner:
+    path: ../../packages/flutter/goat_webview_scanner
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+dependency_overrides:
+  goat_webview:
+    path: ../
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/

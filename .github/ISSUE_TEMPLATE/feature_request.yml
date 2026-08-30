@@ -1,0 +1,40 @@
+name: "✨ Feature Request"
+description: Suggest an enhancement or new architectural capability for Goat WebView.
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: "Have an idea to make Goat WebView faster, leaner, or more versatile? Let us know!"
+  - type: dropdown
+    id: area
+    attributes:
+      label: Target Component Area
+      options:
+        - Core Android Engine (com.goat.webview)
+        - Performance & Pre-warming (GoatFastPool / V8 Cache)
+        - Flutter Plugin (goat_webview)
+        - React Native Library (react-native-goat-webview)
+        - Web SDK & Bundling (miniapp-web)
+        - OTA Delivery & Delta Patching
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Feature Description
+      placeholder: "A clear and concise description of the feature or improvement."
+    validations:
+      required: true
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Motivation & Problem Solved
+      placeholder: "What problem does this solve? How does it improve performance or developer experience?"
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution / Architecture
+      placeholder: "Explain your proposed technical implementation or API design."

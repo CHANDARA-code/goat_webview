@@ -1,0 +1,84 @@
+{
+  "name": "@goat/appservice",
+  "version": "1.0.0",
+  "description": "Dual-Thread Mini-App Engine Worker Container & AppView DOM Renderer for Goat WebView",
+  "type": "module",
+  "main": "dist/src/index.js",
+  "module": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "import": "./dist/src/index.js",
+      "default": "./dist/src/index.js"
+    },
+    "./worker": {
+      "types": "./dist/src/worker/index.d.ts",
+      "import": "./dist/src/worker/index.js",
+      "default": "./dist/src/worker/index.js"
+    },
+    "./renderer": {
+      "types": "./dist/src/renderer/index.d.ts",
+      "import": "./dist/src/renderer/index.js",
+      "default": "./dist/src/renderer/index.js"
+    },
+    "./vdom": {
+      "types": "./dist/src/vdom/index.d.ts",
+      "import": "./dist/src/vdom/index.js",
+      "default": "./dist/src/vdom/index.js"
+    },
+    "./ipc": {
+      "types": "./dist/src/ipc/index.d.ts",
+      "import": "./dist/src/ipc/index.js",
+      "default": "./dist/src/ipc/index.js"
+    },
+    "./bridge": {
+      "types": "./dist/src/bridge/index.d.ts",
+      "import": "./dist/src/bridge/index.js",
+      "default": "./dist/src/bridge/index.js"
+    },
+    "./lifecycle": {
+      "types": "./dist/src/lifecycle/index.d.ts",
+      "import": "./dist/src/lifecycle/index.js",
+      "default": "./dist/src/lifecycle/index.js"
+    },
+    "./simulation": {
+      "types": "./dist/src/simulation/index.d.ts",
+      "import": "./dist/src/simulation/index.js",
+      "default": "./dist/src/simulation/index.js"
+    }
+  },
+  "files": [
+    "dist/src",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "rm -rf dist && tsc -p tsconfig.json",
+    "test": "npm run build && node --test dist/test/*.test.js dist/test/adversarial/*.test.js && node --experimental-strip-types test/e2e/run-all.ts",
+    "test:unit": "npm run build && node --test dist/test/*.test.js dist/test/adversarial/*.test.js",
+    "test:e2e": "node --experimental-strip-types test/e2e/run-all.ts",
+    "benchmark": "npm run build && node dist/test/benchmark.js"
+  },
+  "keywords": [
+    "goat",
+    "appservice",
+    "appview",
+    "dual-thread",
+    "worker",
+    "miniapp",
+    "vdom",
+    "skyline",
+    "ipc"
+  ],
+  "author": "Goat Engineering Team",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "^22.13.4",
+    "typescript": "^5.7.3"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

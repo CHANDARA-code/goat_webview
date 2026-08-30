@@ -1,0 +1,22 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": [
+    "src/index.tsx",
+    "src/types.ts",
+    "src/GoatBridge.ts",
+    "src/useGoatBridge.ts",
+    "src/GoatCapabilityPlugin.ts"
+  ],
+  "exclude": [
+    "**/__tests__/**"
+  ],
+  "out": "../docs-site/static/api-reference/react-native",
+  "name": "Goat WebView React Native SDK",
+  "readme": "README.md",
+  "cleanOutputDir": true,
+  "excludePrivate": true,
+  "excludeProtected": false,
+  "excludeInternal": true,
+  "skipErrorChecking": true,
+  "githubPages": false
+}

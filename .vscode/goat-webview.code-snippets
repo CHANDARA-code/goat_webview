@@ -1,0 +1,97 @@
+{
+  "Goat Kotlin Bridge Action": {
+    "prefix": "goat-action-kt",
+    "description": "Create a new Goat WebView native bridge action handler in Kotlin",
+    "body": [
+      "package com.goat.webview.bridge",
+      "",
+      "import android.content.Context",
+      "import kotlinx.coroutines.Dispatchers",
+      "import kotlinx.coroutines.withContext",
+      "import kotlinx.serialization.json.JsonObject",
+      "import kotlinx.serialization.json.buildJsonObject",
+      "import kotlinx.serialization.json.put",
+      "",
+      "/**",
+      " * Bridge Handler for `$1` action.",
+      " */",
+      "class ${TM_FILENAME_BASE} : GoatBridgeActionHandler {",
+      "    override val actionName: String = \"$1\"",
+      "",
+      "    override suspend fun execute(",
+      "        payload: JsonObject,",
+      "        context: Context",
+      "    ): Result<JsonObject> = withContext(Dispatchers.IO) {",
+      "        try {",
+      "            $0",
+      "            Result.success(buildJsonObject {",
+      "                put(\"status\", \"success\")",
+      "            })",
+      "        } catch (e: Exception) {",
+      "            Result.failure(e)",
+      "        }",
+      "    }",
+      "}"
+    ]
+  },
+  "Goat TypeScript Bridge Call": {
+    "prefix": "goat-bridge-ts",
+    "description": "Invoke native bridge action from TypeScript SDK",
+    "body": [
+      "/**",
+      " * $2",
+      " *",
+      " * @param payload - The parameters for the $1 action.",
+      " * @returns A promise resolving with the typed response data.",
+      " */",
+      "public async $1(payload: $3): Promise<$4> {",
+      "  return this.callNative<$4>('$5', payload);",
+      "}"
+    ]
+  },
+  "Goat Flutter MethodChannel Bridge": {
+    "prefix": "goat-bridge-dart",
+    "description": "Create a new Goat WebView Flutter controller method",
+    "body": [
+      "/// $1",
+      "Future<$2> $3({required Map<String, dynamic> params}) async {",
+      "  try {",
+      "    final result = await _channel.invokeMethod<Map<dynamic, dynamic>>(",
+      "      '$4',",
+      "      params,",
+      "    );",
+      "    return $2.fromJson(Map<String, dynamic>.from(result ?? {}));",
+      "  } on PlatformException catch (e) {",
+      "    throw GoatBridgeException(code: e.code, message: e.message ?? 'Unknown error');",
+      "  }",
+      "}"
+    ]
+  },
+  "Goat Unit Test Kotlin": {
+    "prefix": "goat-test-kt",
+    "description": "Boilerplate for a Goat WebView Kotlin Coroutines Unit Test",
+    "body": [
+      "package com.goat.webview",
+      "",
+      "import kotlinx.coroutines.ExperimentalCoroutinesApi",
+      "import kotlinx.coroutines.test.runTest",
+      "import org.junit.Assert.*",
+      "import org.junit.Test",
+      "",
+      "@OptIn(ExperimentalCoroutinesApi::class)",
+      "class ${TM_FILENAME_BASE} {",
+      "",
+      "    @Test",
+      "    fun `$1_shouldSucceed`() = runTest {",
+      "        // Given",
+      "        $0",
+      "",
+      "        // When",
+      "",
+      "        // Then",
+      "        assertTrue(true)",
+      "    }",
+      "}"
+    ]
+  }
+}

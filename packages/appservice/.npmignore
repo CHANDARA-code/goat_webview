@@ -1,0 +1,6 @@
+test/
+dist/test/
+*.test.ts
+*.test.js
+*.bench.ts
+*.bench.js

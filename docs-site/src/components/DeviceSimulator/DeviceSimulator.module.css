@@ -1,0 +1,372 @@
+/* Device Simulator Styles */
+
+.simulatorContainer {
+  display: flex;
+  flex-direction: row;
+  gap: 24px;
+  width: 100%;
+  align-items: flex-start;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+@media (max-width: 1024px) {
+  .simulatorContainer {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+/* Device Frame Wrapper */
+.frameWrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  user-select: none;
+  transition: transform 0.2s ease;
+}
+
+.chassis {
+  position: relative;
+  background: #0f1117;
+  border: 10px solid #232733;
+  border-radius: 50px;
+  box-shadow:
+    0 0 0 2px #383e52,
+    0 25px 60px -15px rgba(0, 0, 0, 0.7),
+    inset 0 0 6px rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.chassis.scaleCompact {
+  width: 290px;
+  height: 600px;
+  border-radius: 44px;
+}
+
+.chassis.scaleNormal {
+  width: 340px;
+  height: 700px;
+  border-radius: 50px;
+}
+
+.chassis.scaleLarge {
+  width: 380px;
+  height: 780px;
+  border-radius: 54px;
+}
+
+/* Metallic Rim Buttons */
+.hwButtonLeftVolUp {
+  position: absolute;
+  left: -14px;
+  top: 130px;
+  width: 4px;
+  height: 48px;
+  background: #383e52;
+  border-radius: 3px 0 0 3px;
+}
+
+.hwButtonLeftVolDown {
+  position: absolute;
+  left: -14px;
+  top: 190px;
+  width: 4px;
+  height: 48px;
+  background: #383e52;
+  border-radius: 3px 0 0 3px;
+}
+
+.hwButtonLeftAction {
+  position: absolute;
+  left: -14px;
+  top: 80px;
+  width: 4px;
+  height: 32px;
+  background: #383e52;
+  border-radius: 3px 0 0 3px;
+}
+
+.hwButtonRightPower {
+  position: absolute;
+  right: -14px;
+  top: 140px;
+  width: 4px;
+  height: 65px;
+  background: #383e52;
+  border-radius: 0 3px 3px 0;
+}
+
+/* Status Bar */
+.statusBar {
+  height: 36px;
+  width: 100%;
+  display: flex;
+  justifyContent: space-between;
+  align-items: center;
+  padding: 0 16px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #ffffff;
+  z-index: 30;
+  position: relative;
+  box-sizing: border-box;
+}
+
+.statusTime {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.2px;
+}
+
+.statusIcons {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Dynamic Island (iPhone 16 Pro) */
+.dynamicIsland {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #000000;
+  border-radius: 20px;
+  height: 24px;
+  width: 96px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+  z-index: 40;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.dynamicIslandExpanded {
+  width: 220px;
+  height: 48px;
+  border-radius: 24px;
+  padding: 0 14px;
+  background: #050505;
+}
+
+.cameraLens {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #252836 0%, #08090d 80%);
+  border: 1px solid #1a1c24;
+}
+
+.sensorDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #11141e;
+}
+
+/* Punch Hole (Pixel 9 Pro) */
+.punchHole {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #232733 0%, #000000 80%);
+  border: 1px solid #141720;
+  z-index: 40;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+/* Screen Viewport */
+.screen {
+  flex: 1;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: #f8fafc;
+}
+
+.screen.darkTheme {
+  background: #0f172a;
+  color: #f8fafc;
+}
+
+.screen.lightTheme {
+  background: #ffffff;
+  color: #0f172a;
+}
+
+/* Bottom Bar */
+.bottomNav {
+  height: 28px;
+  width: 100%;
+  display: flex;
+  justifyContent: center;
+  align-items: center;
+  z-index: 30;
+  position: relative;
+}
+
+.homeIndicatorIos {
+  width: 120px;
+  height: 4px;
+  border-radius: 4px;
+  background: rgba(148, 163, 184, 0.6);
+}
+
+.androidNavButtons {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  width: 60%;
+}
+
+.androidNavIcon {
+  font-size: 11px;
+  color: #94a3b8;
+  cursor: pointer;
+}
+
+/* Haptic Ripple Effect */
+.hapticVibration {
+  animation: deviceShake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+@keyframes deviceShake {
+  10%, 90% { transform: translate3d(-1px, 0, 0); }
+  20%, 80% { transform: translate3d(2px, 0, 0); }
+  30%, 50%, 70% { transform: translate3d(-3px, 0, 0); }
+  40%, 60% { transform: translate3d(3px, 0, 0); }
+}
+
+.rippleRing {
+  position: absolute;
+  inset: -10px;
+  border-radius: 60px;
+  border: 2px solid rgba(99, 102, 241, 0.8);
+  animation: pulseRipple 0.5s ease-out forwards;
+  pointer-events: none;
+}
+
+@keyframes pulseRipple {
+  0% { transform: scale(0.98); opacity: 1; }
+  100% { transform: scale(1.08); opacity: 0; }
+}
+
+/* Controls Panel Styles */
+.controlsPanel {
+  background: var(--ifm-background-surface-color, #1e293b);
+  border: 1px solid var(--ifm-color-emphasis-300, #334155);
+  border-radius: 12px;
+  padding: 16px;
+  flex: 1;
+  max-width: 480px;
+  min-width: 320px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  box-sizing: border-box;
+}
+
+.controlSection {
+  margin-bottom: 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--ifm-color-emphasis-200, #334155);
+}
+
+.controlSection:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ifm-color-primary, #6366f1);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.buttonGroup {
+  display: flex;
+  background: var(--ifm-color-emphasis-100, #0f172a);
+  padding: 3px;
+  border-radius: 8px;
+  gap: 3px;
+  width: 100%;
+}
+
+.toggleBtn {
+  flex: 1;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: var(--ifm-color-emphasis-600, #94a3b8);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: center;
+}
+
+.toggleBtn.active {
+  background: var(--ifm-color-primary, #6366f1);
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(99, 102, 241, 0.4);
+}
+
+.sliderContainer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.rangeInput {
+  flex: 1;
+  accent-color: var(--ifm-color-primary, #6366f1);
+  cursor: pointer;
+}
+
+.valueBadge {
+  font-family: monospace;
+  font-size: 11px;
+  background: var(--ifm-color-emphasis-200, #334155);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+  min-width: 44px;
+  text-align: center;
+}
+
+.selectInput {
+  width: 100%;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--ifm-color-emphasis-300, #475569);
+  background: var(--ifm-color-emphasis-100, #0f172a);
+  color: var(--ifm-font-color-base, #ffffff);
+  font-size: 12px;
+  font-weight: 500;
+}

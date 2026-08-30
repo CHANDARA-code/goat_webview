@@ -1,0 +1,56 @@
+name: "🐛 Bug Report"
+description: Report a reproducible bug in Goat WebView core, Flutter plugin, or RN library.
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: "Thank you for reporting an issue! Please provide detailed reproduction steps so we can resolve it quickly."
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Target Platform
+      options:
+        - Native Android (Kotlin/Compose)
+        - Flutter Plugin (goat_webview)
+        - React Native (react-native-goat-webview)
+        - Mini-App Web (miniapp-web)
+    validations:
+      required: true
+  - type: input
+    id: sdk_version
+    attributes:
+      label: SDK / Library Version
+      placeholder: "e.g., v1.1.0, Android 15 (SDK 35)"
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      placeholder: "Clear and concise description of what the bug is."
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction_steps
+    attributes:
+      label: Steps to Reproduce
+      placeholder: |
+        1. Mount GoatWebView with bundle version X
+        2. Trigger bridge action '...'
+        3. Observe error / crash
+    validations:
+      required: true
+  - type: textarea
+    id: expected_behavior
+    attributes:
+      label: Expected Behavior
+      placeholder: "What you expected to happen."
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant Logs / Stacktrace
+      render: shell
+      placeholder: "Paste console logs or logcat stacktrace here..."

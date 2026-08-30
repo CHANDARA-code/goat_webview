@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "outDir": "./dist",
+    "rootDir": ".",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": [
+    "src/**/*",
+    "test/*.test.ts",
+    "test/adversarial/**/*",
+    "test/benchmark.ts",
+    "test/latency.bench.ts",
+    "test/harness/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "test/e2e"
+  ]
+}

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Goat WebView Android Core SDK - API Reference</title>
+  <style>
+    :root { --bg: #0f172a; --surface: #1e293b; --accent: #38bdf8; --text: #f8fafc; --muted: #94a3b8; --border: #334155; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 2rem; line-height: 1.6; }
+    .container { max-width: 1100px; margin: 0 auto; }
+    .badge { background: rgba(56, 189, 248, 0.15); color: var(--accent); padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.85rem; font-weight: 600; }
+    h1, h2, h3 { color: var(--text); }
+    h1 { font-size: 2.2rem; display: flex; align-items: center; gap: 1rem; margin-bottom: 0.5rem; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-top: 2rem; }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 0.75rem; padding: 1.5rem; }
+    .card h3 { margin-top: 0; color: var(--accent); }
+    code { background: #020617; padding: 0.2rem 0.4rem; border-radius: 4px; font-family: monospace; color: #38bdf8; font-size: 0.9em; }
+    ul { padding-left: 1.25rem; }
+    li { margin-bottom: 0.5rem; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div><a href="../index.html">← Back to Master API Portal</a></div>
+    <h1>🤖 Android Core SDK <span class="badge">Kotlin 2.0 / Jetpack Compose</span></h1>
+    <p>High-performance embedded Android WebView container and 141-action native bridge engine.</p>
+    
+    <div class="grid">
+      <div class="card">
+        <h3>Core View & Client</h3>
+        <ul>
+          <li><code>GoatView</code>: Composited Android WebView container with transparent canvas.</li>
+          <li><code>GoatWebViewClient</code>: Zero-trust asset loader with <code>appassets.androidplatform.net</code>.</li>
+          <li><code>GoatHeadlessWebView</code>: Prewarmed background execution container.</li>
+          <li><code>GoatFastPool</code>: Sub-50ms instance recycler and warm pool manager.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Bridge & IPC</h3>
+        <ul>
+          <li><code>GoatBridgeActionHandler</code>: 141-action routing engine with coroutines.</li>
+          <li><code>GoatWebMessageListener</code>: Modern Chromium bidirectional IPC.</li>
+          <li><code>GoatChannelManager</code>: Event bus with batching & debouncing.</li>
+          <li><code>GoatBinaryChannelManager</code>: Direct ArrayBuffer binary message ports.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Storage & Security</h3>
+        <ul>
+          <li><code>GoatStorageManager</code>: Sandboxed multi-tenant SharedPreferences.</li>
+          <li><code>GoatSecureStorageManager</code>: Android Keystore AES-256 GCM encryption.</li>
+          <li><code>GoatSecurityManager</code>: Canonical path traversal & Zip Slip guard.</li>
+          <li><code>GoatExternalLinkWarningDialog</code>: Anti-phishing host verification.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>UI & Native Overlays</h3>
+        <ul>
+          <li><code>GoatBottomSheet</code>: Native draggable modal sheet.</li>
+          <li><code>GoatBottomSheetTabsOverlay</code>: Multi-tab concurrent mini-app stack.</li>
+          <li><code>GoatNavigationBar</code>: Native header bar with title & color control.</li>
+          <li><code>GoatPermissionPrimingDialog</code>: Two-stage rationale permission primer.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

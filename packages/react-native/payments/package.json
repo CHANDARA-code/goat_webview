@@ -1,0 +1,9 @@
+{
+  "name": "@goat-webview/payments",
+  "version": "1.0.0",
+  "description": "Modular Payment Gateway Capability Companion Package for React Native Goat WebView (Task 10206)",
+  "main": "src/index.ts",
+  "peerDependencies": {
+    "react-native-goat-webview": "^1.0.0"
+  }
+}

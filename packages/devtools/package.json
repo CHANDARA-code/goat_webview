@@ -1,0 +1,59 @@
+{
+  "name": "@goat/devtools",
+  "version": "1.0.0",
+  "description": "Goat Mini-App DevTools Studio IDE — High-performance desktop and browser IDE for mini-app development, simulation, and debugging",
+  "type": "module",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "node --experimental-strip-types src/test/run-all.ts"
+  },
+  "keywords": [
+    "goat",
+    "miniapp",
+    "devtools",
+    "studio",
+    "ide",
+    "simulator",
+    "monaco",
+    "bridge"
+  ],
+  "author": "Goat Engineering Team",
+  "license": "MIT",
+  "dependencies": {
+    "@goat/appservice": "file:../appservice",
+    "@goat/bridge-mock": "file:../bridge-mock",
+    "@monaco-editor/react": "^4.6.0",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.475.0",
+    "monaco-editor": "^0.52.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tailwind-merge": "^3.0.1",
+    "zustand": "^5.0.3"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.1.0",
+    "@testing-library/user-event": "^14.5.2",
+    "@types/node": "^22.13.4",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.3",
+    "autoprefixer": "^10.4.20",
+    "jsdom": "^25.0.1",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.7.3",
+    "vite": "^6.0.5",
+    "vitest": "^2.1.8"
+  }
+}

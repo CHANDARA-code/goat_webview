@@ -1,0 +1,4 @@
+test/
+dist/test/
+*.test.ts
+*.test.js

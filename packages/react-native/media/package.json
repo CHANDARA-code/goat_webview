@@ -1,0 +1,9 @@
+{
+  "name": "@goat-webview/media",
+  "version": "1.0.0",
+  "description": "Modular Media Capability Companion Package for React Native Goat WebView (Task 10202)",
+  "main": "src/index.ts",
+  "peerDependencies": {
+    "react-native-goat-webview": "^1.0.0"
+  }
+}

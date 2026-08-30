@@ -1,0 +1,88 @@
+name: Goat WebView Monorepo CI Matrix
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Master Monorepo & Zero-Trust Verification
+    runs-on: macos-14
+    timeout-minutes: 45
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Java JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: "17"
+          distribution: "temurin"
+          cache: gradle
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+          cache-dependency-path: "packages/*/package-lock.json"
+
+      - name: Set up Bun runtime
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Set up Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.29.0"
+          channel: "stable"
+          cache: true
+
+      - name: Select Xcode Version
+        run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+
+      - name: Verify Version Alignment & Consistency
+        run: |
+          chmod +x scripts/bump-version.sh
+          ./scripts/bump-version.sh --check
+
+      - name: Install Tooling Dependencies
+        run: |
+          (cd miniapp-web && npm install)
+          (cd react-native-goat-webview && npm install)
+          (cd packages/appservice && npm install)
+          (cd packages/bridge-mock && npm install)
+          (cd packages/devtools && npm install)
+          (cd packages/server && npm install)
+          (cd packages/cli && npm install)
+          (cd packages/playground && npm install)
+          (cd packages/vscode-extension && npm install)
+
+      - name: Execute Master Test Infrastructure Gate
+        run: |
+          chmod +x scripts/*.sh
+          ./scripts/verify-all.sh
+
+      - name: Execute Zero-Trust Security & Adversarial Fuzzing Suite
+        run: |
+          ./scripts/run-security-fuzz.sh
+
+      - name: Execute Master 4-Tier Opaque-Box E2E Suite
+        run: |
+          ./scripts/verify-e2e.sh
+
+      - name: Execute Multi-Ecosystem Release Pre-Flight Dry-Run
+        run: |
+          ./scripts/publish-dry-run.sh

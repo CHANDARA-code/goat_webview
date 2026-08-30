@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "commonjs",
+    "lib": ["es2022", "dom"],
+    "allowJs": true,
+    "jsx": "react",
+    "noEmit": true,
+    "isolatedModules": true,
+    "strict": true,
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "react": ["../miniapp-web/node_modules/@types/react"],
+      "react/*": ["../miniapp-web/node_modules/@types/react/*"]
+    }
+  },
+  "include": ["src/**/*"]
+}

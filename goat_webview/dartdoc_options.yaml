@@ -1,0 +1,8 @@
+dartdoc:
+  output: "../docs-site/static/api-reference/flutter"
+  categoryOrder: ["Core", "PlatformView", "MethodChannel", "Plugins"]
+  showUndocumentedCategories: true
+  include: ["goat_webview"]
+  exclude: []
+  nodoc: []
+  generateDocs: true

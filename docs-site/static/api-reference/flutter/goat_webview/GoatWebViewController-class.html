@@ -1,0 +1,2007 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the GoatWebViewController class from the goat_webview library, for the Dart programming language.">
+  <title>GoatWebViewController class - goat_webview library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">goat_webview</a></li>
+    <li><a href="../goat_webview/">goat_webview.dart</a></li>
+    <li class="self-crumb">GoatWebViewController class</li>
+  </ol>
+  <div class="self-name">GoatWebViewController</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="goat_webview&#47;goat_webview-library-sidebar.html"
+    data-below-sidebar="goat_webview&#47;GoatWebViewController-class-sidebar.html">
+    <div>
+<h1><span class="kind-class">GoatWebViewController</span> class 
+ 
+</h1></div>
+
+    
+<section class="desc markdown">
+  <p>Controller for programmatic interaction with the embedded Goat WebView instance.</p>
+</section>
+
+
+
+    
+  <section class="summary offset-anchor" id="constructors">
+    <h2>Constructors</h2>
+    <dl class="constructor-summary-list">
+        <dt id="GoatWebViewController.new" class="callable">
+          <span class="name"><a href="../goat_webview/GoatWebViewController/GoatWebViewController.html">GoatWebViewController</a></span><span class="signature">({<span class="parameter" id="-param-viewId"><span>required</span> <span class="type-annotation">int</span> <span class="parameter-name">viewId</span></span>})</span>
+        </dt>
+        <dd>
+          
+        </dd>
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-properties">
+    <h2>Properties</h2>
+    <dl class="properties">
+        <dt id="hashCode" class="property inherited">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/hashCode.html">hashCode</a></span>
+  <span class="signature">&#8594; int</span>
+  
+
+</dt>
+<dd class="inherited">
+  The hash code for this object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="isDisposed" class="property">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/isDisposed.html">isDisposed</a></span>
+  <span class="signature">&#8594; bool</span>
+  
+
+</dt>
+<dd>
+  Whether this controller has been disposed.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="onAppServiceCrash" class="property">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/onAppServiceCrash.html">onAppServiceCrash</a></span>
+  <span class="signature">&#8594; Stream<span class="signature">&lt;<wbr><span class="type-parameter">Map<span class="signature">&lt;<wbr><span class="type-parameter">String</span>, <span class="type-parameter">dynamic</span>&gt;</span></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="onAppServiceReady" class="property">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/onAppServiceReady.html">onAppServiceReady</a></span>
+  <span class="signature">&#8594; Stream<span class="signature">&lt;<wbr><span class="type-parameter">Map<span class="signature">&lt;<wbr><span class="type-parameter">String</span>, <span class="type-parameter">dynamic</span>&gt;</span></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="onAppServiceTerminate" class="property">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/onAppServiceTerminate.html">onAppServiceTerminate</a></span>
+  <span class="signature">&#8594; Stream<span class="signature">&lt;<wbr><span class="type-parameter">Map<span class="signature">&lt;<wbr><span class="type-parameter">String</span>, <span class="type-parameter">dynamic</span>&gt;</span></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="onBridgeMessage" class="property">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/onBridgeMessage.html">onBridgeMessage</a></span>
+  <span class="signature">&#8594; Stream<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeMessage-class.html">GoatBridgeMessage</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="onDownloadProgress" class="property">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/onDownloadProgress.html">onDownloadProgress</a></span>
+  <span class="signature">&#8594; Stream<span class="signature">&lt;<wbr><span class="type-parameter">Map<span class="signature">&lt;<wbr><span class="type-parameter">String</span>, <span class="type-parameter">dynamic</span>&gt;</span></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="onKeyboardInsetsChanged" class="property">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/onKeyboardInsetsChanged.html">onKeyboardInsetsChanged</a></span>
+  <span class="signature">&#8594; Stream<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatKeyboardInsets-class.html">GoatKeyboardInsets</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="onMiniAppClosed" class="property">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/onMiniAppClosed.html">onMiniAppClosed</a></span>
+  <span class="signature">&#8594; Stream<span class="signature">&lt;<wbr><span class="type-parameter">Map<span class="signature">&lt;<wbr><span class="type-parameter">String</span>, <span class="type-parameter">dynamic</span>&gt;</span></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="onPageFinished" class="property">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/onPageFinished.html">onPageFinished</a></span>
+  <span class="signature">&#8594; Stream<span class="signature">&lt;<wbr><span class="type-parameter">String</span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="onPageStarted" class="property">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/onPageStarted.html">onPageStarted</a></span>
+  <span class="signature">&#8594; Stream<span class="signature">&lt;<wbr><span class="type-parameter">String</span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="onPopupRequest" class="property">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/onPopupRequest.html">onPopupRequest</a></span>
+  <span class="signature">&#8594; Stream<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatPopupRequest-class.html">GoatPopupRequest</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="onProgressChanged" class="property">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/onProgressChanged.html">onProgressChanged</a></span>
+  <span class="signature">&#8594; Stream<span class="signature">&lt;<wbr><span class="type-parameter">int</span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="onSafeAreaChanged" class="property">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/onSafeAreaChanged.html">onSafeAreaChanged</a></span>
+  <span class="signature">&#8594; Stream<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatSafeAreaInsets-class.html">GoatSafeAreaInsets</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="runtimeType" class="property inherited">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/runtimeType.html">runtimeType</a></span>
+  <span class="signature">&#8594; Type</span>
+  
+
+</dt>
+<dd class="inherited">
+  A representation of the runtime type of the object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="viewId" class="property">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/viewId.html">viewId</a></span>
+  <span class="signature">&#8594; int</span>
+  
+
+</dt>
+<dd>
+  
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-methods">
+    <h2>Methods</h2>
+    <dl class="callables">
+        <dt id="auditNetworkCertificate" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/auditNetworkCertificate.html">auditNetworkCertificate</a></span><span class="signature">(<wbr><span class="parameter" id="auditNetworkCertificate-param-url"><span class="type-annotation">String</span> <span class="parameter-name">url</span></span>)
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Audits network certificate for security compliance (Task 10131).
+  
+
+</dd>
+
+        <dt id="auditSandboxHeaders" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/auditSandboxHeaders.html">auditSandboxHeaders</a></span><span class="signature">(<wbr><span class="parameter" id="auditSandboxHeaders-param-headers"><span class="type-annotation">Map<span class="signature">&lt;<wbr><span class="type-parameter">String</span>, <span class="type-parameter">String</span>&gt;</span></span> <span class="parameter-name">headers</span></span>)
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Audits sandbox isolation response headers (Task 10132).
+  
+
+</dd>
+
+        <dt id="authenticateBiometric" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/authenticateBiometric.html">authenticateBiometric</a></span><span class="signature">(<wbr>{<span class="parameter" id="authenticateBiometric-param-title"><span class="type-annotation">String</span> <span class="parameter-name">title</span> = <span class="default-value">&#39;Authenticate&#39;</span>, </span><span class="parameter" id="authenticateBiometric-param-subtitle"><span class="type-annotation">String</span> <span class="parameter-name">subtitle</span> = <span class="default-value">&#39;&#39;</span></span>})
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Prompts user with native Biometric Authentication prompt (Task 10103).
+  
+
+</dd>
+
+        <dt id="authorize" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/authorize.html">authorize</a></span><span class="signature">(<wbr><span class="parameter" id="authorize-param-scope"><span class="type-annotation">String</span> <span class="parameter-name">scope</span>, {</span><span class="parameter" id="authorize-param-appId"><span class="type-annotation">String</span> <span class="parameter-name">appId</span> = <span class="default-value">&#39;default&#39;</span>, </span><span class="parameter" id="authorize-param-granted"><span class="type-annotation">bool</span> <span class="parameter-name">granted</span> = <span class="default-value">true</span></span>})
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Directly updates authorization status for a scope (Task 10101).
+  
+
+</dd>
+
+        <dt id="callJs" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/callJs.html">callJs</a></span><span class="signature">(<wbr><span class="parameter" id="callJs-param-action"><span class="type-annotation">String</span> <span class="parameter-name">action</span>, [</span><span class="parameter" id="callJs-param-payload"><span class="type-annotation">Map<span class="signature">&lt;<wbr><span class="type-parameter">String</span>, <span class="type-parameter">dynamic</span>&gt;</span></span> <span class="parameter-name">payload</span> = <span class="default-value">const {}</span></span>])
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Sends a structured native action message into the React SPA DOM.
+  
+
+</dd>
+
+        <dt id="cancelFileChooser" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/cancelFileChooser.html">cancelFileChooser</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Cancels active file chooser interaction (Task 10076).
+  
+
+</dd>
+
+        <dt id="canGoBackInHistory" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/canGoBackInHistory.html">canGoBackInHistory</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Checks if web history can rewind (Task 10094).
+  
+
+</dd>
+
+        <dt id="canIUse" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/canIUse.html">canIUse</a></span><span class="signature">(<wbr><span class="parameter" id="canIUse-param-action"><span class="type-annotation">String</span> <span class="parameter-name">action</span></span>)
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter">bool</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Queries whether a native bridge action capability is supported (including registered SPI companion plugins).
+  
+
+</dd>
+
+        <dt id="checkBiometricSupport" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/checkBiometricSupport.html">checkBiometricSupport</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Checks if biometric hardware is supported (Task 10103).
+  
+
+</dd>
+
+        <dt id="checkPermission" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/checkPermission.html">checkPermission</a></span><span class="signature">(<wbr><span class="parameter" id="checkPermission-param-scope"><span class="type-annotation">String</span> <span class="parameter-name">scope</span>, {</span><span class="parameter" id="checkPermission-param-appId"><span class="type-annotation">String</span> <span class="parameter-name">appId</span> = <span class="default-value">&#39;default&#39;</span></span>})
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Checks if a permission scope is granted (Task 10101).
+  
+
+</dd>
+
+        <dt id="chooseContact" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/chooseContact.html">chooseContact</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Securely picks a contact from address book (Task 10129).
+  
+
+</dd>
+
+        <dt id="chooseFiles" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/chooseFiles.html">chooseFiles</a></span><span class="signature">(<wbr><span class="parameter" id="chooseFiles-param-uris"><span class="type-annotation">List<span class="signature">&lt;<wbr><span class="type-parameter">String</span>&gt;</span></span> <span class="parameter-name">uris</span></span>)
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Resolves active file chooser with selected URIs (Task 10076).
+  
+
+</dd>
+
+        <dt id="chooseLocation" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/chooseLocation.html">chooseLocation</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Opens native location destination picker UI (Task 10107).
+  
+
+</dd>
+
+        <dt id="chooseMedia" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/chooseMedia.html">chooseMedia</a></span><span class="signature">(<wbr>{<span class="parameter" id="chooseMedia-param-count"><span class="type-annotation">int</span> <span class="parameter-name">count</span> = <span class="default-value">9</span>, </span><span class="parameter" id="chooseMedia-param-mediaType"><span class="type-annotation">List<span class="signature">&lt;<wbr><span class="type-parameter">String</span>&gt;</span></span> <span class="parameter-name">mediaType</span> = <span class="default-value">const [&#39;image&#39;, &#39;video&#39;]</span>, </span><span class="parameter" id="chooseMedia-param-sourceType"><span class="type-annotation">List<span class="signature">&lt;<wbr><span class="type-parameter">String</span>&gt;</span></span> <span class="parameter-name">sourceType</span> = <span class="default-value">const [&#39;album&#39;, &#39;camera&#39;]</span></span>})
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Launches photo and video picker with compression (Task 10106).
+  
+
+</dd>
+
+        <dt id="closeBinaryPort" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/closeBinaryPort.html">closeBinaryPort</a></span><span class="signature">(<wbr><span class="parameter" id="closeBinaryPort-param-portId"><span class="type-annotation">String</span> <span class="parameter-name">portId</span></span>)
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Closes a binary port channel (Task 10130).
+  
+
+</dd>
+
+        <dt id="closeMiniApp" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/closeMiniApp.html">closeMiniApp</a></span><span class="signature">(<wbr>{<span class="parameter" id="closeMiniApp-param-instanceId"><span class="type-annotation">String?</span> <span class="parameter-name">instanceId</span>, </span><span class="parameter" id="closeMiniApp-param-result"><span class="type-annotation">Map<span class="signature">&lt;<wbr><span class="type-parameter">String</span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">result</span></span>})
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Closes an active cross-mini-app session (Task 10201).
+  
+
+</dd>
+
+        <dt id="collapseBottomSheet" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/collapseBottomSheet.html">collapseBottomSheet</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Collapses the native bottom sheet container.
+  
+
+</dd>
+
+        <dt id="configureTransparency" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/configureTransparency.html">configureTransparency</a></span><span class="signature">(<wbr><span class="parameter" id="configureTransparency-param-isTransparent"><span class="type-annotation">bool</span> <span class="parameter-name">isTransparent</span>, {</span><span class="parameter" id="configureTransparency-param-customBgHex"><span class="type-annotation">String?</span> <span class="parameter-name">customBgHex</span></span>})
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Configures transparent canvas and background color (Task 10113).
+  
+
+</dd>
+
+        <dt id="connectBle" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/connectBle.html">connectBle</a></span><span class="signature">(<wbr><span class="parameter" id="connectBle-param-deviceId"><span class="type-annotation">String</span> <span class="parameter-name">deviceId</span></span>)
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Connects to a remote BLE GATT peripheral (Task 10108).
+  
+
+</dd>
+
+        <dt id="createBinaryPort" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/createBinaryPort.html">createBinaryPort</a></span><span class="signature">(<wbr><span class="parameter" id="createBinaryPort-param-portId"><span class="type-annotation">String</span> <span class="parameter-name">portId</span></span>)
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Creates a dedicated binary port channel (Task 10130).
+  
+
+</dd>
+
+        <dt id="dispose" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/dispose.html">dispose</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Disposes controller streams and unbinds method channel listener.
+  
+
+</dd>
+
+        <dt id="embedNativeView" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/embedNativeView.html">embedNativeView</a></span><span class="signature">(<wbr><span class="parameter" id="embedNativeView-param-componentId"><span class="type-annotation">String</span> <span class="parameter-name">componentId</span>, </span><span class="parameter" id="embedNativeView-param-componentType"><span class="type-annotation">String</span> <span class="parameter-name">componentType</span>, {</span><span class="parameter" id="embedNativeView-param-x"><span class="type-annotation">double</span> <span class="parameter-name">x</span> = <span class="default-value">0</span>, </span><span class="parameter" id="embedNativeView-param-y"><span class="type-annotation">double</span> <span class="parameter-name">y</span> = <span class="default-value">0</span>, </span><span class="parameter" id="embedNativeView-param-width"><span class="type-annotation">double</span> <span class="parameter-name">width</span> = <span class="default-value">360</span>, </span><span class="parameter" id="embedNativeView-param-height"><span class="type-annotation">double</span> <span class="parameter-name">height</span> = <span class="default-value">240</span>, </span><span class="parameter" id="embedNativeView-param-zIndex"><span class="type-annotation">int</span> <span class="parameter-name">zIndex</span> = <span class="default-value">0</span>, </span><span class="parameter" id="embedNativeView-param-opacity"><span class="type-annotation">double</span> <span class="parameter-name">opacity</span> = <span class="default-value">1.0</span>, </span><span class="parameter" id="embedNativeView-param-cornerRadius"><span class="type-annotation">double</span> <span class="parameter-name">cornerRadius</span> = <span class="default-value">0.0</span></span>})
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Embeds a same-layer native component (Task 10100 &amp; Compositing Engine).
+  
+
+</dd>
+
+        <dt id="evaluateJavascript" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/evaluateJavascript.html">evaluateJavascript</a></span><span class="signature">(<wbr><span class="parameter" id="evaluateJavascript-param-script"><span class="type-annotation">String</span> <span class="parameter-name">script</span></span>)
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter">String?</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Evaluates JavaScript code inside the active WebView.
+  
+
+</dd>
+
+        <dt id="executeAction" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/executeAction.html">executeAction</a></span><span class="signature">(<wbr><span class="parameter" id="executeAction-param-action"><span class="type-annotation">String</span> <span class="parameter-name">action</span>, [</span><span class="parameter" id="executeAction-param-payload"><span class="type-annotation">Map<span class="signature">&lt;<wbr><span class="type-parameter">String</span>, <span class="type-parameter">dynamic</span>&gt;</span></span> <span class="parameter-name">payload</span> = <span class="default-value">const {}</span></span>])
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Executes a native bridge action directly on the host platform engine (Android / iOS)
+or dynamic companion capability plugin via SPI (Task 10202).
+  
+
+</dd>
+
+        <dt id="expandBottomSheet" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/expandBottomSheet.html">expandBottomSheet</a></span><span class="signature">(<wbr>[<span class="parameter" id="expandBottomSheet-param-snapPoint"><span class="type-annotation">double?</span> <span class="parameter-name">snapPoint</span></span>])
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Expands the native bottom sheet container.
+  
+
+</dd>
+
+        <dt id="getApiCapabilities" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/getApiCapabilities.html">getApiCapabilities</a></span><span class="signature">(<wbr>{<span class="parameter" id="getApiCapabilities-param-category"><span class="type-annotation">String?</span> <span class="parameter-name">category</span></span>})
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Retrieves all supported API capabilities (Task 10102).
+  
+
+</dd>
+
+        <dt id="getApmMetrics" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/getApmMetrics.html">getApmMetrics</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Retrieves aggregated APM summary statistics (Task 10124).
+  
+
+</dd>
+
+        <dt id="getBytecodeStats" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/getBytecodeStats.html">getBytecodeStats</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Retrieves global V8 bytecode cache statistics (Task 10084).
+  
+
+</dd>
+
+        <dt id="getDeviceInfo" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/getDeviceInfo.html">getDeviceInfo</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatDeviceInfo-class.html">GoatDeviceInfo</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Retrieves comprehensive device telemetry and hardware specifications (Task 10203 / R3).
+  
+
+</dd>
+
+        <dt id="getInstallGuid" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/getInstallGuid.html">getInstallGuid</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter">String</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Retrieves stable, install-scoped anonymous GUID (Task 10203 / R2 &amp; R3).
+  
+
+</dd>
+
+        <dt id="getKeyboardInsets" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/getKeyboardInsets.html">getKeyboardInsets</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Gets current IME keyboard insets state (Task 10068).
+  
+
+</dd>
+
+        <dt id="getLocation" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/getLocation.html">getLocation</a></span><span class="signature">(<wbr>{<span class="parameter" id="getLocation-param-type"><span class="type-annotation">String</span> <span class="parameter-name">type</span> = <span class="default-value">&#39;wgs84&#39;</span>, </span><span class="parameter" id="getLocation-param-highAccuracy"><span class="type-annotation">bool</span> <span class="parameter-name">highAccuracy</span> = <span class="default-value">true</span></span>})
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Obtains current GPS/network location (Task 10107).
+  
+
+</dd>
+
+        <dt id="getNetworkType" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/getNetworkType.html">getNetworkType</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Obtains active network connectivity telemetry (Task 10110).
+  
+
+</dd>
+
+        <dt id="getPageStack" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/getPageStack.html">getPageStack</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Retrieves full multi-WebView page stack (Task 10091).
+  
+
+</dd>
+
+        <dt id="getPurchaseProducts" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/getPurchaseProducts.html">getPurchaseProducts</a></span><span class="signature">(<wbr>{<span class="parameter" id="getPurchaseProducts-param-productIds"><span class="type-annotation">List<span class="signature">&lt;<wbr><span class="type-parameter">String</span>&gt;</span>?</span> <span class="parameter-name">productIds</span></span>})
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Retrieves in-app purchase product catalog (Task 10121).
+  
+
+</dd>
+
+        <dt id="getPushToken" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/getPushToken.html">getPushToken</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Retrieves device push notification token (Task 10127).
+  
+
+</dd>
+
+        <dt id="getRenderLayerConfig" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/getRenderLayerConfig.html">getRenderLayerConfig</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Retrieves current render layer configuration (Task 10113).
+  
+
+</dd>
+
+        <dt id="getSafeAreaInsets" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/getSafeAreaInsets.html">getSafeAreaInsets</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatSafeAreaInsets-class.html">GoatSafeAreaInsets</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Retrieves safe area insets of the active WebView container.
+  
+
+</dd>
+
+        <dt id="getSandboxProcessStatus" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/getSandboxProcessStatus.html">getSandboxProcessStatus</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Retrieves isolated sub-process sandbox status (Task 10090).
+  
+
+</dd>
+
+        <dt id="getScreenBrightness" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/getScreenBrightness.html">getScreenBrightness</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter">double</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Retrieves current screen brightness (Task 10104).
+  
+
+</dd>
+
+        <dt id="getSetting" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/getSetting.html">getSetting</a></span><span class="signature">(<wbr>{<span class="parameter" id="getSetting-param-appId"><span class="type-annotation">String</span> <span class="parameter-name">appId</span> = <span class="default-value">&#39;default&#39;</span></span>})
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Retrieves authorization settings for a mini-app (Task 10101).
+  
+
+</dd>
+
+        <dt id="getStartupBenchmarkReport" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/getStartupBenchmarkReport.html">getStartupBenchmarkReport</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Retrieves startup Macrobenchmark SLA compliance report (Task 10085).
+  
+
+</dd>
+
+        <dt id="goBack" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/goBack.html">goBack</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter">bool</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Navigates back in web history if possible.
+  
+
+</dd>
+
+        <dt id="handleBackPress" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/handleBackPress.html">handleBackPress</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Handles hardware back press or gesture pop (Task 10094).
+  
+
+</dd>
+
+        <dt id="impactHaptic" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/impactHaptic.html">impactHaptic</a></span><span class="signature">(<wbr>[<span class="parameter" id="impactHaptic-param-style"><span class="type-annotation">String</span> <span class="parameter-name">style</span> = <span class="default-value">&#39;medium&#39;</span></span>])
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Triggers an impact haptic waveform.
+  
+
+</dd>
+
+        <dt id="isBytecodeWarm" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/isBytecodeWarm.html">isBytecodeWarm</a></span><span class="signature">(<wbr>{<span class="parameter" id="isBytecodeWarm-param-appId"><span class="type-annotation">String</span> <span class="parameter-name">appId</span> = <span class="default-value">&#39;default&#39;</span></span>})
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Checks if V8 bytecode cache is warm (Task 10084).
+  
+
+</dd>
+
+        <dt id="isSubpackageCached" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/isSubpackageCached.html">isSubpackageCached</a></span><span class="signature">(<wbr><span class="parameter" id="isSubpackageCached-param-subpackageName"><span class="type-annotation">String</span> <span class="parameter-name">subpackageName</span>, {</span><span class="parameter" id="isSubpackageCached-param-appId"><span class="type-annotation">String</span> <span class="parameter-name">appId</span> = <span class="default-value">&#39;default&#39;</span></span>})
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Checks if a subpackage is cached (Task 10092).
+  
+
+</dd>
+
+        <dt id="listGeofences" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/listGeofences.html">listGeofences</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Lists all active registered geofences (Task 10129).
+  
+
+</dd>
+
+        <dt id="loadSubpackage" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/loadSubpackage.html">loadSubpackage</a></span><span class="signature">(<wbr><span class="parameter" id="loadSubpackage-param-subpackageName"><span class="type-annotation">String</span> <span class="parameter-name">subpackageName</span>, {</span><span class="parameter" id="loadSubpackage-param-appId"><span class="type-annotation">String</span> <span class="parameter-name">appId</span> = <span class="default-value">&#39;default&#39;</span></span>})
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Dynamically loads a subpackage module (Task 10092).
+  
+
+</dd>
+
+        <dt id="makePhoneCall" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/makePhoneCall.html">makePhoneCall</a></span><span class="signature">(<wbr><span class="parameter" id="makePhoneCall-param-phoneNumber"><span class="type-annotation">String</span> <span class="parameter-name">phoneNumber</span></span>)
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Triggers system dialer intent for phone number (Task 10104).
+  
+
+</dd>
+
+        <dt id="navPop" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/navPop.html">navPop</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Pops the top page from the stack (Task 10091).
+  
+
+</dd>
+
+        <dt id="navPopToRoot" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/navPopToRoot.html">navPopToRoot</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Pops all pages to root (Task 10091).
+  
+
+</dd>
+
+        <dt id="navPush" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/navPush.html">navPush</a></span><span class="signature">(<wbr><span class="parameter" id="navPush-param-route"><span class="type-annotation">String</span> <span class="parameter-name">route</span>, {</span><span class="parameter" id="navPush-param-title"><span class="type-annotation">String</span> <span class="parameter-name">title</span> = <span class="default-value">&#39;&#39;</span></span>})
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Pushes a page onto the multi-WebView stack (Task 10091).
+  
+
+</dd>
+
+        <dt id="noSuchMethod" class="callable inherited">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation">Invocation</span> <span class="parameter-name">invocation</span></span>)
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Invoked when a nonexistent method or property is accessed.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="notificationHaptic" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/notificationHaptic.html">notificationHaptic</a></span><span class="signature">(<wbr>[<span class="parameter" id="notificationHaptic-param-type"><span class="type-annotation">String</span> <span class="parameter-name">type</span> = <span class="default-value">&#39;success&#39;</span></span>])
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Triggers a notification haptic waveform.
+  
+
+</dd>
+
+        <dt id="notifyAppServiceCrash" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/notifyAppServiceCrash.html">notifyAppServiceCrash</a></span><span class="signature">(<wbr>{<span class="parameter" id="notifyAppServiceCrash-param-appId"><span class="type-annotation">String</span> <span class="parameter-name">appId</span> = <span class="default-value">&#39;default&#39;</span>, </span><span class="parameter" id="notifyAppServiceCrash-param-error"><span>required</span> <span class="type-annotation">String</span> <span class="parameter-name">error</span>, </span><span class="parameter" id="notifyAppServiceCrash-param-details"><span class="type-annotation">Map<span class="signature">&lt;<wbr><span class="type-parameter">String</span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">details</span></span>})
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Dispatches an AppService Worker crash lifecycle signal (Task F9).
+  
+
+</dd>
+
+        <dt id="notifyAppServiceReady" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/notifyAppServiceReady.html">notifyAppServiceReady</a></span><span class="signature">(<wbr>{<span class="parameter" id="notifyAppServiceReady-param-appId"><span class="type-annotation">String</span> <span class="parameter-name">appId</span> = <span class="default-value">&#39;default&#39;</span>, </span><span class="parameter" id="notifyAppServiceReady-param-details"><span class="type-annotation">Map<span class="signature">&lt;<wbr><span class="type-parameter">String</span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">details</span></span>})
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Dispatches an AppService Worker ready lifecycle signal (Task F9).
+  
+
+</dd>
+
+        <dt id="notifyAppServiceTerminate" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/notifyAppServiceTerminate.html">notifyAppServiceTerminate</a></span><span class="signature">(<wbr>{<span class="parameter" id="notifyAppServiceTerminate-param-appId"><span class="type-annotation">String</span> <span class="parameter-name">appId</span> = <span class="default-value">&#39;default&#39;</span>, </span><span class="parameter" id="notifyAppServiceTerminate-param-details"><span class="type-annotation">Map<span class="signature">&lt;<wbr><span class="type-parameter">String</span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">details</span></span>})
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Dispatches an AppService Worker terminate lifecycle signal (Task F9).
+  
+
+</dd>
+
+        <dt id="openInvoice" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/openInvoice.html">openInvoice</a></span><span class="signature">(<wbr>{<span class="parameter" id="openInvoice-param-invoiceSlug"><span>required</span> <span class="type-annotation">String</span> <span class="parameter-name">invoiceSlug</span>, </span><span class="parameter" id="openInvoice-param-title"><span>required</span> <span class="type-annotation">String</span> <span class="parameter-name">title</span>, </span><span class="parameter" id="openInvoice-param-amount"><span>required</span> <span class="type-annotation">int</span> <span class="parameter-name">amount</span>, </span><span class="parameter" id="openInvoice-param-currency"><span class="type-annotation">String</span> <span class="parameter-name">currency</span> = <span class="default-value">&#39;USD&#39;</span></span>})
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Opens an in-app checkout invoice sheet (Task 10121).
+  
+
+</dd>
+
+        <dt id="openLocation" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/openLocation.html">openLocation</a></span><span class="signature">(<wbr>{<span class="parameter" id="openLocation-param-latitude"><span>required</span> <span class="type-annotation">double</span> <span class="parameter-name">latitude</span>, </span><span class="parameter" id="openLocation-param-longitude"><span>required</span> <span class="type-annotation">double</span> <span class="parameter-name">longitude</span>, </span><span class="parameter" id="openLocation-param-name"><span class="type-annotation">String</span> <span class="parameter-name">name</span> = <span class="default-value">&#39;&#39;</span>, </span><span class="parameter" id="openLocation-param-address"><span class="type-annotation">String</span> <span class="parameter-name">address</span> = <span class="default-value">&#39;&#39;</span>, </span><span class="parameter" id="openLocation-param-scale"><span class="type-annotation">double</span> <span class="parameter-name">scale</span> = <span class="default-value">18.0</span></span>})
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Launches native map turn-by-turn navigation or POI viewing (Task 10107).
+  
+
+</dd>
+
+        <dt id="openMiniApp" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/openMiniApp.html">openMiniApp</a></span><span class="signature">(<wbr>{<span class="parameter" id="openMiniApp-param-targetAppId"><span>required</span> <span class="type-annotation">String</span> <span class="parameter-name">targetAppId</span>, </span><span class="parameter" id="openMiniApp-param-presentation"><span class="type-annotation">String</span> <span class="parameter-name">presentation</span> = <span class="default-value">&#39;WINDOWED&#39;</span>, </span><span class="parameter" id="openMiniApp-param-params"><span class="type-annotation">Map<span class="signature">&lt;<wbr><span class="type-parameter">String</span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">params</span>, </span><span class="parameter" id="openMiniApp-param-windowConfig"><span class="type-annotation">Map<span class="signature">&lt;<wbr><span class="type-parameter">String</span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">windowConfig</span>, </span><span class="parameter" id="openMiniApp-param-jsApiAlias"><span class="type-annotation">Map<span class="signature">&lt;<wbr><span class="type-parameter">String</span>, <span class="type-parameter">String</span>&gt;</span>?</span> <span class="parameter-name">jsApiAlias</span></span>})
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Opens a cross-mini-app session with optional window configuration and JSAPI aliasing (Task 10201).
+  
+
+</dd>
+
+        <dt id="openSetting" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/openSetting.html">openSetting</a></span><span class="signature">(<wbr>{<span class="parameter" id="openSetting-param-appId"><span class="type-annotation">String</span> <span class="parameter-name">appId</span> = <span class="default-value">&#39;default&#39;</span></span>})
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Opens authorization settings modal (Task 10101).
+  
+
+</dd>
+
+        <dt id="pause" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/pause.html">pause</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter">bool</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Pauses timers and JS execution for background RAM saving (Pillar 5).
+  
+
+</dd>
+
+        <dt id="pauseAudio" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/pauseAudio.html">pauseAudio</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Pauses background audio playback (Task 10106).
+  
+
+</dd>
+
+        <dt id="playAudio" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/playAudio.html">playAudio</a></span><span class="signature">(<wbr>{<span class="parameter" id="playAudio-param-src"><span>required</span> <span class="type-annotation">String</span> <span class="parameter-name">src</span>, </span><span class="parameter" id="playAudio-param-title"><span class="type-annotation">String</span> <span class="parameter-name">title</span> = <span class="default-value">&#39;&#39;</span>, </span><span class="parameter" id="playAudio-param-singer"><span class="type-annotation">String</span> <span class="parameter-name">singer</span> = <span class="default-value">&#39;&#39;</span></span>})
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Starts background audio playback with lock-screen media notification (Task 10106).
+  
+
+</dd>
+
+        <dt id="postBinaryMessage" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/postBinaryMessage.html">postBinaryMessage</a></span><span class="signature">(<wbr><span class="parameter" id="postBinaryMessage-param-portId"><span class="type-annotation">String</span> <span class="parameter-name">portId</span>, </span><span class="parameter" id="postBinaryMessage-param-dataBase64"><span class="type-annotation">String</span> <span class="parameter-name">dataBase64</span></span>)
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Posts a Base64-encoded binary message packet (Task 10130).
+  
+
+</dd>
+
+        <dt id="precompileBytecode" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/precompileBytecode.html">precompileBytecode</a></span><span class="signature">(<wbr><span class="parameter" id="precompileBytecode-param-bundlePath"><span class="type-annotation">String</span> <span class="parameter-name">bundlePath</span>, {</span><span class="parameter" id="precompileBytecode-param-appId"><span class="type-annotation">String</span> <span class="parameter-name">appId</span> = <span class="default-value">&#39;default&#39;</span></span>})
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Precompiles JavaScript bundle to V8 bytecode cache (Task 10084).
+  
+
+</dd>
+
+        <dt id="predictiveBackCancel" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/predictiveBackCancel.html">predictiveBackCancel</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Cancels predictive back navigation (Task 10126).
+  
+
+</dd>
+
+        <dt id="predictiveBackInvoke" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/predictiveBackInvoke.html">predictiveBackInvoke</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Commits predictive back navigation (Task 10126).
+  
+
+</dd>
+
+        <dt id="predictiveBackProgress" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/predictiveBackProgress.html">predictiveBackProgress</a></span><span class="signature">(<wbr><span class="parameter" id="predictiveBackProgress-param-progress"><span class="type-annotation">double</span> <span class="parameter-name">progress</span>, {</span><span class="parameter" id="predictiveBackProgress-param-touchX"><span class="type-annotation">double</span> <span class="parameter-name">touchX</span> = <span class="default-value">0</span>, </span><span class="parameter" id="predictiveBackProgress-param-touchY"><span class="type-annotation">double</span> <span class="parameter-name">touchY</span> = <span class="default-value">0</span>, </span><span class="parameter" id="predictiveBackProgress-param-swipeEdge"><span class="type-annotation">int</span> <span class="parameter-name">swipeEdge</span> = <span class="default-value">0</span></span>})
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Updates predictive back gesture tracking progress (Task 10126).
+  
+
+</dd>
+
+        <dt id="previewImage" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/previewImage.html">previewImage</a></span><span class="signature">(<wbr>{<span class="parameter" id="previewImage-param-urls"><span>required</span> <span class="type-annotation">List<span class="signature">&lt;<wbr><span class="type-parameter">String</span>&gt;</span></span> <span class="parameter-name">urls</span>, </span><span class="parameter" id="previewImage-param-current"><span class="type-annotation">String</span> <span class="parameter-name">current</span> = <span class="default-value">&#39;&#39;</span></span>})
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Opens gesture-zoomable fullscreen image previewer (Task 10106).
+  
+
+</dd>
+
+        <dt id="prewarm" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/prewarm.html">prewarm</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter">bool</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Prewarms the WebView instance engine.
+  
+
+</dd>
+
+        <dt id="pushHistoryState" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/pushHistoryState.html">pushHistoryState</a></span><span class="signature">(<wbr><span class="parameter" id="pushHistoryState-param-route"><span class="type-annotation">String</span> <span class="parameter-name">route</span></span>)
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Pushes a virtual route to history stack (Task 10094).
+  
+
+</dd>
+
+        <dt id="readBinaryMessage" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/readBinaryMessage.html">readBinaryMessage</a></span><span class="signature">(<wbr><span class="parameter" id="readBinaryMessage-param-portId"><span class="type-annotation">String</span> <span class="parameter-name">portId</span></span>)
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Reads a binary message packet from port (Task 10130).
+  
+
+</dd>
+
+        <dt id="readBleCharacteristic" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/readBleCharacteristic.html">readBleCharacteristic</a></span><span class="signature">(<wbr><span class="parameter" id="readBleCharacteristic-param-deviceId"><span class="type-annotation">String</span> <span class="parameter-name">deviceId</span>, </span><span class="parameter" id="readBleCharacteristic-param-characteristicUuid"><span class="type-annotation">String</span> <span class="parameter-name">characteristicUuid</span></span>)
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Reads a BLE GATT characteristic (Task 10108).
+  
+
+</dd>
+
+        <dt id="readNfcTag" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/readNfcTag.html">readNfcTag</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Reads an NFC NDEF tag message (Task 10108).
+  
+
+</dd>
+
+        <dt id="reload" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/reload.html">reload</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Reloads current WebView page.
+  
+
+</dd>
+
+        <dt id="removeNativeView" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/removeNativeView.html">removeNativeView</a></span><span class="signature">(<wbr><span class="parameter" id="removeNativeView-param-componentId"><span class="type-annotation">String</span> <span class="parameter-name">componentId</span></span>)
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Removes an embedded same-layer native component (Task 10100).
+  
+
+</dd>
+
+        <dt id="reportMetrics" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/reportMetrics.html">reportMetrics</a></span><span class="signature">(<wbr>{<span class="parameter" id="reportMetrics-param-fcpMs"><span class="type-annotation">double?</span> <span class="parameter-name">fcpMs</span>, </span><span class="parameter" id="reportMetrics-param-lcpMs"><span class="type-annotation">double?</span> <span class="parameter-name">lcpMs</span>, </span><span class="parameter" id="reportMetrics-param-inpMs"><span class="type-annotation">double?</span> <span class="parameter-name">inpMs</span>, </span><span class="parameter" id="reportMetrics-param-bridgeLatencyAvgMs"><span class="type-annotation">double?</span> <span class="parameter-name">bridgeLatencyAvgMs</span></span>})
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Reports Core Web Vitals and bridge latency metrics (Task 10124).
+  
+
+</dd>
+
+        <dt id="requestPermission" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/requestPermission.html">requestPermission</a></span><span class="signature">(<wbr><span class="parameter" id="requestPermission-param-scope"><span class="type-annotation">String</span> <span class="parameter-name">scope</span>, {</span><span class="parameter" id="requestPermission-param-appId"><span class="type-annotation">String</span> <span class="parameter-name">appId</span> = <span class="default-value">&#39;default&#39;</span></span>})
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Requests authorization for a permission scope (Task 10101).
+  
+
+</dd>
+
+        <dt id="requestPushPermission" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/requestPushPermission.html">requestPushPermission</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Requests push notification permission (Task 10127).
+  
+
+</dd>
+
+        <dt id="restorePurchases" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/restorePurchases.html">restorePurchases</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Restores active in-app purchases (Task 10121).
+  
+
+</dd>
+
+        <dt id="resume" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/resume.html">resume</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter">bool</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Resumes timers and JS execution when screen is active.
+  
+
+</dd>
+
+        <dt id="scanCode" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/scanCode.html">scanCode</a></span><span class="signature">(<wbr>{<span class="parameter" id="scanCode-param-scanType"><span class="type-annotation">List<span class="signature">&lt;<wbr><span class="type-parameter">String</span>&gt;</span></span> <span class="parameter-name">scanType</span> = <span class="default-value">const [&#39;QR_CODE&#39;]</span></span>})
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Launches native code scanner (Task 10103).
+  
+
+</dd>
+
+        <dt id="secureStorageClear" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/secureStorageClear.html">secureStorageClear</a></span><span class="signature">(<wbr>{<span class="parameter" id="secureStorageClear-param-appId"><span class="type-annotation">String?</span> <span class="parameter-name">appId</span></span>})
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Clears all AES-256-GCM hardware encrypted key-value pairs for the tenant (Task 10123).
+  
+
+</dd>
+
+        <dt id="secureStorageGet" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/secureStorageGet.html">secureStorageGet</a></span><span class="signature">(<wbr><span class="parameter" id="secureStorageGet-param-key"><span class="type-annotation">String</span> <span class="parameter-name">key</span>, {</span><span class="parameter" id="secureStorageGet-param-appId"><span class="type-annotation">String?</span> <span class="parameter-name">appId</span></span>})
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Retrieves an AES-256-GCM hardware encrypted secure key-value pair (Task 10123).
+  
+
+</dd>
+
+        <dt id="secureStorageRemove" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/secureStorageRemove.html">secureStorageRemove</a></span><span class="signature">(<wbr><span class="parameter" id="secureStorageRemove-param-key"><span class="type-annotation">String</span> <span class="parameter-name">key</span>, {</span><span class="parameter" id="secureStorageRemove-param-appId"><span class="type-annotation">String?</span> <span class="parameter-name">appId</span></span>})
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Removes an AES-256-GCM hardware encrypted secure key-value pair (Task 10123).
+  
+
+</dd>
+
+        <dt id="secureStorageSet" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/secureStorageSet.html">secureStorageSet</a></span><span class="signature">(<wbr><span class="parameter" id="secureStorageSet-param-key"><span class="type-annotation">String</span> <span class="parameter-name">key</span>, </span><span class="parameter" id="secureStorageSet-param-value"><span class="type-annotation">String</span> <span class="parameter-name">value</span>, {</span><span class="parameter" id="secureStorageSet-param-appId"><span class="type-annotation">String?</span> <span class="parameter-name">appId</span></span>})
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Sets an AES-256-GCM hardware encrypted secure key-value pair (Task 10123).
+  
+
+</dd>
+
+        <dt id="seekAudio" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/seekAudio.html">seekAudio</a></span><span class="signature">(<wbr><span class="parameter" id="seekAudio-param-position"><span class="type-annotation">double</span> <span class="parameter-name">position</span></span>)
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Seeks audio position in seconds (Task 10106).
+  
+
+</dd>
+
+        <dt id="selectionHaptic" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/selectionHaptic.html">selectionHaptic</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Triggers a selection click haptic waveform.
+  
+
+</dd>
+
+        <dt id="sendSms" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/sendSms.html">sendSms</a></span><span class="signature">(<wbr><span class="parameter" id="sendSms-param-phoneNumber"><span class="type-annotation">String</span> <span class="parameter-name">phoneNumber</span>, [</span><span class="parameter" id="sendSms-param-body"><span class="type-annotation">String</span> <span class="parameter-name">body</span> = <span class="default-value">&#39;&#39;</span></span>])
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Triggers native SMS messaging composer (Task 10104).
+  
+
+</dd>
+
+        <dt id="setKeepScreenOn" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/setKeepScreenOn.html">setKeepScreenOn</a></span><span class="signature">(<wbr><span class="parameter" id="setKeepScreenOn-param-keepScreenOn"><span class="type-annotation">bool</span> <span class="parameter-name">keepScreenOn</span></span>)
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Toggles whether screen stays permanently awake (Task 10104).
+  
+
+</dd>
+
+        <dt id="setKeyboardInsets" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/setKeyboardInsets.html">setKeyboardInsets</a></span><span class="signature">(<wbr><span class="parameter" id="setKeyboardInsets-param-heightPx"><span class="type-annotation">int</span> <span class="parameter-name">heightPx</span>, {</span><span class="parameter" id="setKeyboardInsets-param-durationMs"><span class="type-annotation">int</span> <span class="parameter-name">durationMs</span> = <span class="default-value">250</span></span>})
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Sets or updates IME keyboard insets (Task 10068).
+  
+
+</dd>
+
+        <dt id="setNavBarButtons" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/setNavBarButtons.html">setNavBarButtons</a></span><span class="signature">(<wbr>{<span class="parameter" id="setNavBarButtons-param-left"><span class="type-annotation">String?</span> <span class="parameter-name">left</span>, </span><span class="parameter" id="setNavBarButtons-param-right"><span class="type-annotation">List<span class="signature">&lt;<wbr><span class="type-parameter">String</span>&gt;</span>?</span> <span class="parameter-name">right</span></span>})
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Sets the native navigation bar buttons.
+  
+
+</dd>
+
+        <dt id="setNavBarColor" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/setNavBarColor.html">setNavBarColor</a></span><span class="signature">(<wbr>{<span class="parameter" id="setNavBarColor-param-backgroundColor"><span>required</span> <span class="type-annotation">String</span> <span class="parameter-name">backgroundColor</span>, </span><span class="parameter" id="setNavBarColor-param-textColor"><span class="type-annotation">String?</span> <span class="parameter-name">textColor</span>, </span><span class="parameter" id="setNavBarColor-param-isDark"><span class="type-annotation">bool</span> <span class="parameter-name">isDark</span> = <span class="default-value">false</span></span>})
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Sets the native navigation bar background and text color.
+  
+
+</dd>
+
+        <dt id="setNavBarProgress" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/setNavBarProgress.html">setNavBarProgress</a></span><span class="signature">(<wbr>{<span class="parameter" id="setNavBarProgress-param-visible"><span>required</span> <span class="type-annotation">bool</span> <span class="parameter-name">visible</span>, </span><span class="parameter" id="setNavBarProgress-param-progress"><span class="type-annotation">int?</span> <span class="parameter-name">progress</span></span>})
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Sets the native navigation bar indeterminate progress indicator.
+  
+
+</dd>
+
+        <dt id="setNavBarTitle" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/setNavBarTitle.html">setNavBarTitle</a></span><span class="signature">(<wbr><span class="parameter" id="setNavBarTitle-param-title"><span class="type-annotation">String</span> <span class="parameter-name">title</span>, {</span><span class="parameter" id="setNavBarTitle-param-subtitle"><span class="type-annotation">String?</span> <span class="parameter-name">subtitle</span></span>})
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Sets the native navigation bar title and subtitle.
+  
+
+</dd>
+
+        <dt id="setPopupRoutingPolicy" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/setPopupRoutingPolicy.html">setPopupRoutingPolicy</a></span><span class="signature">(<wbr><span class="parameter" id="setPopupRoutingPolicy-param-policy"><span class="type-annotation"><a href="../goat_webview/GoatPopupRoutingPolicy.html">GoatPopupRoutingPolicy</a></span> <span class="parameter-name">policy</span></span>)
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Configures default popup window routing policy dynamically (Task 10183 / R2).
+  
+
+</dd>
+
+        <dt id="setPushBadge" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/setPushBadge.html">setPushBadge</a></span><span class="signature">(<wbr><span class="parameter" id="setPushBadge-param-count"><span class="type-annotation">int</span> <span class="parameter-name">count</span></span>)
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Updates app icon badge count (Task 10127).
+  
+
+</dd>
+
+        <dt id="setScreenBrightness" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/setScreenBrightness.html">setScreenBrightness</a></span><span class="signature">(<wbr><span class="parameter" id="setScreenBrightness-param-value"><span class="type-annotation">double</span> <span class="parameter-name">value</span></span>)
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Sets screen brightness (0.0 to 1.0) (Task 10104).
+  
+
+</dd>
+
+        <dt id="setSheetSnapPoints" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/setSheetSnapPoints.html">setSheetSnapPoints</a></span><span class="signature">(<wbr><span class="parameter" id="setSheetSnapPoints-param-snapPoints"><span class="type-annotation">List<span class="signature">&lt;<wbr><span class="type-parameter">double</span>&gt;</span></span> <span class="parameter-name">snapPoints</span>, {</span><span class="parameter" id="setSheetSnapPoints-param-initialSnap"><span class="type-annotation">double</span> <span class="parameter-name">initialSnap</span> = <span class="default-value">0.5</span>, </span><span class="parameter" id="setSheetSnapPoints-param-isDismissible"><span class="type-annotation">bool</span> <span class="parameter-name">isDismissible</span> = <span class="default-value">true</span></span>})
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Sets snap points configuration for the native bottom sheet.
+  
+
+</dd>
+
+        <dt id="setTheme" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/setTheme.html">setTheme</a></span><span class="signature">(<wbr><span class="parameter" id="setTheme-param-isDark"><span class="type-annotation">bool</span> <span class="parameter-name">isDark</span></span>)
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter">bool</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Sets dark/light mode theme in WebView and synchronization settings.
+  
+
+</dd>
+
+        <dt id="shareSheet" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/shareSheet.html">shareSheet</a></span><span class="signature">(<wbr>{<span class="parameter" id="shareSheet-param-title"><span class="type-annotation">String</span> <span class="parameter-name">title</span> = <span class="default-value">&#39;&#39;</span>, </span><span class="parameter" id="shareSheet-param-text"><span class="type-annotation">String</span> <span class="parameter-name">text</span> = <span class="default-value">&#39;&#39;</span>, </span><span class="parameter" id="shareSheet-param-url"><span class="type-annotation">String</span> <span class="parameter-name">url</span> = <span class="default-value">&#39;&#39;</span>, </span><span class="parameter" id="shareSheet-param-mediaPath"><span class="type-annotation">String</span> <span class="parameter-name">mediaPath</span> = <span class="default-value">&#39;&#39;</span></span>})
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Launches native system share sheet (Task 10128).
+  
+
+</dd>
+
+        <dt id="shareToStory" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/shareToStory.html">shareToStory</a></span><span class="signature">(<wbr><span class="parameter" id="shareToStory-param-mediaPath"><span class="type-annotation">String</span> <span class="parameter-name">mediaPath</span></span>)
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Shares media to social story (Task 10128).
+  
+
+</dd>
+
+        <dt id="shouldParentInterceptTouch" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/shouldParentInterceptTouch.html">shouldParentInterceptTouch</a></span><span class="signature">(<wbr><span class="parameter" id="shouldParentInterceptTouch-param-deltaY"><span class="type-annotation">double</span> <span class="parameter-name">deltaY</span>, {</span><span class="parameter" id="shouldParentInterceptTouch-param-isOverscrollAllowed"><span class="type-annotation">bool</span> <span class="parameter-name">isOverscrollAllowed</span> = <span class="default-value">false</span></span>})
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Checks if parent container should intercept touches (Task 10079).
+  
+
+</dd>
+
+        <dt id="showActionSheet" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/showActionSheet.html">showActionSheet</a></span><span class="signature">(<wbr>{<span class="parameter" id="showActionSheet-param-itemList"><span>required</span> <span class="type-annotation">List<span class="signature">&lt;<wbr><span class="type-parameter">String</span>&gt;</span></span> <span class="parameter-name">itemList</span></span>})
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Displays a native selectable bottom action sheet (Task 10109).
+  
+
+</dd>
+
+        <dt id="showModal" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/showModal.html">showModal</a></span><span class="signature">(<wbr>{<span class="parameter" id="showModal-param-title"><span>required</span> <span class="type-annotation">String</span> <span class="parameter-name">title</span>, </span><span class="parameter" id="showModal-param-content"><span>required</span> <span class="type-annotation">String</span> <span class="parameter-name">content</span>, </span><span class="parameter" id="showModal-param-showCancel"><span class="type-annotation">bool</span> <span class="parameter-name">showCancel</span> = <span class="default-value">true</span>, </span><span class="parameter" id="showModal-param-confirmText"><span class="type-annotation">String</span> <span class="parameter-name">confirmText</span> = <span class="default-value">&#39;OK&#39;</span>, </span><span class="parameter" id="showModal-param-cancelText"><span class="type-annotation">String</span> <span class="parameter-name">cancelText</span> = <span class="default-value">&#39;Cancel&#39;</span></span>})
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Displays a native modal confirmation dialog (Task 10109).
+  
+
+</dd>
+
+        <dt id="showPushNotification" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/showPushNotification.html">showPushNotification</a></span><span class="signature">(<wbr>{<span class="parameter" id="showPushNotification-param-title"><span>required</span> <span class="type-annotation">String</span> <span class="parameter-name">title</span>, </span><span class="parameter" id="showPushNotification-param-content"><span>required</span> <span class="type-annotation">String</span> <span class="parameter-name">content</span>, </span><span class="parameter" id="showPushNotification-param-channelId"><span class="type-annotation">String?</span> <span class="parameter-name">channelId</span></span>})
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Displays local push notification banner (Task 10127).
+  
+
+</dd>
+
+        <dt id="showToast" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/showToast.html">showToast</a></span><span class="signature">(<wbr>{<span class="parameter" id="showToast-param-title"><span>required</span> <span class="type-annotation">String</span> <span class="parameter-name">title</span>, </span><span class="parameter" id="showToast-param-icon"><span class="type-annotation">String</span> <span class="parameter-name">icon</span> = <span class="default-value">&#39;none&#39;</span>, </span><span class="parameter" id="showToast-param-duration"><span class="type-annotation">int</span> <span class="parameter-name">duration</span> = <span class="default-value">1500</span></span>})
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Triggers a native HUD toast notification (Task 10109).
+  
+
+</dd>
+
+        <dt id="startBleScan" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/startBleScan.html">startBleScan</a></span><span class="signature">(<wbr>{<span class="parameter" id="startBleScan-param-timeoutMs"><span class="type-annotation">int</span> <span class="parameter-name">timeoutMs</span> = <span class="default-value">10000</span></span>})
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Starts Bluetooth Low Energy scanning (Task 10108).
+  
+
+</dd>
+
+        <dt id="startGeofence" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/startGeofence.html">startGeofence</a></span><span class="signature">(<wbr><span class="parameter" id="startGeofence-param-geofenceId"><span class="type-annotation">String</span> <span class="parameter-name">geofenceId</span>, </span><span class="parameter" id="startGeofence-param-latitude"><span class="type-annotation">double</span> <span class="parameter-name">latitude</span>, </span><span class="parameter" id="startGeofence-param-longitude"><span class="type-annotation">double</span> <span class="parameter-name">longitude</span>, {</span><span class="parameter" id="startGeofence-param-radiusMeters"><span class="type-annotation">double</span> <span class="parameter-name">radiusMeters</span> = <span class="default-value">100.0</span>, </span><span class="parameter" id="startGeofence-param-transitionType"><span class="type-annotation">String</span> <span class="parameter-name">transitionType</span> = <span class="default-value">&#39;BOTH&#39;</span></span>})
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Starts a background geofence (Task 10129).
+  
+
+</dd>
+
+        <dt id="stopAudio" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/stopAudio.html">stopAudio</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Stops background audio playback (Task 10106).
+  
+
+</dd>
+
+        <dt id="stopBleScan" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/stopBleScan.html">stopBleScan</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Stops Bluetooth Low Energy scanning (Task 10108).
+  
+
+</dd>
+
+        <dt id="stopGeofence" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/stopGeofence.html">stopGeofence</a></span><span class="signature">(<wbr><span class="parameter" id="stopGeofence-param-geofenceId"><span class="type-annotation">String</span> <span class="parameter-name">geofenceId</span></span>)
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Stops a background geofence (Task 10129).
+  
+
+</dd>
+
+        <dt id="syncThemeBackground" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/syncThemeBackground.html">syncThemeBackground</a></span><span class="signature">(<wbr><span class="parameter" id="syncThemeBackground-param-isDark"><span class="type-annotation">bool</span> <span class="parameter-name">isDark</span></span>)
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Synchronizes theme background to avoid white flash (Task 10113).
+  
+
+</dd>
+
+        <dt id="toString" class="callable inherited">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/toString.html">toString</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; String</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  A string representation of this object.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="triggerHapticFeedback" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/triggerHapticFeedback.html">triggerHapticFeedback</a></span><span class="signature">(<wbr>{<span class="parameter" id="triggerHapticFeedback-param-type"><span>required</span> <span class="type-annotation">String</span> <span class="parameter-name">type</span>, </span><span class="parameter" id="triggerHapticFeedback-param-style"><span class="type-annotation">String?</span> <span class="parameter-name">style</span>, </span><span class="parameter" id="triggerHapticFeedback-param-notificationType"><span class="type-annotation">String?</span> <span class="parameter-name">notificationType</span></span>})
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Triggers a native haptic feedback vibration.
+  
+
+</dd>
+
+        <dt id="updateGestureScrollPosition" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/updateGestureScrollPosition.html">updateGestureScrollPosition</a></span><span class="signature">(<wbr><span class="parameter" id="updateGestureScrollPosition-param-scrollY"><span class="type-annotation">int</span> <span class="parameter-name">scrollY</span>, </span><span class="parameter" id="updateGestureScrollPosition-param-maxScrollY"><span class="type-annotation">int</span> <span class="parameter-name">maxScrollY</span>, {</span><span class="parameter" id="updateGestureScrollPosition-param-direction"><span class="type-annotation">String</span> <span class="parameter-name">direction</span> = <span class="default-value">&#39;VERTICAL&#39;</span></span>})
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Updates scroll offset &amp; boundaries for gesture conflict resolution (Task 10079).
+  
+
+</dd>
+
+        <dt id="updateNativeViewBounds" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/updateNativeViewBounds.html">updateNativeViewBounds</a></span><span class="signature">(<wbr><span class="parameter" id="updateNativeViewBounds-param-componentId"><span class="type-annotation">String</span> <span class="parameter-name">componentId</span>, {</span><span class="parameter" id="updateNativeViewBounds-param-x"><span class="type-annotation">double</span> <span class="parameter-name">x</span> = <span class="default-value">0</span>, </span><span class="parameter" id="updateNativeViewBounds-param-y"><span class="type-annotation">double</span> <span class="parameter-name">y</span> = <span class="default-value">0</span>, </span><span class="parameter" id="updateNativeViewBounds-param-width"><span class="type-annotation">double</span> <span class="parameter-name">width</span> = <span class="default-value">360</span>, </span><span class="parameter" id="updateNativeViewBounds-param-height"><span class="type-annotation">double</span> <span class="parameter-name">height</span> = <span class="default-value">240</span>, </span><span class="parameter" id="updateNativeViewBounds-param-zIndex"><span class="type-annotation">int</span> <span class="parameter-name">zIndex</span> = <span class="default-value">0</span>, </span><span class="parameter" id="updateNativeViewBounds-param-opacity"><span class="type-annotation">double</span> <span class="parameter-name">opacity</span> = <span class="default-value">1.0</span>, </span><span class="parameter" id="updateNativeViewBounds-param-cornerRadius"><span class="type-annotation">double</span> <span class="parameter-name">cornerRadius</span> = <span class="default-value">0.0</span>, </span><span class="parameter" id="updateNativeViewBounds-param-isVisible"><span class="type-annotation">bool</span> <span class="parameter-name">isVisible</span> = <span class="default-value">true</span></span>})
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Updates bounds and clipping for an embedded same-layer native component.
+  
+
+</dd>
+
+        <dt id="uploadFile" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/uploadFile.html">uploadFile</a></span><span class="signature">(<wbr>{<span class="parameter" id="uploadFile-param-url"><span>required</span> <span class="type-annotation">String</span> <span class="parameter-name">url</span>, </span><span class="parameter" id="uploadFile-param-filePath"><span>required</span> <span class="type-annotation">String</span> <span class="parameter-name">filePath</span>, </span><span class="parameter" id="uploadFile-param-name"><span class="type-annotation">String</span> <span class="parameter-name">name</span> = <span class="default-value">&#39;file&#39;</span>, </span><span class="parameter" id="uploadFile-param-formData"><span class="type-annotation">Map<span class="signature">&lt;<wbr><span class="type-parameter">String</span>, <span class="type-parameter">String</span>&gt;</span>?</span> <span class="parameter-name">formData</span></span>})
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Uploads local file in background (Task 10110).
+  
+
+</dd>
+
+        <dt id="validateWasmSupport" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/validateWasmSupport.html">validateWasmSupport</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Validates WebAssembly SIMD and WebWorker capabilities (Task 10132).
+  
+
+</dd>
+
+        <dt id="verifySslPin" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/verifySslPin.html">verifySslPin</a></span><span class="signature">(<wbr><span class="parameter" id="verifySslPin-param-hostname"><span class="type-annotation">String</span> <span class="parameter-name">hostname</span>, </span><span class="parameter" id="verifySslPin-param-pinSha256"><span class="type-annotation">String</span> <span class="parameter-name">pinSha256</span></span>)
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Verifies an SSL public key SHA-256 pin (Task 10131).
+  
+
+</dd>
+
+        <dt id="web3ConnectWallet" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/web3ConnectWallet.html">web3ConnectWallet</a></span><span class="signature">(<wbr>{<span class="parameter" id="web3ConnectWallet-param-network"><span class="type-annotation">String</span> <span class="parameter-name">network</span> = <span class="default-value">&#39;ton-mainnet&#39;</span>, </span><span class="parameter" id="web3ConnectWallet-param-manifestUrl"><span class="type-annotation">String?</span> <span class="parameter-name">manifestUrl</span></span>})
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Connects to a Web3 crypto wallet (Task 10120).
+  
+
+</dd>
+
+        <dt id="web3Disconnect" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/web3Disconnect.html">web3Disconnect</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Disconnects active Web3 wallet session (Task 10120).
+  
+
+</dd>
+
+        <dt id="web3GetAccount" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/web3GetAccount.html">web3GetAccount</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Retrieves active Web3 account session (Task 10120).
+  
+
+</dd>
+
+        <dt id="web3SignTransaction" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/web3SignTransaction.html">web3SignTransaction</a></span><span class="signature">(<wbr>{<span class="parameter" id="web3SignTransaction-param-to"><span>required</span> <span class="type-annotation">String</span> <span class="parameter-name">to</span>, </span><span class="parameter" id="web3SignTransaction-param-amount"><span>required</span> <span class="type-annotation">String</span> <span class="parameter-name">amount</span>, </span><span class="parameter" id="web3SignTransaction-param-payload"><span class="type-annotation">String?</span> <span class="parameter-name">payload</span></span>})
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Signs a crypto transaction with native gas confirmation (Task 10120).
+  
+
+</dd>
+
+        <dt id="writeBleCharacteristic" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/writeBleCharacteristic.html">writeBleCharacteristic</a></span><span class="signature">(<wbr><span class="parameter" id="writeBleCharacteristic-param-deviceId"><span class="type-annotation">String</span> <span class="parameter-name">deviceId</span>, </span><span class="parameter" id="writeBleCharacteristic-param-characteristicUuid"><span class="type-annotation">String</span> <span class="parameter-name">characteristicUuid</span>, </span><span class="parameter" id="writeBleCharacteristic-param-value"><span class="type-annotation">String</span> <span class="parameter-name">value</span></span>)
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Writes a BLE GATT characteristic (Task 10108).
+  
+
+</dd>
+
+        <dt id="writeNfcTag" class="callable">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/writeNfcTag.html">writeNfcTag</a></span><span class="signature">(<wbr><span class="parameter" id="writeNfcTag-param-payload"><span class="type-annotation">String</span> <span class="parameter-name">payload</span></span>)
+    <span class="returntype parameter">&#8594; Future<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Writes an NDEF record to an NFC tag (Task 10108).
+  
+
+</dd>
+
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor inherited"
+      id="operators">
+    <h2>Operators</h2>
+    <dl class="callables">
+        <dt id="operator ==" class="callable inherited">
+  <span class="name"><a href="../goat_webview/GoatWebViewController/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation">Object</span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; bool</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  The equality operator.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+    
+    
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">goat_webview</a></li>
+    <li><a href="../goat_webview/">goat_webview</a></li>
+    <li class="self-crumb">GoatWebViewController class</li>
+</ol>
+
+    <h5>goat_webview library</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    goat_webview
+      1.0.0
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

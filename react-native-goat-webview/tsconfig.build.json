@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "es2020",
+    "module": "commonjs",
+    "lib": ["es2022", "dom"],
+    "jsx": "react",
+    "declaration": true,
+    "declarationDir": "lib/typescript",
+    "rootDir": "src",
+    "outDir": "lib/commonjs",
+    "strict": true,
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["src/__tests__/**/*", "src/jest.d.ts"]
+}

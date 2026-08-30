@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "lib": ["es2022", "dom"],
+    "jsx": "react",
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "declarationDir": "lib/typescript",
+    "rootDir": "src",
+    "strict": true,
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["src/__tests__/**/*", "src/jest.d.ts"]
+}

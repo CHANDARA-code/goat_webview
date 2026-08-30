@@ -1,0 +1,103 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-bg-editor: #1e1e1e;
+    --color-bg-sidebar: #252526;
+    --color-bg-activity: #333333;
+    --color-bg-panel: #1e1e1e;
+    --color-border: #3c3c3c;
+    --color-tab-active: #1e1e1e;
+    --color-tab-inactive: #2d2d2d;
+    --color-tab-text: #cccccc;
+    --color-tab-active-text: #ffffff;
+    --color-accent: #007acc;
+    --color-accent-hover: #0062a3;
+  }
+
+  .light {
+    --color-bg-editor: #ffffff;
+    --color-bg-sidebar: #f3f3f3;
+    --color-bg-activity: #2c2c2c;
+    --color-bg-panel: #f8f8f8;
+    --color-border: #e5e5e5;
+    --color-tab-active: #ffffff;
+    --color-tab-inactive: #ececec;
+    --color-tab-text: #616161;
+    --color-tab-active-text: #333333;
+    --color-accent: #007acc;
+    --color-accent-hover: #0062a3;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    user-select: none;
+  }
+}
+
+/* Custom Scrollbars for IDE */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(120, 120, 120, 0.4);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(120, 120, 120, 0.7);
+}
+
+/* Resize handle styling */
+.resizer-horizontal {
+  cursor: col-resize;
+  transition: background-color 0.15s ease;
+}
+
+.resizer-horizontal:hover,
+.resizer-horizontal.active {
+  background-color: var(--color-accent) !important;
+}
+
+.resizer-vertical {
+  cursor: row-resize;
+  transition: background-color 0.15s ease;
+}
+
+.resizer-vertical:hover,
+.resizer-vertical.active {
+  background-color: var(--color-accent) !important;
+}
+
+/* Monaco Editor Container */
+.monaco-editor-wrapper {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+/* Animation utilities */
+@keyframes pulse-glow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}

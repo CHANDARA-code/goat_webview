@@ -1,0 +1,23 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": [
+    "src/index.ts",
+    "src/miniapp-bridge.ts",
+    "src/types.ts",
+    "src/hooks/index.ts"
+  ],
+  "exclude": [
+    "**/__tests__/**",
+    "src/main.tsx",
+    "src/App.tsx"
+  ],
+  "out": "../docs-site/static/api-reference/web",
+  "name": "Goat WebView Mini-App Web JS SDK",
+  "readme": "README.md",
+  "cleanOutputDir": true,
+  "excludePrivate": true,
+  "excludeProtected": false,
+  "excludeInternal": true,
+  "skipErrorChecking": true,
+  "githubPages": false
+}

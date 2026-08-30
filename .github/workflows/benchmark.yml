@@ -1,0 +1,43 @@
+name: Android Macrobenchmark (Manual)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  benchmark:
+    runs-on: macos-14
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules || true
+          sudo udevadm control --reload-rules || true
+          sudo udevadm trigger --name-match=kvm || true
+
+      - name: Start emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: default
+          arch: x86_64
+          profile: pixel_6
+          script: echo "Emulator booted"
+
+      - name: Run macrobenchmark suite
+        run: bash scripts/benchmark-android.sh
+
+      - name: Upload benchmark report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: startup-benchmark-report
+          path: dist/startup-benchmark-report.json

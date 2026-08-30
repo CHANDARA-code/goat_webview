@@ -1,0 +1,87 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# Node / Web
+node_modules/
+**/node_modules/
+miniapp-web/dist/
+miniapp-web/miniapp.zip
+dist/
+*.vsix
+*.tgz
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Android / Gradle
+.gradle/
+**/android/.gradle/
+**/android/build/
+**/android/app/build/
+**/build/
+*.iml
+.idea/
+local.properties
+.cxx/
+*.apk
+*.aab
+
+# Flutter / Dart
+**/.dart_tool/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+**/.packages
+**/GeneratedPluginRegistrant.java
+
+# iOS / Swift / CocoaPods
+**/.build/
+**/.swiftpm/
+**/DerivedData/
+**/.derivedData/
+**/Pods/
+**/*.xcuserstate
+**/xcuserdata/
+**/Podfile.lock
+
+# Temporary / Cache directories
+.tmp/
+**/.tmp/
+**/.kotlin/
+miniapp-web/dist-test/
+do_not_read.txt
+
+# Compiled binaries, static & shared libraries, object files
+*.a
+*.so
+*.dylib
+*.dll
+*.exe
+*.o
+*.obj
+
+# Debug symbols & binary archives
+*.7z
+*.tar.bz2
+**/debug-symbols/
+
+# Android native intermediates & keystores
+*.keystore
+*.jks
+**/obj/
+**/jniLibs/
+**/jniRes/
+**/afat/
+
+
+
+ios/.derivedData_r2/
+.agents/
+text.log
+# Runtime OTA bundle + telemetry output. Scoped deliberately: a bare `data/` rule
+# also swallows docs-site/src/data/, which is real source.
+/data/
+packages/data/
+packages/server/data/
+docs-site/.docusaurus/
+packages/devtools/dist/

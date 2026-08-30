@@ -1,0 +1,36 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://goat-engine.dev/schemas/v1/goat.config.schema.json",
+  "title": "GoatConfigFile",
+  "description": "Configuration schema for goat.config.json project settings",
+  "type": "object",
+  "required": ["name", "version", "appId", "entryPage"],
+  "properties": {
+    "name": { "type": "string" },
+    "version": { "type": "string" },
+    "appId": { "type": "string" },
+    "entryPage": { "type": "string" },
+    "window": {
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "backgroundColor": { "type": "string" }
+      }
+    },
+    "permissions": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "subpackages": {
+      "type": "array",
+      "items": { "type": "object" }
+    },
+    "bridge": {
+      "type": "object",
+      "properties": {
+        "timeout": { "type": "number" },
+        "mockMode": { "type": "boolean" }
+      }
+    }
+  }
+}

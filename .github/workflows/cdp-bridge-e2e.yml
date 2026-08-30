@@ -1,0 +1,24 @@
+name: CDP Bridge E2E Test Suite
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  cdp-bridge-e2e:
+    name: Headless CDP Bridge E2E Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Run CDP Automated Bridge E2E Suite
+        run: |
+          chmod +x scripts/cdp_bridge_e2e_test.mjs
+          node scripts/cdp_bridge_e2e_test.mjs

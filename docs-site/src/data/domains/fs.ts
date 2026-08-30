@@ -1,0 +1,368 @@
+import { ApiAction } from '../api-matrix';
+
+export const fsActions: ApiAction[] = [
+  {
+    id: 'fs-write-file',
+    action: 'FS_WRITE_FILE',
+    aliases: ['writeFile'],
+    domain: 'Sandboxed FileSystem & Chooser',
+    domainSlug: 'sandboxed-filesystem',
+    description: 'Writes binary or text data into sandboxed file system partition (/sandbox/data/{appId}/) with 50 MB total quota enforcement.',
+    purpose: 'Enables offline document storage, image caching, and structured JSON database file persistence.',
+    permissions: { manifest: [], scope: 'none', requiresGesture: false },
+    params: [
+      { name: 'filePath', type: 'string', required: true, description: 'Relative path within app sandbox directory.' },
+      { name: 'data', type: 'string', required: true, description: 'Content to write (UTF-8 string or Base64 encoded).' },
+      { name: 'encoding', type: '"utf8" | "base64"', required: false, description: 'Content encoding.', defaultValue: '"utf8"' },
+      { name: 'append', type: 'boolean', required: false, description: 'If true, appends to existing file.', defaultValue: 'false' },
+      { name: 'appId', type: 'string', required: false, description: 'Calling appId partition.' },
+    ],
+    returns: {
+      type: 'FsWriteResult',
+      schema: { saved: 'boolean', bytesWritten: 'number', filePath: 'string', appId: 'string' },
+      description: 'Total number of bytes written and confirmation of atomic file commit.',
+    },
+    errors: [
+      { code: 'INVALID_ARGUMENT', meaning: 'Missing filePath or data.', troubleshooting: 'Pass a valid relative path and non-empty data.' },
+      { code: 'SECURITY_VIOLATION', meaning: 'Path traversal attempt (e.g. "../") detected and rejected.', troubleshooting: 'Use clean relative paths without .. or absolute root prefixes.' },
+      { code: 'STORAGE_QUOTA_EXCEEDED', meaning: 'App sandbox storage exceeded 50 MB quota limit.', troubleshooting: 'Delete temporary files using FS_UNLINK.' },
+    ],
+    platforms: { android: true, ios: true, reactNative: true, flutter: true, web: true },
+    snippets: {
+      typescript: `await goatBridge.callNative('FS_WRITE_FILE', {
+  filePath: 'logs/session.txt',
+  data: 'Session initialized at 2026-08-27',
+  encoding: 'utf8'
+});`,
+      kotlin: `val sandboxDir = File(context.filesDir, "sandbox/\$appId")
+val targetFile = File(sandboxDir, sanitizedPath)
+targetFile.parentFile?.mkdirs()
+targetFile.writeText(data)`,
+      swift: `let sandboxUrl = getSandboxUrl(for: appId).appendingPathComponent(sanitizedPath)
+try data.write(to: sandboxUrl, atomically: true, encoding: .utf8)`,
+      dart: `await goatController.callNativeAction('FS_WRITE_FILE', {
+  'filePath': 'logs/session.txt',
+  'data': 'Session initialized',
+});`,
+    },
+    executable: true,
+    defaultPayload: { filePath: 'notes/sample.txt', data: 'Goat WebView Sandboxed FS demo' },
+  },
+  {
+    id: 'fs-read-file',
+    action: 'FS_READ_FILE',
+    aliases: ['readFile'],
+    domain: 'Sandboxed FileSystem & Chooser',
+    domainSlug: 'sandboxed-filesystem',
+    description: 'Reads data from sandboxed file partition with automatic UTF-8 or Base64 decoding.',
+    purpose: 'Recovers saved local files, configuration caches, and media buffers.',
+    permissions: { manifest: [], scope: 'none', requiresGesture: false },
+    params: [
+      { name: 'filePath', type: 'string', required: true, description: 'Relative path within app sandbox directory.' },
+      { name: 'encoding', type: '"utf8" | "base64"', required: false, description: 'Desired output format.', defaultValue: '"utf8"' },
+      { name: 'appId', type: 'string', required: false, description: 'Calling appId partition.' },
+    ],
+    returns: {
+      type: 'FsReadResult',
+      schema: { data: 'string', encoding: 'string', filePath: 'string', appId: 'string' },
+      description: 'File contents decoded in the requested format.',
+    },
+    errors: [
+      { code: 'INVALID_ARGUMENT', meaning: 'File does not exist or filePath was omitted.', troubleshooting: 'Verify file exists using FS_EXISTS before reading.' },
+      { code: 'SECURITY_VIOLATION', meaning: 'Path traversal attempt blocked.', troubleshooting: 'Specify paths within sandbox root.' },
+    ],
+    platforms: { android: true, ios: true, reactNative: true, flutter: true, web: true },
+    snippets: {
+      typescript: `const { data } = await goatBridge.callNative('FS_READ_FILE', {
+  filePath: 'logs/session.txt',
+  encoding: 'utf8'
+});`,
+      kotlin: `val content = targetFile.readText()`,
+      swift: `let content = try String(contentsOf: sandboxUrl, encoding: .utf8)`,
+      dart: `final res = await goatController.callNativeAction('FS_READ_FILE', {
+  'filePath': 'logs/session.txt',
+});`,
+    },
+    executable: true,
+    defaultPayload: { filePath: 'notes/sample.txt' },
+  },
+  {
+    id: 'fs-mkdir',
+    action: 'FS_MKDIR',
+    aliases: ['mkdir'],
+    domain: 'Sandboxed FileSystem & Chooser',
+    domainSlug: 'sandboxed-filesystem',
+    description: 'Creates a new directory inside the calling mini-app sandboxed filesystem.',
+    purpose: 'Organizes cached assets into hierarchical folders (e.g., "images/", "documents/").',
+    permissions: { manifest: [], scope: 'none', requiresGesture: false },
+    params: [
+      { name: 'dirPath', type: 'string', required: true, description: 'Relative directory path to create.' },
+      { name: 'recursive', type: 'boolean', required: false, description: 'If true, creates missing intermediate directories.', defaultValue: 'true' },
+      { name: 'appId', type: 'string', required: false, description: 'Calling appId.' },
+    ],
+    returns: {
+      type: 'FsMkdirResult',
+      schema: { created: 'boolean', dirPath: 'string', appId: 'string' },
+      description: 'Indicates directory creation success.',
+    },
+    errors: [
+      { code: 'INVALID_ARGUMENT', meaning: 'Directory path missing or already exists as a file.', troubleshooting: 'Check dirPath.' },
+    ],
+    platforms: { android: true, ios: true, reactNative: true, flutter: true, web: true },
+    snippets: {
+      typescript: `await goatBridge.callNative('FS_MKDIR', { dirPath: 'cache/images', recursive: true });`,
+      kotlin: `targetDir.mkdirs()`,
+      swift: `try FileManager.default.createDirectory(at: sandboxUrl, withIntermediateDirectories: true)`,
+      dart: `await goatController.callNativeAction('FS_MKDIR', {'dirPath': 'cache/images'});`,
+    },
+    executable: true,
+    defaultPayload: { dirPath: 'cache/images' },
+  },
+  {
+    id: 'fs-rmdir',
+    action: 'FS_RMDIR',
+    aliases: ['rmdir'],
+    domain: 'Sandboxed FileSystem & Chooser',
+    domainSlug: 'sandboxed-filesystem',
+    description: 'Removes a directory from the calling mini-app sandbox.',
+    purpose: 'Deletes empty or populated folder trees.',
+    permissions: { manifest: [], scope: 'none', requiresGesture: false },
+    params: [
+      { name: 'dirPath', type: 'string', required: true, description: 'Relative directory path.' },
+      { name: 'recursive', type: 'boolean', required: false, description: 'True to delete directory and all children.', defaultValue: 'false' },
+    ],
+    returns: {
+      type: 'FsRmdirResult',
+      schema: { removed: 'boolean', dirPath: 'string', appId: 'string' },
+      description: 'Status of directory deletion.',
+    },
+    errors: [
+      { code: 'INVALID_ARGUMENT', meaning: 'Directory does not exist or is not empty without recursive flag.', troubleshooting: 'Set recursive: true to delete non-empty folders.' },
+    ],
+    platforms: { android: true, ios: true, reactNative: true, flutter: true, web: true },
+    snippets: {
+      typescript: `await goatBridge.callNative('FS_RMDIR', { dirPath: 'cache/images', recursive: true });`,
+      kotlin: `targetDir.deleteRecursively()`,
+      swift: `try FileManager.default.removeItem(at: sandboxUrl)`,
+      dart: `await goatController.callNativeAction('FS_RMDIR', {'dirPath': 'cache/images', 'recursive': true});`,
+    },
+    executable: true,
+    defaultPayload: { dirPath: 'cache/images', recursive: true },
+  },
+  {
+    id: 'fs-unlink',
+    action: 'FS_UNLINK',
+    aliases: ['unlink'],
+    domain: 'Sandboxed FileSystem & Chooser',
+    domainSlug: 'sandboxed-filesystem',
+    description: 'Deletes a single file from the calling mini-app sandbox partition.',
+    purpose: 'Removes temporary files or expired downloads.',
+    permissions: { manifest: [], scope: 'none', requiresGesture: false },
+    params: [
+      { name: 'filePath', type: 'string', required: true, description: 'Relative path to file.' },
+    ],
+    returns: {
+      type: 'FsUnlinkResult',
+      schema: { deleted: 'boolean', filePath: 'string', appId: 'string' },
+      description: 'Confirmation that the file was deleted.',
+    },
+    errors: [
+      { code: 'INVALID_ARGUMENT', meaning: 'File does not exist.', troubleshooting: 'Ensure filePath is correct.' },
+    ],
+    platforms: { android: true, ios: true, reactNative: true, flutter: true, web: true },
+    snippets: {
+      typescript: `await goatBridge.callNative('FS_UNLINK', { filePath: 'notes/sample.txt' });`,
+      kotlin: `targetFile.delete()`,
+      swift: `try FileManager.default.removeItem(at: sandboxUrl)`,
+      dart: `await goatController.callNativeAction('FS_UNLINK', {'filePath': 'notes/sample.txt'});`,
+    },
+    executable: true,
+    defaultPayload: { filePath: 'notes/sample.txt' },
+  },
+  {
+    id: 'fs-list-dir',
+    action: 'FS_LIST_DIR',
+    aliases: ['listDir', 'readDir'],
+    domain: 'Sandboxed FileSystem & Chooser',
+    domainSlug: 'sandboxed-filesystem',
+    description: 'Lists all file and directory entries inside the specified sandbox path.',
+    purpose: 'Enables building file browsers and listing available cached downloads.',
+    permissions: { manifest: [], scope: 'none', requiresGesture: false },
+    params: [
+      { name: 'dirPath', type: 'string', required: false, description: 'Relative path to directory (default: sandbox root).', defaultValue: '""' },
+    ],
+    returns: {
+      type: 'FsListDirResult',
+      schema: { files: 'string[]', dirPath: 'string', appId: 'string' },
+      description: 'Array of entry names.',
+    },
+    errors: [
+      { code: 'INVALID_ARGUMENT', meaning: 'Path is not a directory or does not exist.', troubleshooting: 'Pass a valid directory path.' },
+    ],
+    platforms: { android: true, ios: true, reactNative: true, flutter: true, web: true },
+    snippets: {
+      typescript: `const { files } = await goatBridge.callNative('FS_LIST_DIR', { dirPath: 'cache' });`,
+      kotlin: `val entries = targetDir.list() ?: emptyArray()`,
+      swift: `let entries = try FileManager.default.contentsOfDirectory(atPath: sandboxUrl.path)`,
+      dart: `final res = await goatController.callNativeAction('FS_LIST_DIR', {'dirPath': 'cache'});`,
+    },
+    executable: true,
+    defaultPayload: { dirPath: '' },
+  },
+  {
+    id: 'fs-stat',
+    action: 'FS_STAT',
+    aliases: ['stat', 'getFileInfo'],
+    domain: 'Sandboxed FileSystem & Chooser',
+    domainSlug: 'sandboxed-filesystem',
+    description: 'Queries file metadata (size, last modified epoch, file vs directory type).',
+    purpose: 'Inspects file sizes and timestamps before uploading or reading.',
+    permissions: { manifest: [], scope: 'none', requiresGesture: false },
+    params: [
+      { name: 'filePath', type: 'string', required: true, description: 'Relative path to file or directory.' },
+    ],
+    returns: {
+      type: 'FsStatResult',
+      schema: { size: 'number', isFile: 'boolean', isDirectory: 'boolean', lastModified: 'number', name: 'string' },
+      description: 'File size in bytes, timestamps, and attributes.',
+    },
+    errors: [
+      { code: 'INVALID_ARGUMENT', meaning: 'File not found.', troubleshooting: 'Ensure target path exists.' },
+    ],
+    platforms: { android: true, ios: true, reactNative: true, flutter: true, web: true },
+    snippets: {
+      typescript: `const stat = await goatBridge.callNative('FS_STAT', { filePath: 'notes/sample.txt' });`,
+      kotlin: `val size = targetFile.length()
+val lastModified = targetFile.lastModified()`,
+      swift: `let attrs = try FileManager.default.attributesOfItem(atPath: sandboxUrl.path)`,
+      dart: `final res = await goatController.callNativeAction('FS_STAT', {'filePath': 'notes/sample.txt'});`,
+    },
+    executable: true,
+    defaultPayload: { filePath: 'notes/sample.txt' },
+  },
+  {
+    id: 'fs-copy-file',
+    action: 'FS_COPY_FILE',
+    aliases: ['copyFile'],
+    domain: 'Sandboxed FileSystem & Chooser',
+    domainSlug: 'sandboxed-filesystem',
+    description: 'Copies a file from source path to destination path inside the sandbox boundary.',
+    purpose: 'Duplicates templates, backups, and creates snapshot files.',
+    permissions: { manifest: [], scope: 'none', requiresGesture: false },
+    params: [
+      { name: 'srcPath', type: 'string', required: true, description: 'Source relative path.' },
+      { name: 'destPath', type: 'string', required: true, description: 'Destination relative path.' },
+    ],
+    returns: {
+      type: 'FsCopyResult',
+      schema: { copied: 'boolean', srcPath: 'string', destPath: 'string', appId: 'string' },
+      description: 'Status of file copy.',
+    },
+    errors: [
+      { code: 'INVALID_ARGUMENT', meaning: 'Source file does not exist.', troubleshooting: 'Verify srcPath.' },
+    ],
+    platforms: { android: true, ios: true, reactNative: true, flutter: true, web: true },
+    snippets: {
+      typescript: `await goatBridge.callNative('FS_COPY_FILE', {
+  srcPath: 'notes/sample.txt',
+  destPath: 'notes/sample_backup.txt'
+});`,
+      kotlin: `srcFile.copyTo(destFile, overwrite = true)`,
+      swift: `try FileManager.default.copyItem(at: srcUrl, to: destUrl)`,
+      dart: `await goatController.callNativeAction('FS_COPY_FILE', {
+  'srcPath': 'notes/sample.txt',
+  'destPath': 'notes/sample_backup.txt',
+});`,
+    },
+    executable: true,
+    defaultPayload: { srcPath: 'notes/sample.txt', destPath: 'notes/sample_backup.txt' },
+  },
+  {
+    id: 'fs-exists',
+    action: 'FS_EXISTS',
+    aliases: ['exists', 'access'],
+    domain: 'Sandboxed FileSystem & Chooser',
+    domainSlug: 'sandboxed-filesystem',
+    description: 'Tests whether a specific file or folder path exists in the sandbox.',
+    purpose: 'Avoids throwing errors by checking path existence before reading or writing.',
+    permissions: { manifest: [], scope: 'none', requiresGesture: false },
+    params: [
+      { name: 'filePath', type: 'string', required: true, description: 'Path to check.' },
+    ],
+    returns: {
+      type: 'FsExistsResult',
+      schema: { exists: 'boolean', filePath: 'string', appId: 'string' },
+      description: 'True if path exists on disk.',
+    },
+    errors: [],
+    platforms: { android: true, ios: true, reactNative: true, flutter: true, web: true },
+    snippets: {
+      typescript: `const { exists } = await goatBridge.callNative('FS_EXISTS', { filePath: 'notes/sample.txt' });`,
+      kotlin: `val exists = targetFile.exists()`,
+      swift: `let exists = FileManager.default.fileExists(atPath: sandboxUrl.path)`,
+      dart: `final res = await goatController.callNativeAction('FS_EXISTS', {'filePath': 'notes/sample.txt'});`,
+    },
+    executable: true,
+    defaultPayload: { filePath: 'notes/sample.txt' },
+  },
+  {
+    id: 'choose-files',
+    action: 'CHOOSE_FILES',
+    aliases: ['chooseFiles', 'chooseFile'],
+    domain: 'Sandboxed FileSystem & Chooser',
+    domainSlug: 'sandboxed-filesystem',
+    description: 'Opens native system file picker sheet for selecting external documents (PDF, CSV, audio, images).',
+    purpose: 'Allows users to upload external files into the mini-app with privacy sandboxing.',
+    permissions: { manifest: [], scope: 'none', requiresGesture: false },
+    params: [
+      { name: 'mimeTypes', type: 'string[]', required: false, description: 'Allowed MIME types filter (e.g. ["application/pdf", "image/*"]).' },
+      { name: 'multiple', type: 'boolean', required: false, description: 'Allow selecting multiple files.', defaultValue: 'false' },
+    ],
+    returns: {
+      type: 'FileChooserResult',
+      schema: { isSuccess: 'boolean', selectedUris: 'string[]', totalFiles: 'number', wasCancelled: 'boolean' },
+      description: 'Array of sandboxed content URIs ready for upload or reading.',
+    },
+    errors: [],
+    platforms: { android: true, ios: true, reactNative: true, flutter: true, web: true },
+    snippets: {
+      typescript: `const { selectedUris } = await goatBridge.callNative('CHOOSE_FILES', {
+  mimeTypes: ['application/pdf', 'image/png'],
+  multiple: true
+});`,
+      kotlin: `// Launch ActivityResultContracts.OpenMultipleDocuments()`,
+      swift: `// UIDocumentPickerViewController`,
+      dart: `final res = await goatController.callNativeAction('CHOOSE_FILES', {
+  'mimeTypes': ['application/pdf'],
+});`,
+    },
+    executable: true,
+    defaultPayload: { mimeTypes: ['*/*'], multiple: false },
+  },
+  {
+    id: 'cancel-file-chooser',
+    action: 'CANCEL_FILE_CHOOSER',
+    aliases: ['cancelFileChooser', 'saveFile'],
+    domain: 'Sandboxed FileSystem & Chooser',
+    domainSlug: 'sandboxed-filesystem',
+    description: 'Dismisses an active native file picker dialog programmatically.',
+    purpose: 'Closes file chooser when modal expires or operation is cancelled.',
+    permissions: { manifest: [], scope: 'none', requiresGesture: false },
+    params: [],
+    returns: {
+      type: 'CancelFileChooserResult',
+      schema: { cancelled: 'boolean', isFileChooserActive: 'boolean' },
+      description: 'Status of file chooser dismissal.',
+    },
+    errors: [],
+    platforms: { android: true, ios: true, reactNative: true, flutter: true, web: true },
+    snippets: {
+      typescript: `await goatBridge.callNative('CANCEL_FILE_CHOOSER', {});`,
+      kotlin: `activeFileChooserDialog?.dismiss()`,
+      swift: `documentPicker?.dismiss(animated: true)`,
+      dart: `await goatController.callNativeAction('CANCEL_FILE_CHOOSER', {});`,
+    },
+    executable: true,
+    defaultPayload: {},
+  },
+];

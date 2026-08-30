@@ -1,0 +1,26 @@
+{
+  "name": "goat-webview-workspace",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Monorepo workspace for Goat WebView universal multi-platform engine",
+  "scripts": {
+    "prepare": "husky",
+    "test": "npm run test:android && npm run test:rn && npm run test:flutter && npm run test:flutter:example && npm run test:web && npm run build:web",
+    "test:android": "./android/gradlew -p android test",
+    "test:ios": "bash scripts/verify-ios.sh",
+    "test:rn": "npm --prefix react-native-goat-webview test",
+    "test:flutter": "cd goat_webview && flutter test",
+    "test:flutter:example": "cd goat_webview/example && flutter analyze",
+    "test:web": "npm --prefix miniapp-web test",
+    "test:appservice": "node --experimental-strip-types packages/appservice/test/e2e/run-all.ts",
+    "test:e2e": "bash scripts/verify-e2e.sh && node --experimental-strip-types tests/e2e/cross-miniapp/run-cross-miniapp.ts",
+    "build:web": "npm --prefix miniapp-web run build",
+    "build:artifacts": "bash scripts/build-release-artifacts.sh",
+    "verify:packages": "bash scripts/verify-packages.sh",
+    "test:security": "bash scripts/run-security-fuzz.sh",
+    "verify:all": "bash scripts/verify-all.sh"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7"
+  }
+}

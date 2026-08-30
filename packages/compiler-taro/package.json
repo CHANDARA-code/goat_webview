@@ -1,0 +1,65 @@
+{
+  "name": "@goat/compiler-taro",
+  "version": "0.1.0",
+  "description": "Taro Compiler Adapter & Runtime JSAPI Bridge Plugin for Goat WebView",
+  "type": "module",
+  "main": "dist/src/index.js",
+  "module": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "import": "./dist/src/index.js",
+      "default": "./dist/src/index.js"
+    },
+    "./runtime": {
+      "types": "./dist/src/runtime/index.d.ts",
+      "import": "./dist/src/runtime/index.js",
+      "default": "./dist/src/runtime/index.js"
+    },
+    "./config": {
+      "types": "./dist/src/config/index.d.ts",
+      "import": "./dist/src/config/index.js",
+      "default": "./dist/src/config/index.js"
+    },
+    "./bundler": {
+      "types": "./dist/src/bundler/index.d.ts",
+      "import": "./dist/src/bundler/index.js",
+      "default": "./dist/src/bundler/index.js"
+    },
+    "./plugin": {
+      "types": "./dist/src/plugin.d.ts",
+      "import": "./dist/src/plugin.js",
+      "default": "./dist/src/plugin.js"
+    }
+  },
+  "files": [
+    "dist/src",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "node ../../docs-site/node_modules/typescript/bin/tsc -p tsconfig.json",
+    "test": "npm run build && node --test dist/test/*.test.js",
+    "test:ts": "node --experimental-strip-types --test test/*.test.ts"
+  },
+  "keywords": [
+    "goat",
+    "taro",
+    "compiler",
+    "miniapp",
+    "webview",
+    "bridge",
+    "plugin"
+  ],
+  "author": "Goat Engineering Team",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "^22.13.4",
+    "typescript": "^5.7.3"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

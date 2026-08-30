@@ -1,0 +1,109 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://goat-engine.dev/schemas/v1/manifest.schema.json",
+  "title": "GoatMiniAppManifest",
+  "description": "Configuration manifest schema for Goat WebView Mini-Applications",
+  "type": "object",
+  "required": ["appId", "appName", "version", "versionCode", "entryPage"],
+  "additionalProperties": false,
+  "properties": {
+    "appId": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(\\.[a-z0-9]+)+$",
+      "description": "Unique reverse-domain identifier for the mini-app (e.g. com.example.wallet)"
+    },
+    "appName": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 50,
+      "description": "Human-readable mini-app display name presented in native host navigation"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+(-[a-z0-9.]+)?$",
+      "description": "Semantic version string of the mini-app (e.g. 1.2.0)"
+    },
+    "versionCode": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Monotonically increasing integer version code for upgrade tracking"
+    },
+    "entryPage": {
+      "type": "string",
+      "description": "Path to the main entry HTML / JS document relative to bundle root"
+    },
+    "window": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "title": { "type": "string" },
+        "backgroundColor": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" },
+        "navigationBarTextStyle": {
+          "type": "string",
+          "enum": ["black", "white"]
+        },
+        "navigationBarBackgroundColor": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$"
+        },
+        "orientation": {
+          "type": "string",
+          "enum": ["portrait", "landscape", "auto"]
+        },
+        "enablePullDownRefresh": { "type": "boolean" },
+        "transparentBackground": { "type": "boolean" }
+      }
+    },
+    "permissions": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "enum": [
+          "CAMERA",
+          "LOCATION",
+          "RECORD_AUDIO",
+          "STORAGE",
+          "BIOMETRIC",
+          "BLUETOOTH",
+          "PAYMENT",
+          "CONTACTS",
+          "CLIPBOARD",
+          "HAPTICS",
+          "NFC"
+        ]
+      },
+      "description": "Native capabilities declared by the mini-app"
+    },
+    "subpackages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["root", "pages"],
+        "additionalProperties": false,
+        "properties": {
+          "name": { "type": "string" },
+          "root": { "type": "string" },
+          "pages": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "preloadRule": {
+            "type": "object",
+            "properties": {
+              "network": { "type": "string", "enum": ["all", "wifi"] }
+            }
+          }
+        }
+      }
+    },
+    "bridge": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "timeout": { "type": "number", "minimum": 500, "maximum": 60000 },
+        "mockMode": { "type": "boolean" }
+      }
+    }
+  }
+}

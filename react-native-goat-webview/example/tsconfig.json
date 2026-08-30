@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "commonjs",
+    "lib": ["es2022", "dom"],
+    "allowJs": true,
+    "jsx": "react",
+    "noEmit": true,
+    "isolatedModules": true,
+    "strict": true,
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "react-native-goat-webview": ["../src/index.tsx"],
+      "react": ["../node_modules/@types/react"],
+      "react/*": ["../node_modules/@types/react/*"]
+    }
+  },
+  "include": [
+    "src/**/*",
+    "App.tsx",
+    "index.js",
+    "../src/react-native.d.ts",
+    "../src/jest.d.ts"
+  ],
+  "exclude": ["node_modules", "babel.config.js", "metro.config.js"]
+}

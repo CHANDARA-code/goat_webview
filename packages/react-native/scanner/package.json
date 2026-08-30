@@ -1,0 +1,9 @@
+{
+  "name": "@goat-webview/scanner",
+  "version": "1.0.0",
+  "description": "Modular Scanner Capability Companion Package for React Native Goat WebView (Task 10202)",
+  "main": "src/index.ts",
+  "peerDependencies": {
+    "react-native-goat-webview": "^1.0.0"
+  }
+}

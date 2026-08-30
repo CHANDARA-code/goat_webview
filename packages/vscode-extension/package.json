@@ -1,0 +1,122 @@
+{
+  "name": "vscode-goat",
+  "displayName": "Goat Mini-App Studio",
+  "description": "Official VSCode extension for Goat WebView Mini-App Development — Simulator, IntelliSense, Mock Hardware & Diagnostics",
+  "version": "1.0.0",
+  "publisher": "goat-engine",
+  "type": "module",
+  "engines": {
+    "vscode": "^1.90.0",
+    "node": ">=20.0.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Debuggers",
+    "Other"
+  ],
+  "keywords": [
+    "goat",
+    "miniapp",
+    "webview",
+    "simulator",
+    "devtools"
+  ],
+  "activationEvents": [
+    "workspaceContains:goat.config.json",
+    "workspaceContains:manifest.json",
+    "onCommand:goat.init",
+    "onCommand:goat.openSimulator",
+    "onCommand:goat.dev",
+    "onCommand:goat.doctor"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "goat.init",
+        "title": "Goat: Create New Mini-App Project",
+        "category": "Goat"
+      },
+      {
+        "command": "goat.dev",
+        "title": "Goat: Start Dev Server with HMR",
+        "category": "Goat"
+      },
+      {
+        "command": "goat.openSimulator",
+        "title": "Goat: Open Phone Simulator Panel",
+        "category": "Goat",
+        "icon": "$(device-mobile)"
+      },
+      {
+        "command": "goat.runAndroid",
+        "title": "Goat: Run on Android (Emulator / Device)",
+        "category": "Goat"
+      },
+      {
+        "command": "goat.runIos",
+        "title": "Goat: Run on iOS (Simulator / Device)",
+        "category": "Goat"
+      },
+      {
+        "command": "goat.doctor",
+        "title": "Goat: Run Environment Doctor",
+        "category": "Goat"
+      },
+      {
+        "command": "goat.openTraces",
+        "title": "Goat: Open Bridge Trace Inspector",
+        "category": "Goat"
+      }
+    ],
+    "jsonValidation": [
+      {
+        "fileMatch": "manifest.json",
+        "url": "./schemas/manifest.schema.json"
+      },
+      {
+        "fileMatch": "goat.config.json",
+        "url": "./schemas/goat.config.schema.json"
+      }
+    ],
+    "configuration": {
+      "title": "Goat Mini-App Studio",
+      "properties": {
+        "goat.devServerPort": {
+          "type": "number",
+          "default": 3000,
+          "description": "Port of the local Vite mini-app dev server"
+        },
+        "goat.backendPort": {
+          "type": "number",
+          "default": 7373,
+          "description": "Port of the @goat/server tooling backend"
+        },
+        "goat.defaultDevice": {
+          "type": "string",
+          "enum": [
+            "iphone-16-pro",
+            "pixel-9-pro"
+          ],
+          "default": "iphone-16-pro",
+          "description": "Default mobile device frame in the Simulator panel"
+        },
+        "goat.enableMockBridge": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable in-editor mock native bridge simulation"
+        }
+      }
+    }
+  },
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "package": "vsce package --no-dependencies --allow-missing-repository --skip-license",
+    "test": "node --experimental-strip-types --test test/*.test.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.4",
+    "typescript": "^5.7.3"
+  }
+}

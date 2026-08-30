@@ -1,0 +1,37 @@
+COMMIT_MSG_FILE=$1
+COMMIT_MSG=$(cat "$COMMIT_MSG_FILE")
+
+# Conventional Commits regex pattern
+PATTERN="^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert|tooling)(\([a-zA-Z0-9_\/\-]+\))?!?: .+$"
+
+# Check if commit message matches pattern (or merge/revert commit)
+if echo "$COMMIT_MSG" | grep -qE "$PATTERN" || echo "$COMMIT_MSG" | grep -qE "^(Merge|Revert) "; then
+  exit 0
+fi
+
+echo "================================================================"
+echo "❌ [Goat WebView] Invalid Commit Message Format!"
+echo "================================================================"
+echo "Your commit message:"
+echo "  $COMMIT_MSG"
+echo ""
+echo "Commit message must follow Conventional Commits standard:"
+echo "  <type>(<optional scope>): <description>"
+echo ""
+echo "Allowed types:"
+echo "  feat     - A new feature or bridge action"
+echo "  fix      - A bug fix or security patch"
+echo "  perf     - Performance optimization"
+echo "  refactor - Code change that neither fixes a bug nor adds a feature"
+echo "  test     - Adding missing tests or correcting existing tests"
+echo "  docs     - Documentation only changes"
+echo "  ci       - Changes to CI configuration files and scripts"
+echo "  tooling  - Changes to build system or dev tools"
+echo "  chore    - Other changes that don't modify src or test files"
+echo ""
+echo "Examples:"
+echo "  feat(storage): implement multi-tenant sandboxing per appId"
+echo "  fix(security): prevent Zip Slip directory traversal breach"
+echo "  test(flutter): add unit tests for GoatWebViewController"
+echo "================================================================"
+exit 1

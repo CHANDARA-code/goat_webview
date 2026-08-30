@@ -1,0 +1,30 @@
+name: goat_webview_bluetooth
+description: Modular Bluetooth Low Energy (BLE) Capability Companion Package for Goat WebView (Task 10202).
+version: 1.0.0-alpha.1
+homepage: https://github.com/CHANDARA-code/goat_webview
+repository: https://github.com/CHANDARA-code/goat_webview/tree/main/packages/flutter/goat_webview_bluetooth
+issue_tracker: https://github.com/CHANDARA-code/goat_webview/issues
+topics:
+  - webview
+  - bluetooth
+  - ble
+  - miniapp
+  - goat
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+  flutter: ">=3.10.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  goat_webview: ^1.0.0-alpha.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+dependency_overrides:
+  goat_webview:
+    path: ../../../goat_webview

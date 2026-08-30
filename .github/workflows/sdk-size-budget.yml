@@ -1,0 +1,39 @@
+name: SDK Size Budget Enforcement
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  check-size-budgets:
+    name: Verify SDK Binary & Package Budgets
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Web JS SDK Dependencies
+        working-directory: miniapp-web
+        run: npm ci || npm install
+
+      - name: Install React Native Package Dependencies
+        working-directory: react-native-goat-webview
+        run: npm ci || npm install
+
+      - name: Run Master Size Budget Enforcement Gate
+        run: |
+          chmod +x scripts/check-size-budget.sh
+          ./scripts/check-size-budget.sh

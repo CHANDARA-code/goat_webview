@@ -1,0 +1,23 @@
+{
+  "name": "goat-webview-rn-example",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "android": "react-native run-android",
+    "ios": "react-native run-ios",
+    "start": "react-native start",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx"
+  },
+  "dependencies": {
+    "react": "18.3.1",
+    "react-native": "0.76.0",
+    "react-native-goat-webview": "file:.."
+  },
+  "devDependencies": {
+    "@babel/core": "^7.25.2",
+    "@babel/runtime": "^7.25.0",
+    "@types/react": "^18.3.18",
+    "typescript": "^5.7.3"
+  }
+}

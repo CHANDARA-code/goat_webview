@@ -1,0 +1,327 @@
+name: Goat WebView Production Release Pipeline
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Perform dry-run release checks only (no live publication)'
+        required: true
+        type: boolean
+        default: false
+      channel:
+        description: 'internal = private alpha (GitHub Packages + GitHub Release only). public = GA (npm, pub.dev, CocoaPods trunk).'
+        required: true
+        type: choice
+        options:
+          - internal
+          - public
+        default: public
+
+permissions:
+  contents: write
+  packages: write
+  id-token: write
+
+jobs:
+  # ============================================================================
+  # 0. Resolve Release Channel
+  # ============================================================================
+  # A prerelease tag (v1.2.3-alpha.1, -beta, -rc) is always an internal release.
+  # Only a clean vX.Y.Z tag, or an explicit dispatch, reaches the public registries.
+  resolve-channel:
+    name: Resolve Release Channel
+    runs-on: ubuntu-latest
+    outputs:
+      channel: ${{ steps.pick.outputs.channel }}
+      prerelease: ${{ steps.pick.outputs.prerelease }}
+    steps:
+      - id: pick
+        run: |
+          if [ -n "${{ github.event.inputs.channel }}" ]; then
+            CHANNEL="${{ github.event.inputs.channel }}"
+          elif [[ "${GITHUB_REF_NAME}" == *-* ]]; then
+            CHANNEL="internal"
+          else
+            CHANNEL="public"
+          fi
+          if [ "${CHANNEL}" = "public" ]; then PRERELEASE=false; else PRERELEASE=true; fi
+          echo "channel=${CHANNEL}"       >> "$GITHUB_OUTPUT"
+          echo "prerelease=${PRERELEASE}" >> "$GITHUB_OUTPUT"
+          echo "Resolved channel: ${CHANNEL} (prerelease=${PRERELEASE}) for ref ${GITHUB_REF_NAME}"
+
+  # ============================================================================
+  # 1. Master Quality Gate & Artifact Build
+  # ============================================================================
+  build-and-verify:
+    name: Build & Verify Production Artifacts
+    needs: resolve-channel
+    runs-on: macos-14
+    timeout-minutes: 60
+    env:
+      GOAT_RELEASE_CHANNEL: ${{ needs.resolve-channel.outputs.channel }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Java JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Set up Bun runtime
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Set up Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.29.0'
+          channel: 'stable'
+          cache: true
+
+      - name: Select Xcode Version
+        run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+
+      - name: Install Tooling Dependencies
+        run: |
+          npm install -g @vscode/vsce
+          (cd miniapp-web && npm install)
+          (cd react-native-goat-webview && npm install)
+          (cd packages/appservice && npm install)
+          (cd packages/bridge-mock && npm install)
+          (cd packages/devtools && npm install)
+          (cd packages/server && npm install)
+          (cd packages/cli && npm install)
+          (cd packages/playground && npm install)
+          (cd packages/vscode-extension && npm install)
+
+      - name: Run Master Quality Gate Verification
+        run: |
+          chmod +x scripts/*.sh
+          ./scripts/verify-all.sh
+          ./scripts/run-security-fuzz.sh
+          ./scripts/verify-e2e.sh
+          ./scripts/publish-dry-run.sh
+
+      - name: Build and Package Release Artifacts
+        run: |
+          ./scripts/build-release-artifacts.sh
+
+      - name: Upload Release Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-dist
+          path: dist/
+
+  # ============================================================================
+  # 2. Publish NPM Packages (React Native, CLI, AppService, Server, etc.)
+  # ============================================================================
+  publish-npm:
+    name: Publish NPM Packages
+    needs: [resolve-channel, build-and-verify]
+    if: github.event.inputs.dry_run != 'true' && needs.resolve-channel.outputs.channel == 'public'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Publish all npm packages to public registry
+        run: |
+          NPM_PACKAGES=(
+            "react-native-goat-webview"
+            "packages/cli"
+            "packages/appservice"
+            "packages/bridge-mock"
+            "packages/devtools"
+            "packages/server"
+            "packages/core"
+            "packages/compiler-taro"
+            "packages/compiler-uniapp"
+            "packages/playground"
+          )
+
+          set -euo pipefail
+          for pkg in "${NPM_PACKAGES[@]}"; do
+            echo "🚀 Publishing ${pkg} to npm..."
+            cd "${GITHUB_WORKSPACE}/${pkg}"
+
+            # A failed build must abort the release, not silently publish stale or
+            # empty artifacts. Only run the script when the package defines one.
+            if node -e "process.exit(require('./package.json').scripts && require('./package.json').scripts.build ? 0 : 1)"; then
+              npm run build
+            else
+              echo "  (no build script defined — skipping)"
+            fi
+
+            # A prerelease must never land on the "latest" dist-tag.
+            PKG_VERSION=$(node -e "process.stdout.write(require('./package.json').version)")
+            case "${PKG_VERSION}" in
+              *-alpha*) NPM_TAG_ARGS="--tag alpha" ;;
+              *-beta*)  NPM_TAG_ARGS="--tag beta"  ;;
+              *-rc*)    NPM_TAG_ARGS="--tag rc"    ;;
+              *-*)      NPM_TAG_ARGS="--tag next"  ;;
+              *)        NPM_TAG_ARGS="" ;;
+            esac
+
+            npm publish --access public ${NPM_TAG_ARGS}
+          done
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  # ============================================================================
+  # 3. Publish Flutter Packages (pub.dev)
+  # ============================================================================
+  publish-flutter:
+    name: Publish Flutter Packages to pub.dev
+    needs: [resolve-channel, build-and-verify]
+    if: github.event.inputs.dry_run != 'true' && needs.resolve-channel.outputs.channel == 'public'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # dart-lang/setup-dart performs the OIDC token exchange with pub.dev and exports
+      # PUB_TOKEN. It requires `id-token: write` (granted at workflow level) AND each
+      # package to have Automated Publishing enabled on pub.dev — see RELEASE.md §4.
+      - name: Set up Dart SDK (pub.dev OIDC credential exchange)
+        uses: dart-lang/setup-dart@v1
+
+      - name: Set up Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.29.0'
+          channel: 'stable'
+
+      - name: Publish Root Flutter Engine & Companion Packages to pub.dev
+        run: |
+          FLUTTER_PACKAGES=(
+            "goat_webview"
+            "packages/flutter/goat_webview_bluetooth"
+            "packages/flutter/goat_webview_scanner"
+            "packages/flutter/goat_webview_location"
+            "packages/flutter/goat_webview_biometrics"
+            "packages/flutter/goat_webview_media"
+            "packages/flutter/goat_webview_payments"
+            "packages/flutter/goat_webview_network"
+          )
+
+          for pkg in "${FLUTTER_PACKAGES[@]}"; do
+            echo "🚀 Publishing ${pkg} to pub.dev..."
+            cd "${GITHUB_WORKSPACE}/${pkg}"
+            flutter pub publish --force
+          done
+
+  # ============================================================================
+  # 4. Publish Android Library (Maven Central / Sonatype OSSRH)
+  # ============================================================================
+  publish-android:
+    name: Publish Android AARs to GitHub Packages
+    needs: [resolve-channel, build-and-verify]
+    # GitHub Packages Maven works against a private repository (consumers authenticate
+    # with a read:packages PAT), so this runs on the internal alpha channel too.
+    if: github.event.inputs.dry_run != 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Publish and Sign Android AARs to GitHub Packages
+        run: |
+          cd android
+          chmod +x ./gradlew
+          ./gradlew publishAllPublicationsToGitHubPackagesRepository --no-daemon \
+            -PGOAT_PUBLISH_VERSION="${GITHUB_REF_NAME#v}"
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ============================================================================
+  # 5. Publish iOS Pod to the CocoaPods Trunk
+  # ============================================================================
+  # Only GoatWebView is a trunk pod. react-native-goat-webview.podspec depends on
+  # React-Core (vendored by the react-native npm package, not a trunk pod) and ships
+  # inside the npm tarball for `use_native_modules!`, so it is never trunk-pushed.
+  #
+  # `pod trunk push` resolves s.source (:git + :tag "v#{s.version}") over the public
+  # internet, so the repository must be PUBLIC and the tag must be pushed first.
+  publish-cocoapods:
+    name: Publish GoatWebView to CocoaPods Trunk
+    needs: [resolve-channel, build-and-verify]
+    if: github.event.inputs.dry_run != 'true' && needs.resolve-channel.outputs.channel == 'public'
+    runs-on: macos-14
+    timeout-minutes: 45
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Select Xcode Version
+        run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+
+      - name: Verify Podspec Passes Lint Before Pushing
+        run: |
+          cd ios
+          pod lib lint GoatWebView.podspec --allow-warnings --skip-tests
+
+      - name: Push GoatWebView Podspec to Trunk
+        run: |
+          cd ios
+          pod trunk push GoatWebView.podspec --allow-warnings --skip-tests
+        env:
+          COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
+
+  # ============================================================================
+  # 6. Distribute GitHub Release & Distribution Artifacts
+  # ============================================================================
+  create-github-release:
+    name: Create GitHub Release & Upload Binaries
+    needs: [resolve-channel, build-and-verify]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Distribution Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: release-dist
+          path: dist/
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            dist/*
+          generate_release_notes: true
+          draft: false
+          prerelease: ${{ needs.resolve-channel.outputs.prerelease }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
