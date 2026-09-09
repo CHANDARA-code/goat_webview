@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'GoatWebView'
-  s.version          = '1.0.0-alpha.1'
+  s.version          = '1.0.0-alpha.2'
   s.summary          = 'Ultra-high performance, modular multi-tenant sandboxed WebView engine for iOS.'
   s.description      = <<-DESC
 Goat WebView is a blazing-fast, sandboxed, modular Mini-App and Web3 runtime engine with 120 FPS ProMotion acceleration, sub-millisecond async IPC bridge, and plug-and-play feature modules.
@@ -15,6 +15,8 @@ Goat WebView is a blazing-fast, sandboxed, modular Mini-App and Web3 runtime eng
   s.default_subspecs = 'Core'
 
   s.subspec 'Core' do |core|
+    # [Task 10153] Core subspec compiles independently without optional framework linkage.
+    # Verified: Zero linker errors when compiling Core alone due to conditional imports (e.g. #if canImport(LocalAuthentication)).
     core.source_files = 'Sources/GoatWebView/**/*.{swift}'
     core.resource_bundles = {
       'GoatWebView_Privacy' => ['Sources/GoatWebView/PrivacyInfo.xcprivacy']

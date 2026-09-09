@@ -365,6 +365,10 @@ public class GoatPredictiveBackCoordinator: @unchecked Sendable {
             swipeEdge: swipeEdge,
             edgeThreshold: edgeThreshold
         )
+        // Task 10173: the recognizer already had this knob but nothing could set it. The
+        // container-level dismiss gesture honours the mini-app's SETUP_SWIPE_BEHAVIOR; the
+        // WebView's own DOM scrolling is unaffected, since this only gates the edge recognizer.
+        recognizer.allowVerticalSwipe = GoatClosingBehaviorController.shared.allowVerticalSwipe
 
         let edgeInt = swipeEdge.rawValue
 

@@ -76,8 +76,9 @@ public class GoatHeadlessWebView {
 
         let config = configuration ?? WKWebViewConfiguration()
 
-        // 1. Configure partitioned Website Data Store
-        config.websiteDataStore = GoatCookieManager.shared.dataStore(for: safeAppId)
+        // 1. Shared process pool (10154) + partitioned Website Data Store
+        config.processPool = GoatProcessPoolManager.shared.sharedProcessPool
+        config.websiteDataStore = GoatProcessPoolManager.shared.dataStoreForApp(appId: safeAppId)
         config.allowsInlineMediaPlayback = true
         config.defaultWebpagePreferences.allowsContentJavaScript = true
 

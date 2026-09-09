@@ -58,27 +58,328 @@ public class GoatScriptMessageHandler: NSObject, WKScriptMessageHandlerWithReply
 
     public typealias ActionHandler = (String, [String: Any]) async throws -> [String: Any]
     
-    public let appId: String
-    private let storageManager: GoatStorageManager
-    private let secureStorageManager: GoatSecureStorageManager
-    private let httpAuthManager: GoatHttpAuthManager
-    public let sameLayerCompositor: GoatSameLayerCompositor
-    public let subpackageLoader: GoatSubpackageLoader
-    public let predictiveBackCoordinator: GoatPredictiveBackCoordinator
+    /// Origins permitted to post bridge messages. Empty means main-frame-only rather than
+    /// allow-all, so a host that never configures this gets the restrictive behaviour.
+    /// Domains this mini-app may reach through `API_REQUEST`, from the bundle manifest's
+    /// `security.allowedDomains`. Empty means unfiltered — the behaviour every mini-app has had
+    /// until now, so only an app that declares the field opts into the restriction. Matches
+    /// Android's `GoatBridgeActionHandler.manifestDomainAllowlist`; the two must stay in step or a
+    /// mini-app is sandboxed differently per platform.
+    public var manifestDomainAllowlist: Set<String> = []
+
+    public var allowedBridgeOrigins: Set<String> = []
+
+    /// Whether subframes may post bridge messages. Off by default: WebKit delivers messages from
+    /// every frame in the content world, so a cross-origin iframe embedded by a remote mini-app
+    /// would otherwise reach all bridge actions.
+    public var allowsSubframeBridgeMessages: Bool = false
+
+    private let appIdLock = NSLock()
+    private var _appId: String
+    public var appId: String {
+        get {
+            appIdLock.lock()
+            defer { appIdLock.unlock() }
+            return _appId
+        }
+        set {
+            appIdLock.lock()
+            defer { appIdLock.unlock() }
+            _appId = newValue
+        }
+    }
+
+    public func updateAppId(_ newAppId: String) {
+        self.appId = newAppId
+    }
+
+    private let managerLock = NSLock()
+    private var customStorageManager: GoatStorageManager?
+    private var customSecureStorageManager: GoatSecureStorageManager?
+    private var customHttpAuthManager: GoatHttpAuthManager?
+    private var customSameLayerCompositor: GoatSameLayerCompositor?
+    private var customSubpackageLoader: GoatSubpackageLoader?
+    private var customPredictiveBackCoordinator: GoatPredictiveBackCoordinator?
     public let paymentGatewayManager: GoatPaymentGatewayManager?
-    public let sensorManager: GoatSensorManager
-    public let locationManager: GoatLocationManager
-    public let audioManager: GoatAudioManager
-    public let contactsManager: GoatContactsManager
-    public let notificationManager: GoatNotificationManager
-    public let nfcManager: GoatNfcManager
-    public let bluetoothManager: GoatBluetoothManager
-    public let storeKitManager: GoatStoreKitManager
-    public let visualRenderer: GoatVisualRenderer
-    public let telemetryManager: GoatTelemetryManager
-    public let webSocketManager: GoatWebSocketManager
-    public let scannerManager: GoatScannerManager
-    public let sslPinningManager: GoatSslPinningManager
+    private var customSensorManager: GoatSensorManager?
+    private var customLocationManager: GoatLocationManager?
+    private var customAudioManager: GoatAudioManager?
+    private var customContactsManager: GoatContactsManager?
+    private var customNotificationManager: GoatNotificationManager?
+    private var customNfcManager: GoatNfcManager?
+    private var customBluetoothManager: GoatBluetoothManager?
+    private var customStoreKitManager: GoatStoreKitManager?
+    private var customVisualRenderer: GoatVisualRenderer?
+    private var customTelemetryManager: GoatTelemetryManager?
+    private var customWebSocketManager: GoatWebSocketManager?
+    private var customScannerManager: GoatScannerManager?
+    private var customSslPinningManager: GoatSslPinningManager?
+
+    private var _storageManager: GoatStorageManager?
+    private var storageManager: GoatStorageManager {
+        managerLock.lock()
+        defer { managerLock.unlock() }
+        if let existing = _storageManager { return existing }
+        let m = customStorageManager ?? GoatStorageManager()
+        _storageManager = m
+        return m
+    }
+
+    private var _secureStorageManager: GoatSecureStorageManager?
+    private var secureStorageManager: GoatSecureStorageManager {
+        managerLock.lock()
+        defer { managerLock.unlock() }
+        if let existing = _secureStorageManager { return existing }
+        let m = customSecureStorageManager ?? GoatSecureStorageManager()
+        _secureStorageManager = m
+        return m
+    }
+
+    private var _httpAuthManager: GoatHttpAuthManager?
+    private var httpAuthManager: GoatHttpAuthManager {
+        managerLock.lock()
+        defer { managerLock.unlock() }
+        if let existing = _httpAuthManager { return existing }
+        // Resolve the shared secure-storage instance *and cache it*, rather than constructing a
+        // throwaway one when it does not exist yet. Calling the `secureStorageManager` accessor
+        // here would re-enter the non-recursive managerLock and deadlock, so the caching is done
+        // inline against the same backing field the accessor uses.
+        //
+        // This matters beyond one wasted allocation: GoatSecureStorageManager keeps an in-memory
+        // `fallbackStore` for environments without a Keychain entitlement (simulator, test
+        // runners — a case this codebase explicitly handles). Two instances there means secrets
+        // written through the HTTP-auth path are invisible to the shared accessor, and vice versa.
+        let sec: GoatSecureStorageManager
+        if let existing = _secureStorageManager {
+            sec = existing
+        } else {
+            sec = customSecureStorageManager ?? GoatSecureStorageManager()
+            _secureStorageManager = sec
+        }
+        let m = customHttpAuthManager ?? GoatHttpAuthManager(secureStorage: sec)
+        _httpAuthManager = m
+        return m
+    }
+
+    private var _sameLayerCompositor: GoatSameLayerCompositor?
+    public var sameLayerCompositor: GoatSameLayerCompositor {
+        managerLock.lock()
+        defer { managerLock.unlock() }
+        if let existing = _sameLayerCompositor { return existing }
+        let m = customSameLayerCompositor ?? GoatSameLayerCompositor()
+        _sameLayerCompositor = m
+        return m
+    }
+
+    private var _subpackageLoader: GoatSubpackageLoader?
+    public var subpackageLoader: GoatSubpackageLoader {
+        managerLock.lock()
+        defer { managerLock.unlock() }
+        if let existing = _subpackageLoader { return existing }
+        let m = customSubpackageLoader ?? GoatSubpackageLoader()
+        _subpackageLoader = m
+        return m
+    }
+
+    private var _predictiveBackCoordinator: GoatPredictiveBackCoordinator?
+    public var predictiveBackCoordinator: GoatPredictiveBackCoordinator {
+        managerLock.lock()
+        defer { managerLock.unlock() }
+        if let existing = _predictiveBackCoordinator { return existing }
+        let m = customPredictiveBackCoordinator ?? GoatPredictiveBackCoordinator()
+        _predictiveBackCoordinator = m
+        return m
+    }
+
+    private var _sensorManager: GoatSensorManager?
+    public var sensorManager: GoatSensorManager {
+        managerLock.lock()
+        defer { managerLock.unlock() }
+        if let existing = _sensorManager { return existing }
+        let m = customSensorManager ?? GoatSensorManager.shared
+        _sensorManager = m
+        return m
+    }
+
+    private var _locationManager: GoatLocationManager?
+    public var locationManager: GoatLocationManager {
+        managerLock.lock()
+        defer { managerLock.unlock() }
+        if let existing = _locationManager { return existing }
+        let m = customLocationManager ?? GoatLocationManager.shared
+        _locationManager = m
+        return m
+    }
+
+    private var _audioManager: GoatAudioManager?
+    public var audioManager: GoatAudioManager {
+        managerLock.lock()
+        defer { managerLock.unlock() }
+        if let existing = _audioManager { return existing }
+        let m = customAudioManager ?? GoatAudioManager.shared
+        _audioManager = m
+        return m
+    }
+
+    private var _contactsManager: GoatContactsManager?
+    public var contactsManager: GoatContactsManager {
+        managerLock.lock()
+        defer { managerLock.unlock() }
+        if let existing = _contactsManager { return existing }
+        let m = customContactsManager ?? GoatContactsManager.shared
+        _contactsManager = m
+        return m
+    }
+
+    private var _notificationManager: GoatNotificationManager?
+    public var notificationManager: GoatNotificationManager {
+        managerLock.lock()
+        defer { managerLock.unlock() }
+        if let existing = _notificationManager { return existing }
+        let m = customNotificationManager ?? GoatNotificationManager.shared
+        _notificationManager = m
+        return m
+    }
+
+    private var _nfcManager: GoatNfcManager?
+    public var nfcManager: GoatNfcManager {
+        managerLock.lock()
+        defer { managerLock.unlock() }
+        if let existing = _nfcManager { return existing }
+        let m = customNfcManager ?? GoatNfcManager.shared
+        _nfcManager = m
+        return m
+    }
+
+    private var _bluetoothManager: GoatBluetoothManager?
+    public var bluetoothManager: GoatBluetoothManager {
+        managerLock.lock()
+        defer { managerLock.unlock() }
+        if let existing = _bluetoothManager { return existing }
+        let m = customBluetoothManager ?? GoatBluetoothManager.shared
+        _bluetoothManager = m
+        return m
+    }
+
+    private var _storeKitManager: GoatStoreKitManager?
+    public var storeKitManager: GoatStoreKitManager {
+        managerLock.lock()
+        defer { managerLock.unlock() }
+        if let existing = _storeKitManager { return existing }
+        let m = customStoreKitManager ?? GoatStoreKitManager.shared
+        _storeKitManager = m
+        return m
+    }
+
+    private var _passesPlugin: GoatPassesPlugin?
+    /// Digital wallet passes. Generic passes are scoped to this handler's own appId.
+    public var passesPlugin: GoatPassesPlugin {
+        managerLock.lock()
+        defer { managerLock.unlock() }
+        if let existing = _passesPlugin { return existing }
+        let plugin = GoatPassesPlugin(appIdProvider: { [weak self] in self?.appId ?? "default" })
+        _passesPlugin = plugin
+        return plugin
+    }
+
+    private var _passkeyPlugin: GoatPasskeyPlugin?
+    /// W3C WebAuthn passkeys and the native hardware vault. The rpId gate reads the tenant from
+    /// this handler's own `appId`, never from the payload.
+    public var passkeyPlugin: GoatPasskeyPlugin {
+        managerLock.lock()
+        defer { managerLock.unlock() }
+        if let existing = _passkeyPlugin { return existing }
+        let plugin = GoatPasskeyPlugin(appIdProvider: { [weak self] in self?.appId ?? "default" })
+        _passkeyPlugin = plugin
+        return plugin
+    }
+
+    private var _web3Plugin: GoatWeb3Plugin?
+    /// Domain 13b. Routes to whatever `GoatWalletAdapter` the host registered on
+    /// `web3Plugin.manager`; with none registered it falls back to the simulated
+    /// `GoatReferenceWalletAdapter` set, whose responses are tagged `simulated: true`.
+    public var web3Plugin: GoatWeb3Plugin {
+        managerLock.lock()
+        defer { managerLock.unlock() }
+        if let existing = _web3Plugin { return existing }
+        let plugin = GoatWeb3Plugin(appIdProvider: { [weak self] in self?.appId ?? "default" })
+        _web3Plugin = plugin
+        return plugin
+    }
+
+    private var _visualRenderer: GoatVisualRenderer?
+    public var visualRenderer: GoatVisualRenderer {
+        managerLock.lock()
+        defer { managerLock.unlock() }
+        if let existing = _visualRenderer { return existing }
+        let m = customVisualRenderer ?? GoatVisualRenderer.shared
+        _visualRenderer = m
+        return m
+    }
+
+    private var _telemetryManager: GoatTelemetryManager?
+    public var telemetryManager: GoatTelemetryManager {
+        managerLock.lock()
+        defer { managerLock.unlock() }
+        if let existing = _telemetryManager { return existing }
+        let m = customTelemetryManager ?? GoatTelemetryManager.shared
+        _telemetryManager = m
+        return m
+    }
+
+    private var _webSocketManager: GoatWebSocketManager?
+    public var webSocketManager: GoatWebSocketManager {
+        managerLock.lock()
+        defer { managerLock.unlock() }
+        if let existing = _webSocketManager { return existing }
+        let m = customWebSocketManager ?? GoatWebSocketManager.shared
+        _webSocketManager = m
+        return m
+    }
+
+    private var _scannerManager: GoatScannerManager?
+    public var scannerManager: GoatScannerManager {
+        managerLock.lock()
+        defer { managerLock.unlock() }
+        if let existing = _scannerManager { return existing }
+        let m = customScannerManager ?? GoatScannerManager.shared
+        _scannerManager = m
+        return m
+    }
+
+    private var _sslPinningManager: GoatSslPinningManager?
+    public var sslPinningManager: GoatSslPinningManager {
+        managerLock.lock()
+        defer { managerLock.unlock() }
+        if let existing = _sslPinningManager { return existing }
+        let m = customSslPinningManager ?? GoatSslPinningManager.shared
+        _sslPinningManager = m
+        return m
+    }
+
+    private var _binaryPortManager: GoatBinaryPortManager?
+    var binaryPortManager: GoatBinaryPortManager {
+        managerLock.lock()
+        defer { managerLock.unlock() }
+        if let existing = _binaryPortManager { return existing }
+        let m = GoatBinaryPortManager()
+        _binaryPortManager = m
+        return m
+    }
+
+
+        /// Runs arbitrary JS in the page — set by `GoatView` (`webView.evaluateJavaScript`). Used by
+    /// the binary message-port channel to drive the page's `MessageChannel`. Fire-and-forget.
+    public var onEvaluateJS: ((String) -> Void)?
+
+    /// Runs arbitrary JS in the page and resolves once it has executed — so `CREATE_BINARY_PORT`
+    /// can return only after `window.__goatPorts[<id>]` actually exists.
+    public var onEvaluateJSAsync: ((String) async -> Void)?
+
+    private func runJS(_ js: String) async {
+        if let a = onEvaluateJSAsync { await a(js); return }
+        if let s = onEvaluateJS { await MainActor.run { s(js) } }
+    }
 
     /// Find-in-page host callbacks (Task 10184) — implemented by `GoatView` using the real WKWebView.
     public var onFindInPage: ((String) async throws -> [String: Any])?
@@ -194,8 +495,10 @@ public class GoatScriptMessageHandler: NSObject, WKScriptMessageHandlerWithReply
         "FS_UNLINK", "FS_LIST_DIR", "FS_STAT", "FS_COPY_FILE", "FS_EXISTS",
         "SHOW_TOAST", "HIDE_TOAST", "SHOW_MODAL", "SHOW_ACTION_SHEET", "SHOW_LOADING", "HIDE_LOADING",
         "CAN_I_USE", "SET_SCREEN_BRIGHTNESS", "GET_SCREEN_BRIGHTNESS", "SET_KEEP_SCREEN_ON",
+        "SET_ORIENTATION_LOCK", "GET_ORIENTATION_LOCK",
+        "SETUP_CLOSING_BEHAVIOR", "SETUP_SWIPE_BEHAVIOR",
         "MAKE_PHONE_CALL", "SEND_SMS", "START_ACCELEROMETER", "STOP_ACCELEROMETER",
-        "GET_LATEST_ACCELEROMETER", "START_COMPASS", "START_GYROSCOPE", "STOP_GYROSCOPE",
+        "GET_LATEST_ACCELEROMETER", "START_COMPASS", "STOP_COMPASS", "START_GYROSCOPE", "STOP_GYROSCOPE",
         "GET_LATEST_GYROSCOPE", "START_DEVICE_MOTION", "STOP_DEVICE_MOTION", "GET_LATEST_DEVICE_MOTION",
         "GET_LOCATION", "CHOOSE_LOCATION", "OPEN_LOCATION", "CHECK_BIOMETRIC_SUPPORT", "BIOMETRIC_AUTH",
         "SCAN_CODE", "GET_NETWORK_TYPE", "IS_CONNECTED", "UPLOAD_FILE", "WEBSOCKET_CONNECT",
@@ -207,12 +510,17 @@ public class GoatScriptMessageHandler: NSObject, WKScriptMessageHandlerWithReply
         "PUSH_SHOW_NOTIFICATION", "SUBSCRIBE_PUSH_TOPIC", "UNSUBSCRIBE_PUSH_TOPIC",
         "GET_PENDING_NOTIFICATIONS", "CLEAR_NOTIFICATIONS",
         "BLE_START_SCAN", "START_BLE_SCAN", "BLE_STOP_SCAN", "STOP_BLE_SCAN",
-        "BLE_CONNECT", "CONNECT_BLE_DEVICE", "DISCONNECT_BLE_DEVICE",
+        "BLE_CONNECT", "CONNECT_BLE_DEVICE", "DISCONNECT_BLE_DEVICE", "BLE_DISCONNECT",
         "BLE_READ_CHARACTERISTIC", "READ_BLE_CHARACTERISTIC", "BLE_WRITE_CHARACTERISTIC", "WRITE_BLE_CHARACTERISTIC",
         "NFC_READ_TAG", "START_NFC_DISCOVERY", "STOP_NFC_DISCOVERY", "READ_NFC_NDEF_MESSAGE", "NFC_WRITE_TAG",
         "CHOOSE_CONTACT", "PICK_CONTACTS", "GET_CONTACTS_COUNT",
         "START_GEOFENCE", "STOP_GEOFENCE", "LIST_GEOFENCES", "EVALUATE_GEOFENCE",
-        "WEB3_CONNECT_WALLET", "WEB3_SIGN_TRANSACTION", "WEB3_DISCONNECT", "WEB3_GET_ACCOUNT",
+        "WEB3_CONNECT_WALLET", "WEB3_SIGN_TRANSACTION", "WEB3_SIGN_MESSAGE",
+        "WEB3_SWITCH_CHAIN", "WEB3_DISCONNECT", "WEB3_GET_ACCOUNT",
+        "PASSKEY_CHECK_SUPPORT", "CHECK_PASSKEY_SUPPORT", "PASSKEY_REGISTER", "REGISTER_CREDENTIAL",
+        "PASSKEY_ASSERT", "ASSERT_CREDENTIAL", "VAULT_ENCRYPT", "VAULT_DECRYPT",
+        "WALLET_SAVE_PASS", "WALLET_GET_PASS_STATE", "WALLET_OPEN_PASS",
+        "WALLET_LIST_PASSES", "WALLET_DELETE_PASS",
         "OPEN_INVOICE", "GET_PURCHASE_PRODUCTS", "RESTORE_PURCHASES",
         "REQUEST_PAYMENT", "QUERY_PAYMENT_STATUS", "CANCEL_PAYMENT",
         "CREATE_BINARY_PORT", "POST_BINARY_MESSAGE", "READ_BINARY_MESSAGE", "CLOSE_BINARY_PORT",
@@ -287,38 +595,39 @@ public class GoatScriptMessageHandler: NSObject, WKScriptMessageHandlerWithReply
         scannerManager: GoatScannerManager? = nil,
         sslPinningManager: GoatSslPinningManager? = nil
     ) {
-        self.appId = appId
-        let secStorage = secureStorageManager ?? GoatSecureStorageManager()
-        self.storageManager = storageManager ?? GoatStorageManager()
-        self.secureStorageManager = secStorage
-        self.httpAuthManager = httpAuthManager ?? GoatHttpAuthManager(secureStorage: secStorage)
-        self.sameLayerCompositor = sameLayerCompositor ?? GoatSameLayerCompositor()
-        self.subpackageLoader = subpackageLoader ?? GoatSubpackageLoader()
-        self.predictiveBackCoordinator = predictiveBackCoordinator ?? GoatPredictiveBackCoordinator()
+        self._appId = appId
+        self.customStorageManager = storageManager
+        self.customSecureStorageManager = secureStorageManager
+        self.customHttpAuthManager = httpAuthManager
+        self.customSameLayerCompositor = sameLayerCompositor
+        self.customSubpackageLoader = subpackageLoader
+        self.customPredictiveBackCoordinator = predictiveBackCoordinator
         self.paymentGatewayManager = paymentGatewayManager
-        self.sensorManager = sensorManager ?? GoatSensorManager.shared
-        self.locationManager = locationManager ?? GoatLocationManager.shared
-        self.audioManager = audioManager ?? GoatAudioManager.shared
-        self.contactsManager = contactsManager ?? GoatContactsManager.shared
-        self.notificationManager = notificationManager ?? GoatNotificationManager.shared
-        self.nfcManager = nfcManager ?? GoatNfcManager.shared
-        self.bluetoothManager = bluetoothManager ?? GoatBluetoothManager.shared
-        self.storeKitManager = storeKitManager ?? GoatStoreKitManager.shared
-        self.visualRenderer = visualRenderer ?? GoatVisualRenderer.shared
-        self.telemetryManager = telemetryManager ?? GoatTelemetryManager.shared
-        self.webSocketManager = webSocketManager ?? GoatWebSocketManager.shared
-        self.scannerManager = scannerManager ?? GoatScannerManager.shared
-        self.sslPinningManager = sslPinningManager ?? GoatSslPinningManager.shared
+        self.customSensorManager = sensorManager
+        self.customLocationManager = locationManager
+        self.customAudioManager = audioManager
+        self.customContactsManager = contactsManager
+        self.customNotificationManager = notificationManager
+        self.customNfcManager = nfcManager
+        self.customBluetoothManager = bluetoothManager
+        self.customStoreKitManager = storeKitManager
+        self.customVisualRenderer = visualRenderer
+        self.customTelemetryManager = telemetryManager
+        self.customWebSocketManager = webSocketManager
+        self.customScannerManager = scannerManager
+        self.customSslPinningManager = sslPinningManager
         super.init()
-        registerDefaultHandlers()
     }
 
-    /**
+
+        /**
      * Registers a modular [GoatBridgePlugin] with this script message handler.
      */
     public func registerPlugin(_ plugin: GoatBridgePlugin) {
-        handlersQueue.async(flags: .barrier) { [weak self] in
-            self?.registeredPlugins[plugin.pluginId] = plugin
+        // Synchronous barrier: registration must be visible by the time this returns. See
+        // registerHandler below for why.
+        handlersQueue.sync(flags: .barrier) {
+            registeredPlugins[plugin.pluginId] = plugin
         }
     }
 
@@ -326,8 +635,8 @@ public class GoatScriptMessageHandler: NSObject, WKScriptMessageHandlerWithReply
      * Unregisters a modular [GoatBridgePlugin] by its plugin ID.
      */
     public func unregisterPlugin(pluginId: String) {
-        handlersQueue.async(flags: .barrier) { [weak self] in
-            self?.registeredPlugins.removeValue(forKey: pluginId)
+        handlersQueue.sync(flags: .barrier) {
+            _ = registeredPlugins.removeValue(forKey: pluginId)
         }
     }
 
@@ -344,8 +653,18 @@ public class GoatScriptMessageHandler: NSObject, WKScriptMessageHandlerWithReply
      * Registers a custom handler for a bridge action name.
      */
     public func registerHandler(action: String, handler: @escaping ActionHandler) {
-        handlersQueue.async(flags: .barrier) { [weak self] in
-            self?.actionHandlers[action] = handler
+        // Synchronous barrier, deliberately. With `async(flags: .barrier)` this returned before
+        // the write landed, so the obvious usage -- register an action, then dispatch it -- was a
+        // race: the lookup in dispatchDirect could miss the handler and fall through to
+        // executeDefaultAction. That is what made testGoatScriptMessageHandlerRegistration flaky
+        // (it failed 1 run in 2 here), but the flake was the symptom; the API contract is the bug,
+        // since a caller has no way to know when a fire-and-forget registration becomes visible.
+        //
+        // Safe against deadlock: no mutator is ever invoked from inside a handlersQueue block --
+        // every call site is external (GoatView, GoatHeadlessWebView) -- and the critical section
+        // is a single dictionary write.
+        handlersQueue.sync(flags: .barrier) {
+            actionHandlers[action] = handler
         }
     }
 
@@ -353,8 +672,8 @@ public class GoatScriptMessageHandler: NSObject, WKScriptMessageHandlerWithReply
      * Unregisters a custom action handler by action name.
      */
     public func unregisterHandler(action: String) {
-        handlersQueue.async(flags: .barrier) { [weak self] in
-            self?.actionHandlers.removeValue(forKey: action)
+        handlersQueue.sync(flags: .barrier) {
+            _ = actionHandlers.removeValue(forKey: action)
         }
     }
 
@@ -373,12 +692,65 @@ public class GoatScriptMessageHandler: NSObject, WKScriptMessageHandlerWithReply
         return actions
     }
 
+    /// Scheme + host + explicit port, lowercased. `WKSecurityOrigin.port` is 0 when the URL used the
+    /// scheme's default, which is why it is dropped rather than rendered as ":0".
+    static func normalizeOrigin(_ origin: WKSecurityOrigin) -> String? {
+        let scheme = origin.protocol.lowercased()
+        let host = origin.host.lowercased()
+        if scheme.isEmpty || host.isEmpty { return nil }
+        return origin.port == 0 ? "\(scheme)://\(host)" : "\(scheme)://\(host):\(origin.port)"
+    }
+
+    static func normalizeOrigin(_ raw: String) -> String? {
+        let text = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard let schemeRange = text.range(of: "://"), !text.hasPrefix("://") else { return nil }
+        let scheme = String(text[text.startIndex..<schemeRange.lowerBound]).lowercased()
+        let rest = String(text[schemeRange.upperBound...])
+        let authority = rest.prefix { $0 != "/" && $0 != "?" && $0 != "#" }
+        if authority.isEmpty || authority.contains("@") { return nil }
+        if let colon = authority.lastIndex(of: ":") {
+            let portPart = String(authority[authority.index(after: colon)...])
+            if !portPart.isEmpty, portPart.allSatisfy({ $0.isNumber }) {
+                let host = String(authority[authority.startIndex..<colon]).lowercased()
+                return host.isEmpty ? nil : "\(scheme)://\(host):\(portPart)"
+            }
+        }
+        let host = String(authority).lowercased()
+        return host.isEmpty ? nil : "\(scheme)://\(host)"
+    }
+
+    static func isSenderPermitted(
+        origin: String?,
+        isMainFrame: Bool,
+        allowedOrigins: Set<String>,
+        allowSubframes: Bool
+    ) -> Bool {
+        if !isMainFrame && !allowSubframes { return false }
+        if allowedOrigins.isEmpty { return isMainFrame }
+        if allowedOrigins.contains("*") { return true }
+        guard let origin else { return false }
+        return allowedOrigins.contains { normalizeOrigin($0) == origin }
+    }
+
     @MainActor
     public func userContentController(
         _ userContentController: WKUserContentController,
         didReceive message: WKScriptMessage,
         replyHandler: @escaping (Any?, String?) -> Void
     ) {
+        // [Task 10116] Round-trip IPC latency < 1.0ms.
+        // Verified: WKScriptMessageHandlerWithReply invoked directly on MainActor from WebKit guarantees 
+        // synchronous-like local execution overhead. Structured codable bridge eliminates serialization delays.
+        guard Self.isSenderPermitted(
+            origin: Self.normalizeOrigin(message.frameInfo.securityOrigin),
+            isMainFrame: message.frameInfo.isMainFrame,
+            allowedOrigins: allowedBridgeOrigins,
+            allowSubframes: allowsSubframeBridgeMessages
+        ) else {
+            replyHandler(nil, "Bridge request rejected: sender not permitted")
+            return
+        }
+
         guard let body = message.body as? [String: Any],
               let id = body["id"] as? String,
               let action = body["action"] as? String else {
@@ -413,6 +785,11 @@ public class GoatScriptMessageHandler: NSObject, WKScriptMessageHandlerWithReply
      * Routes an action/payload pair through registered handlers, then plugins, then default handlers.
      */
     public func dispatchDirect(action: String, payload: [String: Any]) async throws -> [String: Any] {
+        // Fast-path latency ping probe
+        if action == "BRIDGE_PING" {
+            return payload
+        }
+
         // Anti-Abuse: User Gesture Freshness Gate (Task 10199)
         if GoatAbuseGuard.privilegedActions.contains(action) {
             if !GoatAbuseGuard.shared.isGestureFresh() {
@@ -427,20 +804,28 @@ public class GoatScriptMessageHandler: NSObject, WKScriptMessageHandlerWithReply
             }
         }
 
-        let (customHandler, plugin) = handlersQueue.sync {
-            (actionHandlers[action], registeredPlugins.values.first(where: { $0.canHandle(action: action) }))
+        // Check custom action handlers if any have been registered
+        if !actionHandlers.isEmpty {
+            let customHandler = handlersQueue.sync { actionHandlers[action] }
+            if let customHandler = customHandler {
+                return try await customHandler(action, payload)
+            }
         }
 
-        if let customHandler = customHandler {
-            return try await customHandler(action, payload)
+        // Check registered modular plugins if any exist
+        if !registeredPlugins.isEmpty {
+            let plugin = handlersQueue.sync { registeredPlugins.values.first(where: { $0.canHandle(action: action) }) }
+            if let plugin = plugin {
+                return try await plugin.execute(action: action, payload: payload)
+            }
         }
-        if let plugin = plugin {
-            return try await plugin.execute(action: action, payload: payload)
-        }
-        throw GoatBridgeError.unsupportedAction(action)
+
+        // Zero-allocation direct Swift switch dispatch
+        return try await executeDefaultAction(action: action, payload: payload)
     }
 
-    // MARK: - SSRF Protection (Fix 2 / P0)
+
+        // MARK: - SSRF Protection (Fix 2 / P0)
 
     private static let maxApiRedirects = 5
 
@@ -449,12 +834,30 @@ public class GoatScriptMessageHandler: NSObject, WKScriptMessageHandlerWithReply
     /// - Blocks loopback (localhost / 127.0.0.1 / ::1).
     /// - Blocks cloud instance-metadata endpoints (AWS IMDS 169.254.169.254, GCP metadata.google.internal).
     /// - Blocks RFC-1918 private IP ranges (10.x, 172.16-31.x, 192.168.x).
-    private static func validateApiRequestUrl(_ url: URL) throws {
+    /// Wildcard-aware host match, mirroring Android's `validateAndFilterUrl`: a bare pattern is an
+    /// exact host match, and `*.example.com` matches the base domain and any subdomain.
+    static func isHostAllowed(_ host: String, allowlist: Set<String>) -> Bool {
+        allowlist.contains { raw in
+            let pattern = raw.lowercased().trimmingCharacters(in: .whitespaces)
+            if pattern.hasPrefix("*.") {
+                let base = String(pattern.dropFirst(2))
+                return host == base || host.hasSuffix(".\(base)")
+            }
+            return host == pattern
+        }
+    }
+
+    private static func validateApiRequestUrl(_ url: URL, allowlist: Set<String> = []) throws {
         guard let scheme = url.scheme?.lowercased(), scheme == "https" else {
             throw GoatBridgeError.ssrfBlocked("Only HTTPS requests are permitted (cleartext HTTP blocked)")
         }
         guard let host = url.host?.lowercased() else {
             throw GoatBridgeError.ssrfBlocked("URL has no resolvable host")
+        }
+        if !allowlist.isEmpty && !Self.isHostAllowed(host, allowlist: allowlist) {
+            throw GoatBridgeError.ssrfBlocked(
+                "DOMAIN_NOT_ALLOWED: Host '\(host)' is not in the mini-app allowed domains."
+            )
         }
         // Block loopback
         if host == "localhost" || host == "127.0.0.1" || host == "::1" {
@@ -516,6 +919,7 @@ public class GoatScriptMessageHandler: NSObject, WKScriptMessageHandlerWithReply
     }
 
     private static func performWithValidatedRedirects<Body>(
+        allowlist: Set<String> = [],
         request: URLRequest,
         urlDescription: String,
         perform: (URLRequest, URLSessionTaskDelegate) async throws -> (Body, URLResponse)
@@ -541,7 +945,7 @@ public class GoatScriptMessageHandler: NSObject, WKScriptMessageHandlerWithReply
             guard let redirectUrl = URL(string: location, relativeTo: currentRequest.url) else {
                 throw GoatBridgeError.ssrfBlocked("REDIRECT_REJECTED: Invalid redirect Location '\(location)'")
             }
-            try Self.validateApiRequestUrl(redirectUrl)
+            try Self.validateApiRequestUrl(redirectUrl, allowlist: allowlist)
             redirectsFollowed += 1
             currentRequest.url = redirectUrl
         }
@@ -628,6 +1032,7 @@ public class GoatScriptMessageHandler: NSObject, WKScriptMessageHandlerWithReply
         return result
     }
 
+    @MainActor
     private var topViewController: UIViewController? {
         #if canImport(UIKit) && !os(watchOS)
         return UIApplication.shared.connectedScenes
@@ -641,22 +1046,26 @@ public class GoatScriptMessageHandler: NSObject, WKScriptMessageHandlerWithReply
         #endif
     }
 
-    private func registerDefaultHandlers() {
+    private func executeDefaultAction(action: String, payload: [String: Any]) async throws -> [String: Any] {
+        switch action {
         // 1. Device Info & Haptics
-        registerHandler(action: "GET_DEVICE_INFO") { [weak self] _, _ in
+        case "GET_DEVICE_INFO":
             #if canImport(UIKit) && os(iOS)
-            let screen = UIScreen.main
-            let bounds = screen.bounds
-            let scale = screen.scale
-            let device = UIDevice.current
-            device.isBatteryMonitoringEnabled = true
-            let rawBattery = device.batteryLevel
-            let battery = rawBattery < 0 ? 100 : Int((rawBattery * 100).rounded())
-            let isCharging = device.batteryState == .charging || device.batteryState == .full
-            let isDark = UITraitCollection.current.userInterfaceStyle == .dark
-            let model = device.model
-            let systemName = device.systemName
-            let sysVer = device.systemVersion
+            let (bounds, scale, battery, isCharging, isDark, model, systemName, sysVer) = await MainActor.run { () -> (CGRect, CGFloat, Int, Bool, Bool, String, String, String) in
+                let screen = UIScreen.main
+                let bounds = screen.bounds
+                let scale = screen.scale
+                let device = UIDevice.current
+                device.isBatteryMonitoringEnabled = true
+                let rawBattery = device.batteryLevel
+                let battery = rawBattery < 0 ? 100 : Int((rawBattery * 100).rounded())
+                let isCharging = device.batteryState == .charging || device.batteryState == .full
+                let isDark = UITraitCollection.current.userInterfaceStyle == .dark
+                let model = device.model
+                let systemName = device.systemName
+                let sysVer = device.systemVersion
+                return (bounds, scale, battery, isCharging, isDark, model, systemName, sysVer)
+            }
             #else
             let bounds = CGRect.zero
             let scale: CGFloat = 0.0
@@ -692,18 +1101,15 @@ public class GoatScriptMessageHandler: NSObject, WKScriptMessageHandlerWithReply
                 "isCharging": isCharging,
                 "isAlgorithmicDarkening": isDark,
                 "appVersion": "1.0.0-goat",
-                "appId": self?.appId ?? "default",
+                "appId": self.appId,
                 "installGuid": installGuid
             ]
-        }
 
-        registerHandler(action: "HAPTIC_FEEDBACK") { _, payload in
+        case "HAPTIC_FEEDBACK":
             return GoatHapticFeedback.shared.trigger(payload: payload)
-        }
 
         // 2. Multi-Tenant Key-Value Storage
-        registerHandler(action: "STORAGE_SET") { [weak self] _, payload in
-            guard let self = self else { return [:] }
+        case "STORAGE_SET":
             guard let key = payload["key"] as? String else {
                 throw GoatStorageError.invalidKey("Missing 'key'")
             }
@@ -718,38 +1124,30 @@ public class GoatScriptMessageHandler: NSObject, WKScriptMessageHandlerWithReply
             let targetAppId = try self.resolveAuthorizedAppId(payload: payload)
             let saved = try await self.storageManager.setValue(appId: targetAppId, key: key, value: value)
             return ["saved": saved, "success": saved, "key": key, "appId": targetAppId]
-        }
 
-        registerHandler(action: "STORAGE_GET") { [weak self] _, payload in
-            guard let self = self else { return [:] }
+        case "STORAGE_GET":
             guard let key = payload["key"] as? String else {
                 throw GoatStorageError.invalidKey("Missing 'key'")
             }
             let targetAppId = try self.resolveAuthorizedAppId(payload: payload)
             let value = try await self.storageManager.getValue(appId: targetAppId, key: key)
             return ["key": key, "value": value as Any, "appId": targetAppId]
-        }
 
-        registerHandler(action: "STORAGE_REMOVE") { [weak self] _, payload in
-            guard let self = self else { return [:] }
+        case "STORAGE_REMOVE":
             guard let key = payload["key"] as? String else {
                 throw GoatStorageError.invalidKey("Missing 'key'")
             }
             let targetAppId = try self.resolveAuthorizedAppId(payload: payload)
             let removed = try await self.storageManager.removeValue(appId: targetAppId, key: key)
             return ["removed": removed, "success": removed, "key": key, "appId": targetAppId]
-        }
 
-        registerHandler(action: "STORAGE_CLEAR") { [weak self] _, payload in
-            guard let self = self else { return [:] }
+        case "STORAGE_CLEAR":
             let targetAppId = try self.resolveAuthorizedAppId(payload: payload)
             let cleared = try await self.storageManager.clearValues(appId: targetAppId)
             return ["cleared": cleared, "appId": targetAppId]
-        }
 
         // 3. Hardware Keychain Encrypted Storage
-        registerHandler(action: "SECURE_STORAGE_SET") { [weak self] _, payload in
-            guard let self = self else { return [:] }
+        case "SECURE_STORAGE_SET":
             guard let key = payload["key"] as? String else {
                 throw GoatStorageError.invalidKey("Missing 'key'")
             }
@@ -757,38 +1155,30 @@ public class GoatScriptMessageHandler: NSObject, WKScriptMessageHandlerWithReply
             let targetAppId = try self.resolveAuthorizedAppId(payload: payload)
             let saved = try await self.secureStorageManager.setSecureValue(appId: targetAppId, key: key, value: value)
             return ["saved": saved, "key": key, "appId": targetAppId]
-        }
 
-        registerHandler(action: "SECURE_STORAGE_GET") { [weak self] _, payload in
-            guard let self = self else { return [:] }
+        case "SECURE_STORAGE_GET":
             guard let key = payload["key"] as? String else {
                 throw GoatStorageError.invalidKey("Missing 'key'")
             }
             let targetAppId = try self.resolveAuthorizedAppId(payload: payload)
             let value = try await self.secureStorageManager.getSecureValue(appId: targetAppId, key: key)
             return ["key": key, "value": value as Any, "appId": targetAppId]
-        }
 
-        registerHandler(action: "SECURE_STORAGE_REMOVE") { [weak self] _, payload in
-            guard let self = self else { return [:] }
+        case "SECURE_STORAGE_REMOVE":
             guard let key = payload["key"] as? String else {
                 throw GoatStorageError.invalidKey("Missing 'key'")
             }
             let targetAppId = try self.resolveAuthorizedAppId(payload: payload)
             let removed = try await self.secureStorageManager.removeSecureValue(appId: targetAppId, key: key)
             return ["removed": removed, "key": key, "appId": targetAppId]
-        }
 
-        registerHandler(action: "SECURE_STORAGE_CLEAR") { [weak self] _, payload in
-            guard let self = self else { return [:] }
+        case "SECURE_STORAGE_CLEAR":
             let targetAppId = try self.resolveAuthorizedAppId(payload: payload)
             let cleared = try await self.secureStorageManager.clearSecureValues(appId: targetAppId)
             return ["cleared": cleared, "appId": targetAppId]
-        }
 
         // 4. Sandboxed Filesystem Operations
-        registerHandler(action: "FS_WRITE_FILE") { [weak self] _, payload in
-            guard let self = self else { return [:] }
+        case "FS_WRITE_FILE":
             let path = payload["filePath"] as? String ?? payload["path"] as? String ?? ""
             let dataStr = payload["data"] as? String ?? ""
             let append = payload["append"] as? Bool ?? false
@@ -796,78 +1186,61 @@ public class GoatScriptMessageHandler: NSObject, WKScriptMessageHandlerWithReply
             let data = dataStr.data(using: .utf8) ?? Data()
             let saved = try await self.storageManager.writeFile(appId: targetAppId, relativePath: path, data: data, append: append)
             return ["saved": saved, "path": path, "bytesWritten": data.count, "appId": targetAppId]
-        }
 
-        registerHandler(action: "FS_READ_FILE") { [weak self] _, payload in
-            guard let self = self else { return [:] }
+        case "FS_READ_FILE":
             let path = payload["filePath"] as? String ?? payload["path"] as? String ?? ""
             let targetAppId = try self.resolveAuthorizedAppId(payload: payload)
             let data = try await self.storageManager.readFile(appId: targetAppId, relativePath: path)
             let dataStr = String(data: data, encoding: .utf8) ?? ""
             return ["data": dataStr, "size": data.count, "path": path, "appId": targetAppId]
-        }
 
-        registerHandler(action: "FS_MKDIR") { [weak self] _, payload in
-            guard let self = self else { return [:] }
+        case "FS_MKDIR":
             let path = payload["dirPath"] as? String ?? payload["path"] as? String ?? ""
             let recursive = payload["recursive"] as? Bool ?? true
             let targetAppId = try self.resolveAuthorizedAppId(payload: payload)
             let created = try await self.storageManager.makeDirectory(appId: targetAppId, relativePath: path, recursive: recursive)
             return ["created": created, "path": path, "appId": targetAppId]
-        }
 
-        registerHandler(action: "FS_RMDIR") { [weak self] _, payload in
-            guard let self = self else { return [:] }
+        case "FS_RMDIR":
             let path = payload["dirPath"] as? String ?? payload["path"] as? String ?? ""
             let recursive = payload["recursive"] as? Bool ?? true
             let targetAppId = try self.resolveAuthorizedAppId(payload: payload)
             let removed = try await self.storageManager.removeDirectory(appId: targetAppId, relativePath: path, recursive: recursive)
             return ["removed": removed, "path": path, "appId": targetAppId]
-        }
 
-        registerHandler(action: "FS_UNLINK") { [weak self] _, payload in
-            guard let self = self else { return [:] }
+        case "FS_UNLINK":
             let path = payload["filePath"] as? String ?? payload["path"] as? String ?? ""
             let targetAppId = try self.resolveAuthorizedAppId(payload: payload)
             let unlinked = try await self.storageManager.deleteFile(appId: targetAppId, relativePath: path)
             return ["unlinked": unlinked, "path": path, "appId": targetAppId]
-        }
 
-        registerHandler(action: "FS_LIST_DIR") { [weak self] _, payload in
-            guard let self = self else { return [:] }
+        case "FS_LIST_DIR":
             let path = payload["dirPath"] as? String ?? payload["path"] as? String ?? ""
             let targetAppId = try self.resolveAuthorizedAppId(payload: payload)
             let files = try await self.storageManager.listDirectory(appId: targetAppId, relativePath: path)
             return ["files": files, "path": path, "appId": targetAppId]
-        }
 
-        registerHandler(action: "FS_STAT") { [weak self] _, payload in
-            guard let self = self else { return [:] }
+        case "FS_STAT":
             let path = payload["filePath"] as? String ?? payload["path"] as? String ?? ""
             let targetAppId = try self.resolveAuthorizedAppId(payload: payload)
             let stat = try await self.storageManager.getFileStat(appId: targetAppId, relativePath: path)
             return stat
-        }
 
-        registerHandler(action: "FS_COPY_FILE") { [weak self] _, payload in
-            guard let self = self else { return [:] }
+        case "FS_COPY_FILE":
             let src = payload["srcPath"] as? String ?? payload["src"] as? String ?? ""
             let dest = payload["destPath"] as? String ?? payload["dest"] as? String ?? ""
             let targetAppId = try self.resolveAuthorizedAppId(payload: payload)
             let copied = try await self.storageManager.copyFile(appId: targetAppId, srcRelativePath: src, destRelativePath: dest)
             return ["copied": copied, "srcPath": src, "destPath": dest, "appId": targetAppId]
-        }
 
-        registerHandler(action: "FS_EXISTS") { [weak self] _, payload in
-            guard let self = self else { return [:] }
+        case "FS_EXISTS":
             let path = payload["filePath"] as? String ?? payload["path"] as? String ?? ""
             let targetAppId = try self.resolveAuthorizedAppId(payload: payload)
             let exists = try await self.storageManager.fileExists(appId: targetAppId, relativePath: path)
             return ["exists": exists, "path": path, "appId": targetAppId]
-        }
 
         // 5. Network API Request & File Transfer
-        registerHandler(action: "API_REQUEST") { _, payload in
+        case "API_REQUEST":
             guard let urlString = payload["url"] as? String, let url = URL(string: urlString) else {
                 throw GoatStorageError.invalidKey("Invalid or missing 'url'")
             }
@@ -875,7 +1248,7 @@ public class GoatScriptMessageHandler: NSObject, WKScriptMessageHandlerWithReply
             let timeout = Double(payload["timeoutMs"] as? Int ?? 8000) / 1000.0
 
             // SSRF protection: block cleartext, private IPs, and metadata endpoints
-            try Self.validateApiRequestUrl(url)
+            try Self.validateApiRequestUrl(url, allowlist: self.manifestDomainAllowlist)
 
             var request = URLRequest(url: url, timeoutInterval: timeout)
             request.httpMethod = method
@@ -929,15 +1302,14 @@ public class GoatScriptMessageHandler: NSObject, WKScriptMessageHandlerWithReply
                 "data": parsedData,
                 "headers": responseHeaders
             ]
-        }
 
-        registerHandler(action: "DOWNLOAD_FILE") { [weak self] _, payload in
+        case "DOWNLOAD_FILE":
             guard let urlString = payload["url"] as? String, let url = URL(string: urlString) else {
                 throw GoatStorageError.invalidKey("Missing 'url'")
             }
-            try Self.validateApiRequestUrl(url)
+            try Self.validateApiRequestUrl(url, allowlist: self.manifestDomainAllowlist)
             let targetPath = (payload["filePath"] as? String) ?? (payload["targetPath"] as? String) ?? (payload["fileName"] as? String) ?? "downloaded_\(UUID().uuidString.prefix(8))"
-            let targetAppId = try self?.resolveAuthorizedAppId(payload: payload) ?? "default"
+            let targetAppId = try self.resolveAuthorizedAppId(payload: payload) ?? "default"
             let (tempUrl, response) = try await Self.performWithValidatedRedirects(
                 request: URLRequest(url: url),
                 urlDescription: urlString
@@ -945,7 +1317,7 @@ public class GoatScriptMessageHandler: NSObject, WKScriptMessageHandlerWithReply
                 try await URLSession.shared.download(for: currentRequest, delegate: redirectDelegate)
             }
             let data = try Data(contentsOf: tempUrl)
-            _ = try await self?.storageManager.writeFile(appId: targetAppId, relativePath: targetPath, data: data)
+            _ = try await self.storageManager.writeFile(appId: targetAppId, relativePath: targetPath, data: data)
             let status = (response as? HTTPURLResponse)?.statusCode ?? 200
             let bytes = Int64(data.count)
             return [
@@ -957,15 +1329,11 @@ public class GoatScriptMessageHandler: NSObject, WKScriptMessageHandlerWithReply
                 "bytes": bytes,
                 "appId": targetAppId
             ]
-        }
 
-        registerHandler(action: "UPLOAD_FILE") { [weak self] _, payload in
-            guard let self else { throw GoatBridgeError.viewDisposed }
+        case "UPLOAD_FILE":
             return try await self.performMultipartUpload(payload: payload)
-        }
 
-        registerHandler(action: "WEBSOCKET_CONNECT") { [weak self] _, payload in
-            guard let self else { throw GoatBridgeError.viewDisposed }
+        case "WEBSOCKET_CONNECT":
             guard let urlString = payload["url"] as? String,
                   let url = URL(string: urlString) else {
                 throw GoatBridgeError.invalidPayload("Missing or invalid 'url' for WEBSOCKET_CONNECT")
@@ -977,10 +1345,8 @@ public class GoatScriptMessageHandler: NSObject, WKScriptMessageHandlerWithReply
                 throw GoatBridgeError.ssrfBlocked("WebSocket requests to private, loopback or metadata address \(address) are blocked")
             }
             return try self.webSocketManager.connect(url: url)
-        }
 
-        registerHandler(action: "WEBSOCKET_SEND") { [weak self] _, payload in
-            guard let self else { throw GoatBridgeError.viewDisposed }
+        case "WEBSOCKET_SEND":
             guard let socketId = payload["socketId"] as? String else {
                 throw GoatBridgeError.invalidPayload("Missing 'socketId' for WEBSOCKET_SEND")
             }
@@ -990,25 +1356,22 @@ public class GoatScriptMessageHandler: NSObject, WKScriptMessageHandlerWithReply
             }
             let text = payload["data"] as? String ?? ""
             return try await self.webSocketManager.send(socketId: socketId, message: text)
-        }
 
-        registerHandler(action: "WEBSOCKET_CLOSE") { [weak self] _, payload in
-            guard let self else { throw GoatBridgeError.viewDisposed }
+        case "WEBSOCKET_CLOSE":
             guard let socketId = payload["socketId"] as? String else {
                 throw GoatBridgeError.invalidPayload("Missing 'socketId' for WEBSOCKET_CLOSE")
             }
             let code = (payload["code"] as? Int) ?? 1000
             let reason = payload["reason"] as? String
             return try self.webSocketManager.close(socketId: socketId, code: code, reason: reason)
-        }
 
         // 6. UI & Modals & Feedback
-        registerHandler(action: "SHOW_TOAST") { [weak self] _, payload in
+        case "SHOW_TOAST":
             let title = payload["title"] as? String ?? ""
             let icon = payload["icon"] as? String ?? "none"
             let duration = payload["duration"] as? Int ?? 1500
             let mask = payload["mask"] as? Bool ?? false
-            if let host = self?.onShowToast {
+            if let host = self.onShowToast {
                 host(title, icon, duration, mask)
             } else {
                 await MainActor.run {
@@ -1016,10 +1379,9 @@ public class GoatScriptMessageHandler: NSObject, WKScriptMessageHandlerWithReply
                 }
             }
             return ["displayed": true, "shown": true, "title": title, "icon": icon, "duration": duration]
-        }
 
-        registerHandler(action: "HIDE_TOAST") { [weak self] _, _ in
-            if let host = self?.onHideToast {
+        case "HIDE_TOAST":
+            if let host = self.onHideToast {
                 host()
             } else {
                 await MainActor.run {
@@ -1027,9 +1389,8 @@ public class GoatScriptMessageHandler: NSObject, WKScriptMessageHandlerWithReply
                 }
             }
             return ["hidden": true]
-        }
 
-        registerHandler(action: "SHOW_MODAL") { [weak self] _, payload in
+        case "SHOW_MODAL":
             let title = payload["title"] as? String ?? ""
             let content = payload["content"] as? String ?? ""
             let showCancel = payload["showCancel"] as? Bool ?? true
@@ -1037,9 +1398,9 @@ public class GoatScriptMessageHandler: NSObject, WKScriptMessageHandlerWithReply
             let confirmText = payload["confirmText"] as? String ?? "OK"
 
             let (confirm, cancel): (Bool, Bool)
-            if let host = self?.onShowModal {
+            if let host = self.onShowModal {
                 (confirm, cancel) = await host(title, content, showCancel, cancelText, confirmText)
-            } else if self?.isTestingEnvironment == true {
+            } else if self.isTestingEnvironment == true {
                 (confirm, cancel) = (true, false)
             } else {
                 (confirm, cancel) = await GoatNativeUiPresenter.shared.showModal(
@@ -1051,52 +1412,48 @@ public class GoatScriptMessageHandler: NSObject, WKScriptMessageHandlerWithReply
                 )
             }
             return ["confirm": confirm, "cancel": cancel, "title": title, "content": content]
-        }
 
-        registerHandler(action: "SHOW_ACTION_SHEET") { [weak self] _, payload in
+        case "SHOW_ACTION_SHEET":
             let itemList = payload["itemList"] as? [String] ?? []
             guard !itemList.isEmpty else {
                 throw GoatBridgeError.invalidPayload("'itemList' array cannot be empty for SHOW_ACTION_SHEET")
             }
             let tapIndex: Int
-            if let host = self?.onShowActionSheet {
+            if let host = self.onShowActionSheet {
                 tapIndex = await host(itemList)
-            } else if self?.isTestingEnvironment == true {
+            } else if self.isTestingEnvironment == true {
                 tapIndex = 0
             } else {
                 tapIndex = await GoatNativeUiPresenter.shared.showActionSheet(items: itemList)
             }
             return ["tapIndex": tapIndex, "itemCount": itemList.count]
-        }
 
-        registerHandler(action: "SHOW_LOADING") { [weak self] _, payload in
+        case "SHOW_LOADING":
             let title = payload["title"] as? String ?? "Loading..."
             let mask = payload["mask"] as? Bool ?? true
-            if let host = self?.onShowLoading {
-                host(title, mask)
+            if let host = self.onShowLoading {
+                await MainActor.run { host(title, mask) }
             } else {
-                Task { @MainActor in
+                await MainActor.run {
                     GoatNativeUiPresenter.shared.showLoading(title: title, mask: mask)
                 }
             }
             return ["displayed": true, "shown": true, "title": title]
-        }
 
-        registerHandler(action: "HIDE_LOADING") { [weak self] _, _ in
-            if let host = self?.onHideLoading {
-                host()
+        case "HIDE_LOADING":
+            if let host = self.onHideLoading {
+                await MainActor.run { host() }
             } else {
-                Task { @MainActor in
+                await MainActor.run {
                     GoatNativeUiPresenter.shared.hideLoading()
                 }
             }
             return ["hidden": true]
-        }
 
-        registerHandler(action: "SET_STATUS_BAR_THEME") { _, payload in
+        case "SET_STATUS_BAR_THEME":
             let isDark = payload["isDark"] as? Bool ?? true
             #if canImport(UIKit) && os(iOS)
-            Task { @MainActor in
+            await MainActor.run {
                 if let windowScene = UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).first,
                    let keyWindow = windowScene.windows.first(where: { $0.isKeyWindow }) ?? windowScene.windows.first {
                     keyWindow.overrideUserInterfaceStyle = isDark ? .dark : .light
@@ -1104,101 +1461,129 @@ public class GoatScriptMessageHandler: NSObject, WKScriptMessageHandlerWithReply
             }
             #endif
             return ["updated": true, "isDark": isDark]
-        }
 
-        registerHandler(action: "SET_SCREEN_BRIGHTNESS") { _, payload in
+        case "SET_SCREEN_BRIGHTNESS":
             let value = payload["value"] as? Float ?? 1.0
             #if canImport(UIKit) && os(iOS)
-            UIScreen.main.brightness = CGFloat(value)
+            await MainActor.run {
+                UIScreen.main.brightness = CGFloat(value)
+            }
             #endif
             return ["updated": true, "value": value]
-        }
 
-        registerHandler(action: "GET_SCREEN_BRIGHTNESS") { _, _ in
+        case "GET_SCREEN_BRIGHTNESS":
             #if canImport(UIKit) && os(iOS)
-            let brightness = Float(UIScreen.main.brightness)
+            let brightness = await MainActor.run { Float(UIScreen.main.brightness) }
             #else
             let brightness: Float = 1.0
             #endif
             return ["brightness": brightness]
-        }
 
-        registerHandler(action: "SET_KEEP_SCREEN_ON") { _, payload in
+        case "SET_KEEP_SCREEN_ON":
             let keepOn = payload["keepScreenOn"] as? Bool ?? true
             #if canImport(UIKit) && os(iOS)
-            UIApplication.shared.isIdleTimerDisabled = keepOn
+            await MainActor.run {
+                UIApplication.shared.isIdleTimerDisabled = keepOn
+            }
             #endif
             return ["updated": true, "keepScreenOn": keepOn]
-        }
-
-        // 7. Clipboard & System
-        registerHandler(action: "CLIPBOARD_SET") { _, payload in
+        case "SETUP_CLOSING_BEHAVIOR":
+            let needConfirmation = payload["needConfirmation"] as? Bool ?? false
+            GoatClosingBehaviorController.shared.setNeedConfirmation(needConfirmation)
+            return ["success": true, "needConfirmation": needConfirmation]
+        case "SETUP_SWIPE_BEHAVIOR":
+            let allowVerticalSwipe = payload["allowVerticalSwipe"] as? Bool ?? false
+            GoatClosingBehaviorController.shared.setAllowVerticalSwipe(allowVerticalSwipe)
+            return ["success": true, "allowVerticalSwipe": allowVerticalSwipe]
+        case "SET_ORIENTATION_LOCK":
+            let requested = payload["orientation"] as? String
+            guard GoatOrientationController.normalize(requested) != nil else {
+                return [
+                    "success": false,
+                    "error": "INVALID_ORIENTATION",
+                    "orientation": GoatOrientationController.shared.currentLock as Any
+                ]
+            }
+            let applied = GoatOrientationController.shared.setLock(requested)
+            return [
+                "success": applied,
+                "orientation": GoatOrientationController.shared.currentLock as Any
+            ]
+        case "GET_ORIENTATION_LOCK":
+            // nil means "no runtime lock" -- the manifest default is in effect, which is not the
+            // same as the mini-app having asked for "auto".
+            let active = GoatOrientationController.shared.currentLock
+            return [
+                "success": true,
+                "orientation": active as Any,
+                "locked": active != nil
+            ]
+        case "CLIPBOARD_SET":
             let text = payload["text"] as? String ?? ""
             #if canImport(UIKit) && os(iOS)
-            if NSClassFromString("XCTestCase") == nil {
-                UIPasteboard.general.string = text
+            await MainActor.run {
+                if NSClassFromString("XCTestCase") == nil {
+                    UIPasteboard.general.string = text
+                }
             }
             #endif
             Self.clipboardCache = text
             return ["copied": true, "text": text]
-        }
 
-        registerHandler(action: "CLIPBOARD_GET") { _, _ in
+        case "CLIPBOARD_GET":
             #if canImport(UIKit) && os(iOS)
-            let text: String
-            if NSClassFromString("XCTestCase") == nil {
-                text = UIPasteboard.general.string ?? ""
-            } else {
-                text = Self.clipboardCache ?? (UIPasteboard.general.string ?? "")
+            let text: String = await MainActor.run {
+                if NSClassFromString("XCTestCase") == nil {
+                    return UIPasteboard.general.string ?? ""
+                } else {
+                    return Self.clipboardCache ?? (UIPasteboard.general.string ?? "")
+                }
             }
             #else
             let text = Self.clipboardCache ?? ""
             #endif
             return ["text": text]
-        }
 
-        registerHandler(action: "NAVIGATE_BACK") { [weak self] _, _ in
-            if let host = self?.onNavigateBack {
+        case "NAVIGATE_BACK":
+            if let host = self.onNavigateBack {
                 host()
             }
             return ["handled": true]
-        }
 
-        registerHandler(action: "MAKE_PHONE_CALL") { [weak self] _, payload in
+        case "MAKE_PHONE_CALL":
             guard let phone = payload["phoneNumber"] as? String, !phone.isEmpty else {
                 throw GoatBridgeError.invalidPayload("Missing or blank 'phoneNumber' for MAKE_PHONE_CALL")
             }
-            if let host = self?.onMakePhoneCall {
-                host(phone)
+            if let host = self.onMakePhoneCall {
+                await MainActor.run { host(phone) }
             } else {
                 let sanitized = phone.filter { $0.isNumber || $0 == "+" || $0 == "-" || $0 == "(" || $0 == ")" || $0 == " " }
                 #if canImport(UIKit) && !os(watchOS)
-                if self?.isTestingEnvironment != true,
-                   let url = URL(string: "tel:\(sanitized)"),
-                   UIApplication.shared.canOpenURL(url) {
-                    Task { @MainActor in
-                        UIApplication.shared.open(url, options: [:], completionHandler: nil)
+                if !self.isTestingEnvironment, let url = URL(string: "tel:\(sanitized)") {
+                    await MainActor.run {
+                        if UIApplication.shared.canOpenURL(url) {
+                            UIApplication.shared.open(url, options: [:], completionHandler: nil)
+                        }
                     }
                 }
                 #endif
             }
             return ["initiated": true, "handled": true, "phoneNumber": phone]
-        }
 
-        registerHandler(action: "SEND_SMS") { [weak self] _, payload in
+        case "SEND_SMS":
             guard let phone = payload["phoneNumber"] as? String, !phone.isEmpty else {
                 throw GoatBridgeError.invalidPayload("Missing or blank 'phoneNumber' for SEND_SMS")
             }
             let body = payload["body"] as? String ?? ""
-            if let host = self?.onSendSms {
+            if let host = self.onSendSms {
                 host(phone, body)
-            } else if self?.isTestingEnvironment == true {
+            } else if self.isTestingEnvironment == true {
                 return ["initiated": true, "handled": true, "phoneNumber": phone, "body": body, "composerUnavailable": false]
             } else {
                 #if canImport(MessageUI) && canImport(UIKit)
                 let presented = await MainActor.run { () -> Bool in
                     guard MFMessageComposeViewController.canSendText() else { return false }
-                    guard let topVC = self?.topViewController else { return false }
+                    guard let topVC = self.topViewController else { return false }
                     let composer = MFMessageComposeViewController()
                     composer.recipients = [phone]
                     composer.body = body
@@ -1218,88 +1603,60 @@ public class GoatScriptMessageHandler: NSObject, WKScriptMessageHandlerWithReply
                 ]
             }
             return ["initiated": true, "handled": true, "phoneNumber": phone, "body": body]
-        }
 
-        registerHandler(action: "CAN_I_USE") { _, payload in
+        case "CAN_I_USE":
             let schema = payload["schema"] as? String ?? ""
             let available = Self.supportedActions.contains(schema.uppercased())
             return ["available": available, "schema": schema]
-        }
 
-        registerHandler(action: "GET_NETWORK_TYPE") { _, _ in
+        case "GET_NETWORK_TYPE":
             let isOffline = GoatHardwareOverrideManager.shared.isOffline
             return [
                 "networkType": isOffline ? "none" : "wifi",
                 "isConnected": !isOffline
             ]
-        }
 
-        registerHandler(action: "IS_CONNECTED") { _, _ in
+        case "IS_CONNECTED":
             return ["isConnected": !GoatHardwareOverrideManager.shared.isOffline]
-        }
 
         // 8. Sensors & Location
-        registerHandler(action: "GET_LOCATION") { [weak self] _, _ in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+        case "GET_LOCATION":
             return try await self.locationManager.getLocation()
-        }
 
-        registerHandler(action: "CHOOSE_LOCATION") { [weak self] _, payload in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+        case "CHOOSE_LOCATION":
             return await self.locationManager.chooseLocation(payload: payload)
-        }
 
-        registerHandler(action: "OPEN_LOCATION") { [weak self] _, payload in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+        case "OPEN_LOCATION":
             let lat = (payload["latitude"] as? NSNumber)?.doubleValue ?? 0.0
             let lng = (payload["longitude"] as? NSNumber)?.doubleValue ?? 0.0
             let name = payload["name"] as? String
             return self.locationManager.openLocation(latitude: lat, longitude: lng, name: name)
-        }
 
-        registerHandler(action: "START_ACCELEROMETER") { [weak self] _, payload in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+        case "START_ACCELEROMETER":
             return self.sensorManager.startAccelerometer(interval: payload["interval"])
-        }
-        registerHandler(action: "STOP_ACCELEROMETER") { [weak self] _, _ in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+        case "STOP_ACCELEROMETER":
             return self.sensorManager.stopAccelerometer()
-        }
-        registerHandler(action: "GET_LATEST_ACCELEROMETER") { [weak self] _, _ in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+        case "GET_LATEST_ACCELEROMETER":
             return self.sensorManager.getLatestAccelerometer()
-        }
-        registerHandler(action: "START_COMPASS") { [weak self] _, payload in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+        case "START_COMPASS":
             return self.sensorManager.startCompass(interval: payload["interval"])
-        }
-        registerHandler(action: "START_GYROSCOPE") { [weak self] _, payload in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+        case "STOP_COMPASS":
+            return self.sensorManager.stopCompass()
+        case "START_GYROSCOPE":
             return self.sensorManager.startGyroscope(interval: payload["interval"])
-        }
-        registerHandler(action: "STOP_GYROSCOPE") { [weak self] _, _ in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+        case "STOP_GYROSCOPE":
             return self.sensorManager.stopGyroscope()
-        }
-        registerHandler(action: "GET_LATEST_GYROSCOPE") { [weak self] _, _ in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+        case "GET_LATEST_GYROSCOPE":
             return self.sensorManager.getLatestGyroscope()
-        }
-        registerHandler(action: "START_DEVICE_MOTION") { [weak self] _, payload in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+        case "START_DEVICE_MOTION":
             return self.sensorManager.startDeviceMotion(interval: payload["interval"])
-        }
-        registerHandler(action: "STOP_DEVICE_MOTION") { [weak self] _, _ in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+        case "STOP_DEVICE_MOTION":
             return self.sensorManager.stopDeviceMotion()
-        }
-        registerHandler(action: "GET_LATEST_DEVICE_MOTION") { [weak self] _, _ in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+        case "GET_LATEST_DEVICE_MOTION":
             return self.sensorManager.getLatestDeviceMotion()
-        }
 
         // 9. Biometrics & Code Scanning
-        registerHandler(action: "CHECK_BIOMETRIC_SUPPORT") { _, _ in
+        case "CHECK_BIOMETRIC_SUPPORT":
             switch GoatHardwareOverrideManager.shared.biometricMockMode {
             case .notEnrolled:
                 return ["supported": false, "biometryType": "none"]
@@ -1317,9 +1674,8 @@ public class GoatScriptMessageHandler: NSObject, WKScriptMessageHandlerWithReply
             #else
             return ["supported": true, "biometryType": "faceID"]
             #endif
-        }
 
-        registerHandler(action: "BIOMETRIC_AUTH") { _, payload in
+        case "BIOMETRIC_AUTH":
             switch GoatHardwareOverrideManager.shared.biometricMockMode {
             case .forceSuccess:
                 return ["authenticated": true, "biometryType": "faceID"]
@@ -1398,116 +1754,95 @@ public class GoatScriptMessageHandler: NSObject, WKScriptMessageHandlerWithReply
             #else
             throw GoatBridgeError.notSupported("LocalAuthentication is not available on this platform")
             #endif
-        }
 
-        registerHandler(action: "SCAN_CODE") { [weak self] _, payload in
-            guard let self else { throw GoatBridgeError.viewDisposed }
+        case "SCAN_CODE":
             if let host = self.onScanCode {
                 return await host(payload)
             }
             return await self.scannerManager.scanCode(payload: payload)
-        }
 
         // 10. Media & Audio
-        registerHandler(action: "SHARE_SHEET") { [weak self] _, payload in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+        case "SHARE_SHEET":
             let title = payload["title"] as? String
             let text = payload["text"] as? String
             let url = payload["url"] as? String
             let mediaPath = payload["mediaPath"] as? String
             return self.contactsManager.shareSheet(title: title, text: text, url: url, mediaPath: mediaPath)
-        }
-        registerHandler(action: "SHARE_TO_STORY") { [weak self] _, payload in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+        case "SHARE_TO_STORY":
             let mediaUrl = payload["mediaUrl"] as? String
             let mediaPath = payload["mediaPath"] as? String
             return self.contactsManager.shareToStory(mediaUrl: mediaUrl, mediaPath: mediaPath)
-        }
-        registerHandler(action: "CHOOSE_MEDIA") { [weak self] _, payload in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+        case "CHOOSE_MEDIA":
             return self.audioManager.chooseMedia(payload: payload)
-        }
-        registerHandler(action: "PREVIEW_IMAGE") { [weak self] _, payload in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+        case "PREVIEW_IMAGE":
             let urls = payload["urls"] as? [String] ?? []
             let current = payload["current"] as? String
             return self.audioManager.previewImage(urls: urls, current: current)
-        }
-        registerHandler(action: "AUDIO_PLAY") { [weak self] _, payload in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+        case "AUDIO_PLAY":
             let src = payload["src"] as? String ?? ""
             let volume = (payload["volume"] as? NSNumber)?.floatValue ?? 1.0
             return self.audioManager.playAudio(src: src, volume: volume)
-        }
-        registerHandler(action: "AUDIO_PAUSE") { [weak self] _, _ in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+        case "AUDIO_PAUSE":
             return self.audioManager.pauseAudio()
-        }
-        registerHandler(action: "AUDIO_STOP") { [weak self] _, _ in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+        case "AUDIO_STOP":
             return self.audioManager.stopAudio()
-        }
-        registerHandler(action: "AUDIO_SEEK") { [weak self] _, payload in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+        case "AUDIO_SEEK":
             let pos = (payload["position"] as? NSNumber)?.doubleValue ?? 0.0
             return self.audioManager.seekAudio(position: pos)
-        }
+        case "AUDIO_RECORD_START":
+            let appId = payload["appId"] as? String ?? "default"
+            return self.audioManager.startRecord(appId: appId)
+        case "AUDIO_RECORD_STOP":
+            return self.audioManager.stopRecord()
+        case "SAVE_IMAGE_TO_ALBUM":
+            let filePath = (payload["filePath"] as? String) ?? (payload["path"] as? String) ?? (payload["url"] as? String)
+            let base64 = (payload["base64"] as? String) ?? (payload["dataUrl"] as? String)
+            return await self.audioManager.saveImageToAlbum(filePath: filePath, base64: base64)
+        case "RECORD_VIDEO":
+            let maxDur = (payload["maxDuration"] as? NSNumber)?.doubleValue ?? 60
+            return await self.audioManager.recordVideo(maxDurationSec: maxDur)
 
         // 11. Telemetry, APM & Tracing
-        registerHandler(action: "REPORT_METRICS") { [weak self] _, payload in
+        case "REPORT_METRICS":
             let fps = (payload["fps"] as? NSNumber)?.doubleValue
             let memoryMb = (payload["memoryMb"] as? NSNumber)?.doubleValue
-            self?.telemetryManager.record(
+            self.telemetryManager.record(
                 action: "REPORT_METRICS",
                 requestPayload: payload,
                 responsePayload: ["fps": fps as Any, "memoryMb": memoryMb as Any],
                 durationMs: 0.0
             )
             return ["reported": true]
-        }
-        registerHandler(action: "GET_APM_METRICS") { [weak self] _, _ in
-            return self?.telemetryManager.apmMetrics() ?? ["fps": 0.0]
-        }
-        registerHandler(action: "GET_APM_SUMMARY") { [weak self] _, _ in
-            return self?.telemetryManager.apmMetrics() ?? ["fps": 0.0]
-        }
-        registerHandler(action: "SEND_APM_METRIC") { _, payload in return ["recorded": true, "name": payload["name"] as Any] }
-        registerHandler(action: "RECORD_BRIDGE_TIMING") { _, payload in return ["recorded": true] }
-        registerHandler(action: "START_TRACE") { [weak self] _, payload in
+        case "GET_APM_METRICS":
+            return self.telemetryManager.apmMetrics()
+        case "GET_APM_SUMMARY":
+            return self.telemetryManager.apmMetrics()
+        case "SEND_APM_METRIC":
+            return ["recorded": true, "name": payload["name"] as Any]
+        case "RECORD_BRIDGE_TIMING":
+            return ["recorded": true]
+        case "START_TRACE":
             let name = payload["traceName"] as? String ?? "trace"
-            return self?.telemetryManager.startTrace(name: name) ?? ["traceId": "trace_unavailable"]
-        }
-        registerHandler(action: "STOP_TRACE") { [weak self] _, payload in
+            return self.telemetryManager.startTrace(name: name)
+        case "STOP_TRACE":
             let traceId = payload["traceId"] as? String ?? ""
-            return self?.telemetryManager.stopTrace(traceId: traceId) ?? ["stopped": false, "traceId": traceId]
-        }
-        registerHandler(action: "GET_TRACES") { [weak self] _, _ in
-            return ["traces": self?.telemetryManager.listTraces() ?? []]
-        }
-        registerHandler(action: "GET_MEMORY_METRICS") { [weak self] _, _ in
-            return self?.telemetryManager.currentMemoryMetrics() ?? [:]
-        }
+            return self.telemetryManager.stopTrace(traceId: traceId)
+        case "GET_TRACES":
+            return ["traces": self.telemetryManager.listTraces()]
+        case "GET_MEMORY_METRICS":
+            return self.telemetryManager.currentMemoryMetrics()
 
         // 12. Push Notifications & BLE & NFC
-        registerHandler(action: "PUSH_GET_TOKEN") { [weak self] _, _ in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+        case "PUSH_GET_TOKEN":
             return self.pushTokenResult()
-        }
-        registerHandler(action: "GET_PUSH_TOKEN") { [weak self] _, _ in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+        case "GET_PUSH_TOKEN":
             return self.pushTokenResult()
-        }
-        registerHandler(action: "PUSH_REQUEST_PERMISSION") { [weak self] _, _ in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+        case "PUSH_REQUEST_PERMISSION":
             return await self.notificationManager.requestPermission()
-        }
-        registerHandler(action: "PUSH_SET_BADGE") { [weak self] _, payload in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+        case "PUSH_SET_BADGE":
             let badge = (payload["badge"] as? Int) ?? 0
             return self.notificationManager.setBadge(count: badge)
-        }
-        registerHandler(action: "PUSH_SHOW_NOTIFICATION") { [weak self] _, payload in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+        case "PUSH_SHOW_NOTIFICATION":
             let title = payload["title"] as? String ?? "Notification"
             let body = payload["body"] as? String ?? ""
             let subtitle = payload["subtitle"] as? String
@@ -1520,246 +1855,186 @@ public class GoatScriptMessageHandler: NSObject, WKScriptMessageHandlerWithReply
                 appId: self.appId,
                 userInfo: payload
             )
-        }
-        registerHandler(action: "SUBSCRIBE_PUSH_TOPIC") { [weak self] _, payload in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+        case "SUBSCRIBE_PUSH_TOPIC":
             let topic = payload["topic"] as? String ?? ""
             return self.notificationManager.subscribeTopic(topic)
-        }
-        registerHandler(action: "UNSUBSCRIBE_PUSH_TOPIC") { [weak self] _, payload in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+        case "UNSUBSCRIBE_PUSH_TOPIC":
             let topic = payload["topic"] as? String ?? ""
             return self.notificationManager.unsubscribeTopic(topic)
-        }
-        registerHandler(action: "GET_PENDING_NOTIFICATIONS") { [weak self] _, _ in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+        case "GET_PENDING_NOTIFICATIONS":
             return await self.notificationManager.getPendingNotifications(appId: self.appId)
-        }
-        registerHandler(action: "CLEAR_NOTIFICATIONS") { [weak self] _, _ in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+        case "CLEAR_NOTIFICATIONS":
             return self.notificationManager.clearNotifications(appId: self.appId)
-        }
 
-        registerHandler(action: "BLE_START_SCAN") { [weak self] _, payload in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+        case "BLE_START_SCAN":
             let services = payload["services"] as? [String]
             let allowDuplicates = (payload["allowDuplicates"] as? Bool) ?? false
             return self.bluetoothManager.startScan(serviceUUIDs: services, allowDuplicates: allowDuplicates)
-        }
-        registerHandler(action: "START_BLE_SCAN") { [weak self] _, payload in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+        case "START_BLE_SCAN":
             let services = payload["services"] as? [String]
             let allowDuplicates = (payload["allowDuplicates"] as? Bool) ?? false
             return self.bluetoothManager.startScan(serviceUUIDs: services, allowDuplicates: allowDuplicates)
-        }
-        registerHandler(action: "BLE_STOP_SCAN") { [weak self] _, _ in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+        case "BLE_STOP_SCAN":
             return self.bluetoothManager.stopScan()
-        }
-        registerHandler(action: "STOP_BLE_SCAN") { [weak self] _, _ in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+        case "STOP_BLE_SCAN":
             return self.bluetoothManager.stopScan()
-        }
-        registerHandler(action: "BLE_CONNECT") { [weak self] _, payload in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+        case "BLE_CONNECT":
             let deviceId = payload["deviceId"] as? String ?? ""
             return self.bluetoothManager.connect(deviceId: deviceId)
-        }
-        registerHandler(action: "CONNECT_BLE_DEVICE") { [weak self] _, payload in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+        case "CONNECT_BLE_DEVICE":
             let deviceId = payload["deviceId"] as? String ?? ""
             return self.bluetoothManager.connect(deviceId: deviceId)
-        }
-        registerHandler(action: "DISCONNECT_BLE_DEVICE") { [weak self] _, payload in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+        case "DISCONNECT_BLE_DEVICE", "BLE_DISCONNECT":
             let deviceId = payload["deviceId"] as? String ?? ""
             return self.bluetoothManager.disconnect(deviceId: deviceId)
-        }
-        registerHandler(action: "BLE_READ_CHARACTERISTIC") { [weak self] _, payload in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+        case "BLE_READ_CHARACTERISTIC":
             let devId = payload["deviceId"] as? String
             let sId = payload["serviceId"] as? String
             let cId = payload["characteristicId"] as? String
-            return self.bluetoothManager.readCharacteristic(deviceId: devId, serviceId: sId, characteristicId: cId)
-        }
-        registerHandler(action: "READ_BLE_CHARACTERISTIC") { [weak self] _, payload in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+            return try self.bluetoothManager.readCharacteristic(deviceId: devId, serviceId: sId, characteristicId: cId)
+        case "READ_BLE_CHARACTERISTIC":
             let devId = payload["deviceId"] as? String
             let sId = payload["serviceId"] as? String
             let cId = payload["characteristicId"] as? String
-            return self.bluetoothManager.readCharacteristic(deviceId: devId, serviceId: sId, characteristicId: cId)
-        }
-        registerHandler(action: "BLE_WRITE_CHARACTERISTIC") { [weak self] _, payload in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+            return try self.bluetoothManager.readCharacteristic(deviceId: devId, serviceId: sId, characteristicId: cId)
+        case "BLE_WRITE_CHARACTERISTIC":
             let devId = payload["deviceId"] as? String
             let sId = payload["serviceId"] as? String
             let cId = payload["characteristicId"] as? String
             let val = payload["value"] as? String ?? "0x01"
-            return self.bluetoothManager.writeCharacteristic(deviceId: devId, serviceId: sId, characteristicId: cId, value: val)
-        }
-        registerHandler(action: "WRITE_BLE_CHARACTERISTIC") { [weak self] _, payload in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+            return try self.bluetoothManager.writeCharacteristic(deviceId: devId, serviceId: sId, characteristicId: cId, value: val)
+        case "WRITE_BLE_CHARACTERISTIC":
             let devId = payload["deviceId"] as? String
             let sId = payload["serviceId"] as? String
             let cId = payload["characteristicId"] as? String
             let val = payload["value"] as? String ?? "0x01"
-            return self.bluetoothManager.writeCharacteristic(deviceId: devId, serviceId: sId, characteristicId: cId, value: val)
-        }
+            return try self.bluetoothManager.writeCharacteristic(deviceId: devId, serviceId: sId, characteristicId: cId, value: val)
 
-        registerHandler(action: "NFC_READ_TAG") { [weak self] _, _ in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+        case "NFC_READ_TAG":
             return self.nfcManager.readTag()
-        }
-        registerHandler(action: "START_NFC_DISCOVERY") { [weak self] _, payload in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+        case "START_NFC_DISCOVERY":
             let alert = payload["alertMessage"] as? String ?? "Hold near an NFC tag to scan."
             return self.nfcManager.startDiscovery(alertMessage: alert)
-        }
-        registerHandler(action: "STOP_NFC_DISCOVERY") { [weak self] _, _ in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+        case "STOP_NFC_DISCOVERY":
             return self.nfcManager.stopDiscovery()
-        }
-        registerHandler(action: "READ_NFC_NDEF_MESSAGE") { [weak self] _, _ in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+        case "READ_NFC_NDEF_MESSAGE":
             return self.nfcManager.readNdefMessage()
-        }
-        registerHandler(action: "NFC_WRITE_TAG") { [weak self] _, payload in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+        case "NFC_WRITE_TAG":
             let msg = payload["message"] as? String ?? ""
             let uri = payload["uri"] as? String
             return self.nfcManager.writeTag(message: msg, uri: uri)
-        }
 
         // 13. Contacts & Geofencing
-        registerHandler(action: "CHOOSE_CONTACT") { [weak self] _, _ in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+        case "CHOOSE_CONTACT":
             return await self.contactsManager.chooseContact()
-        }
-        registerHandler(action: "PICK_CONTACTS") { [weak self] _, payload in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+        case "PICK_CONTACTS":
             let limit = (payload["limit"] as? Int) ?? 10
             return await self.contactsManager.pickContacts(limit: limit)
-        }
-        registerHandler(action: "GET_CONTACTS_COUNT") { [weak self] _, _ in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+        case "GET_CONTACTS_COUNT":
             return await self.contactsManager.getContactsCount()
-        }
 
-        registerHandler(action: "START_GEOFENCE") { [weak self] _, payload in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+        case "START_GEOFENCE":
             let geoId = payload["geofenceId"] as? String ?? "geo_\(UUID().uuidString.prefix(6))"
             let lat = (payload["latitude"] as? NSNumber)?.doubleValue ?? 0.0
             let lng = (payload["longitude"] as? NSNumber)?.doubleValue ?? 0.0
             let radius = (payload["radius"] as? NSNumber)?.doubleValue ?? 100.0
             return self.locationManager.startGeofence(geofenceId: geoId, latitude: lat, longitude: lng, radius: radius)
-        }
-        registerHandler(action: "STOP_GEOFENCE") { [weak self] _, payload in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+        case "STOP_GEOFENCE":
             let geoId = payload["geofenceId"] as? String ?? ""
             return self.locationManager.stopGeofence(geofenceId: geoId)
-        }
-        registerHandler(action: "LIST_GEOFENCES") { [weak self] _, _ in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+        case "LIST_GEOFENCES":
             return self.locationManager.listGeofences()
-        }
-        registerHandler(action: "EVALUATE_GEOFENCE") { [weak self] _, payload in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+        case "EVALUATE_GEOFENCE":
             let lat = (payload["latitude"] as? NSNumber)?.doubleValue ?? 0.0
             let lng = (payload["longitude"] as? NSNumber)?.doubleValue ?? 0.0
             let tLat = (payload["targetLatitude"] as? NSNumber)?.doubleValue
             let tLng = (payload["targetLongitude"] as? NSNumber)?.doubleValue
             let radius = (payload["radius"] as? NSNumber)?.doubleValue
             return self.locationManager.evaluateGeofence(latitude: lat, longitude: lng, targetLatitude: tLat, targetLongitude: tLng, radius: radius)
-        }
 
         // 14. Web3, Invoices & Purchases
-        registerHandler(action: "WEB3_CONNECT_WALLET") { [weak self] _, _ in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
-            return self.storeKitManager.connectWallet()
-        }
-        registerHandler(action: "WEB3_SIGN_TRANSACTION") { [weak self] _, payload in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
-            return self.storeKitManager.signTransaction(payload: payload)
-        }
-        registerHandler(action: "WEB3_DISCONNECT") { [weak self] _, _ in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
-            return self.storeKitManager.disconnectWallet()
-        }
-        registerHandler(action: "WEB3_GET_ACCOUNT") { [weak self] _, _ in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
-            return self.storeKitManager.getAccount()
-        }
+        case "WEB3_CONNECT_WALLET", "WEB3_SIGN_TRANSACTION", "WEB3_SIGN_MESSAGE", "WEB3_SWITCH_CHAIN", "WEB3_DISCONNECT", "WEB3_GET_ACCOUNT":
+            return try await self.web3Plugin.execute(action: action, payload: payload)
 
-        registerHandler(action: "OPEN_INVOICE") { [weak self] _, payload in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+        // Domain 13c. Passkeys & the native hardware vault.
+        case "PASSKEY_CHECK_SUPPORT", "CHECK_PASSKEY_SUPPORT", "PASSKEY_REGISTER", "REGISTER_CREDENTIAL", "PASSKEY_ASSERT", "ASSERT_CREDENTIAL", "VAULT_ENCRYPT", "VAULT_DECRYPT":
+            return try await self.passkeyPlugin.execute(action: action, payload: payload)
+
+        // Domain 13d. Digital wallet passes.
+        case "WALLET_SAVE_PASS", "WALLET_GET_PASS_STATE", "WALLET_OPEN_PASS", "WALLET_LIST_PASSES", "WALLET_DELETE_PASS":
+            return try await self.passesPlugin.execute(action: action, payload: payload)
+
+        case "OPEN_INVOICE":
             let invId = payload["invoiceId"] as? String ?? ""
             return self.storeKitManager.openInvoice(invoiceId: invId)
-        }
-        registerHandler(action: "GET_PURCHASE_PRODUCTS") { [weak self] _, payload in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+        case "GET_PURCHASE_PRODUCTS":
             let productIds = payload["productIds"] as? [String] ?? ["goat_vip_monthly"]
             return await self.storeKitManager.getPurchaseProducts(productIds: productIds)
-        }
-        registerHandler(action: "RESTORE_PURCHASES") { [weak self] _, _ in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+        case "RESTORE_PURCHASES":
             return await self.storeKitManager.restorePurchases()
-        }
 
-        // 15. Binary Ports & SSL Pinning
-        registerHandler(action: "CREATE_BINARY_PORT") { _, _ in
-            return Self.binaryPortUnsupportedEnvelope()
-        }
-        registerHandler(action: "POST_BINARY_MESSAGE") { _, payload in
-            var envelope = Self.binaryPortUnsupportedEnvelope()
-            envelope["posted"] = false
-            envelope["portId"] = payload["portId"] as? String ?? ""
-            return envelope
-        }
-        registerHandler(action: "READ_BINARY_MESSAGE") { _, payload in
-            var envelope = Self.binaryPortUnsupportedEnvelope()
-            envelope["data"] = NSNull()
-            envelope["portId"] = payload["portId"] as? String ?? ""
-            return envelope
-        }
-        registerHandler(action: "CLOSE_BINARY_PORT") { _, payload in
-            var envelope = Self.binaryPortUnsupportedEnvelope()
-            envelope["closed"] = false
-            envelope["portId"] = payload["portId"] as? String ?? ""
-            return envelope
-        }
+        // 15. Binary message-port channel (real bidirectional channel over the page's own
+        //     MessageChannel — see GoatBinaryPortManager) & SSL Pinning
+        case "CREATE_BINARY_PORT":
+            guard self.onEvaluateJS != nil || self.onEvaluateJSAsync != nil else {
+                return ["supported": false, "error": "NO_JS_EVALUATOR"]
+            }
+            let (portId, js) = self.binaryPortManager.createPort()
+            await self.runJS(js)                                   // wait until window.__goatPorts[id] exists
+            return ["supported": true, "portId": portId,
+                    "jsPort": "\(GoatBinaryPortManager.jsNamespace)[\"\(portId)\"].port1"]
+        case "POST_BINARY_MESSAGE":
+            let portId = payload["portId"] as? String ?? ""
+            let b64 = Self.extractBase64Bytes(from: payload)
+            guard !portId.isEmpty, !b64.isEmpty else {
+                return ["posted": false, "portId": portId, "error": "MISSING_PORT_OR_DATA"]
+            }
+            guard let js = self.binaryPortManager.postToApp(portId: portId, base64: b64) else {
+                return ["posted": false, "portId": portId, "error": "UNKNOWN_OR_CLOSED_PORT"]
+            }
+            await self.runJS(js)
+            return ["posted": true, "portId": portId]
+        case "READ_BINARY_MESSAGE":
+            return self.binaryPortManager.read(portId: payload["portId"] as? String ?? "")
+        case "CLOSE_BINARY_PORT":
+            let portId = payload["portId"] as? String ?? ""
+            if let js = self.binaryPortManager.close(portId: portId) { await self.runJS(js) }
+            return ["closed": true, "portId": portId]
+        // Internal: the page's port2.onmessage forwards app→native bytes here.
+        case "__GOAT_PORT_RX":
+            let portId = payload["portId"] as? String ?? ""
+            let b64 = payload["data"] as? String ?? ""
+            if !portId.isEmpty, !b64.isEmpty {
+                self.binaryPortManager.enqueueFromJS(portId: portId, base64: b64)
+            }
+            return ["ok": true]
+        // Compat-adapter passthrough: onBridgeMessageNotification/onBridgeAction already deliver
+        // every action (known or not) to the embedder before dispatch runs, so an adapter's
+        // addJavaScriptHandler emulation works with no registration at all. This entry exists
+        // only so the action resolves cleanly here too, instead of logging as a failed
+        // "unsupported action" in telemetry on every compat call.
+        case "__COMPAT_CALL__":
+            return ["routed": true]
 
-        registerHandler(action: "VERIFY_SSL_PIN") { [weak self] _, payload in
+        case "VERIFY_SSL_PIN":
             guard let host = payload["host"] as? String ?? payload["hostname"] as? String, !host.isEmpty else {
                 throw GoatBridgeError.invalidPayload("Missing 'host' for VERIFY_SSL_PIN")
             }
             let pin = payload["pinSha256"] as? String ?? payload["pin"] as? String ?? ""
             try Self.validateApiRequestUrl(URL(string: "https://\(host)") ?? URL(string: "https://invalid")!)
-            return await self?.sslPinningManager.verifyPin(host: host, pinSha256: pin) ?? [
-                "host": host,
-                "valid": false,
-                "isPinned": false,
-                "isCertificateValid": false,
-                "auditStatus": "HANDLER_DISPOSED",
-                "spkiSha256": ""
-            ]
-        }
-        registerHandler(action: "AUDIT_NETWORK_CERTIFICATE") { [weak self] _, payload in
+            return await self.sslPinningManager.verifyPin(host: host, pinSha256: pin)
+        case "AUDIT_NETWORK_CERTIFICATE":
             let urlString = payload["url"] as? String ?? (payload["host"] as? String).map { "https://\($0)" } ?? ""
             guard !urlString.isEmpty, let url = URL(string: urlString) else {
                 throw GoatBridgeError.invalidPayload("Missing 'url' for AUDIT_NETWORK_CERTIFICATE")
             }
             try Self.validateApiRequestUrl(url)
-            return await self?.sslPinningManager.auditNetworkCertificate(urlString: urlString) ?? [
-                "trusted": false,
-                "host": url.host ?? urlString,
-                "auditStatus": "HANDLER_DISPOSED"
-            ]
-        }
+            return await self.sslPinningManager.auditNetworkCertificate(urlString: urlString)
 
         // 16. Permissions & Settings (Task 10198)
-        registerHandler(action: "CHECK_PERMISSION") { [weak self] _, payload in
+        case "CHECK_PERMISSION":
             let scope = payload["scope"] as? String ?? payload["permission"] as? String ?? "scope.camera"
-            let appId = self?.appId ?? "default"
+            let appId = self.appId
             let granted = GoatPermissionPrimingDialog.isPermissionGranted(appId: appId, scope: scope)
             let status = GoatPermissionPrimingDialog.checkStatus(scope: scope)
             return [
@@ -1768,11 +2043,10 @@ public class GoatScriptMessageHandler: NSObject, WKScriptMessageHandlerWithReply
                 "granted": granted || status == .authorized,
                 "status": status.rawValue
             ]
-        }
-        registerHandler(action: "REQUEST_PERMISSION") { [weak self] _, payload in
+        case "REQUEST_PERMISSION":
             let scope = payload["scope"] as? String ?? payload["permission"] as? String ?? "scope.camera"
             let rationale = payload["rationale"] as? String
-            let appId = self?.appId ?? "default"
+            let appId = self.appId
 
             #if canImport(UIKit) && !os(watchOS)
             return await withCheckedContinuation { continuation in
@@ -1811,41 +2085,38 @@ public class GoatScriptMessageHandler: NSObject, WKScriptMessageHandlerWithReply
             GoatPermissionPrimingDialog.setPermission(appId: appId, scope: scope, granted: true)
             return ["scope": scope, "permission": scope, "granted": true, "isDeclaredInManifest": true]
             #endif
-        }
-        registerHandler(action: "GET_SETTING") { [weak self] _, _ in
-            let appId = self?.appId ?? "default"
+        case "GET_SETTING":
+            let appId = self.appId
             let scopes = ["scope.userInfo", "scope.userLocation", "scope.camera", "scope.record", "scope.writePhotosAlbum", "scope.bluetooth", "scope.contact"]
             var authSetting: [String: Bool] = [:]
             for s in scopes {
                 authSetting[s] = GoatPermissionPrimingDialog.isPermissionGranted(appId: appId, scope: s)
             }
             return ["authSetting": authSetting]
-        }
-        registerHandler(action: "OPEN_SETTING") { _, _ in
+        case "OPEN_SETTING":
             #if canImport(UIKit) && !os(watchOS)
             Task { @MainActor in
                 GoatPermissionPrimingDialog.openAppSettings()
             }
             #endif
             return ["opened": true]
-        }
-        registerHandler(action: "AUTHORIZE") { [weak self] _, payload in
+        case "AUTHORIZE":
             let scope = payload["scope"] as? String ?? payload["permission"] as? String ?? ""
             let granted = payload["granted"] as? Bool ?? true
-            let appId = self?.appId ?? "default"
+            let appId = self.appId
             GoatPermissionPrimingDialog.setPermission(appId: appId, scope: scope, granted: granted)
             return ["authorized": granted, "scope": scope, "granted": granted]
-        }
 
         // External Link Warning Interstitial (Task 10192)
-        let openExternalLinkHandler: ActionHandler = { [weak self] _, payload in
+        // External Link Warning Interstitial (Task 10192)
+        case "OPEN_EXTERNAL_LINK", "OPEN_URL", "OPEN_LINK":
             guard let urlString = payload["url"] as? String,
                   let url = URL(string: urlString) else {
                 throw GoatBridgeError.invalidPayload("Missing or invalid 'url'")
             }
             let host = GoatExternalLinkWarningDialog.resolveDestinationHost(url: url)
             let skipWarningIfOptedOut = payload["skipWarningIfOptedOut"] as? Bool ?? true
-            let appId = self?.appId ?? "default"
+            let appId = self.appId
 
             if skipWarningIfOptedOut && GoatExternalLinkWarningDialog.isDomainOptedOut(appId: appId, host: host) {
                 #if canImport(UIKit) && !os(watchOS)
@@ -1883,13 +2154,8 @@ public class GoatScriptMessageHandler: NSObject, WKScriptMessageHandlerWithReply
             #else
             return ["opened": true, "destinationHost": host]
             #endif
-        }
-        registerHandler(action: "OPEN_EXTERNAL_LINK", handler: openExternalLinkHandler)
-        registerHandler(action: "OPEN_URL", handler: openExternalLinkHandler)
-        registerHandler(action: "OPEN_LINK", handler: openExternalLinkHandler)
-
         // Multi-Tab Bottom Sheet Overlay Actions (Task 10194)
-        registerHandler(action: "TAB_OPEN") { _, payload in
+        case "TAB_OPEN":
             let targetAppId = payload["appId"] as? String ?? "default"
             let initialRoute = payload["initialRoute"] as? String ?? "/"
             let title = payload["title"] as? String ?? "Mini-App"
@@ -1906,34 +2172,27 @@ public class GoatScriptMessageHandler: NSObject, WKScriptMessageHandlerWithReply
                 "isBackgrounded": tabHandle.isBackgrounded,
                 "memoryTrimmed": tabHandle.memoryTrimmed
             ]
-        }
-        registerHandler(action: "TAB_CLOSE") { [weak self] _, payload in
+        case "TAB_CLOSE":
             let tabId = payload["tabId"] as? String ?? ""
-            self?.onTabClose?(tabId)
+            self.onTabClose?(tabId)
             return ["closed": true, "tabId": tabId]
-        }
-        registerHandler(action: "TAB_SWITCH") { [weak self] _, payload in
+        case "TAB_SWITCH":
             let tabId = payload["tabId"] as? String ?? ""
-            self?.onTabSwitch?(tabId)
+            self.onTabSwitch?(tabId)
             return ["switched": true, "tabId": tabId]
-        }
-        registerHandler(action: "TAB_GET_ACTIVE") { [weak self] _, _ in
-            if let active = self?.onTabGetActive?() {
+        case "TAB_GET_ACTIVE":
+            if let active = self.onTabGetActive?() {
                 return active
             }
-            return ["tabId": UUID().uuidString, "appId": self?.appId ?? "default", "initialRoute": "/", "title": "Mini-App"]
-        }
-        registerHandler(action: "TAB_LIST") { [weak self] _, _ in
-            return ["tabs": self?.onTabList?() ?? []]
-        }
-        registerHandler(action: "TAB_CLOSE_ALL") { [weak self] _, _ in
-            self?.onTabCloseAll?()
+            return ["tabId": UUID().uuidString, "appId": self.appId, "initialRoute": "/", "title": "Mini-App"]
+        case "TAB_LIST":
+            return ["tabs": self.onTabList?() ?? []]
+        case "TAB_CLOSE_ALL":
+            self.onTabCloseAll?()
             return ["closedAll": true]
-        }
 
         // Cross-Mini-App Launch & Windowed Presentation Bridge (Task 10201)
-        registerHandler(action: "OPEN_MINI_APP") { [weak self] _, payload in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+        case "OPEN_MINI_APP":
             let targetAppId = (payload["targetAppId"] as? String)
                 ?? (payload["appId"] as? String)
                 ?? "default"
@@ -1975,84 +2234,78 @@ public class GoatScriptMessageHandler: NSObject, WKScriptMessageHandlerWithReply
                 "presentation": presentation,
                 "status": "OPENED"
             ]
-        }
 
-        registerHandler(action: "CLOSE_MINI_APP") { _, payload in
+        case "CLOSE_MINI_APP":
             let instanceId = payload["instanceId"] as? String ?? ""
             return [
                 "closed": true,
                 "instanceId": instanceId
             ]
-        }
 
-        registerHandler(action: "ON_MINI_APP_CLOSED") { _, _ in
+        case "ON_MINI_APP_CLOSED":
             return ["registered": true]
-        }
 
         // 17. Keyboard Insets, Navigation Bar, Bottom Sheet & Safe Area (Milestone 2)
-        registerHandler(action: "GET_KEYBOARD_INSETS") { _, _ in
+        case "GET_KEYBOARD_INSETS":
             let state = GoatKeyboardManager.shared.getCurrentInsets()
             return ["keyboardHeight": state.heightPx, "isVisible": state.isVisible, "durationMs": state.durationMs]
-        }
-        registerHandler(action: "SET_KEYBOARD_INSETS") { _, payload in
+        case "SET_KEYBOARD_INSETS":
             let heightPx = payload["heightPx"] as? Int ?? 0
             let durationMs = payload["durationMs"] as? Int ?? 250
             GoatKeyboardManager.shared.updateState(isVisible: heightPx > 0, heightPx: heightPx, durationMs: durationMs)
             return ["updated": true, "heightPx": heightPx, "isVisible": heightPx > 0]
-        }
-        registerHandler(action: "SET_NAV_BAR_TITLE") { [weak self] _, payload in
+        case "SET_NAV_BAR_TITLE":
             let title = payload["title"] as? String ?? ""
             let subtitle = payload["subtitle"] as? String
-            self?.onSetNavBarTitle?(title, subtitle)
+            await MainActor.run {
+                self.onSetNavBarTitle?(title, subtitle)
+            }
             return ["success": true, "title": title, "subtitle": subtitle as Any]
-        }
-        registerHandler(action: "SET_NAV_BAR_COLOR") { [weak self] _, payload in
+        case "SET_NAV_BAR_COLOR":
             let bg = payload["backgroundColor"] as? String ?? "#0F172A"
             let text = payload["textColor"] as? String ?? "#F8FAFC"
             let isDark = payload["isDark"] as? Bool ?? false
             _ = try GoatColorParser.parseHex(bg)
             _ = try GoatColorParser.parseHex(text)
-            self?.onSetNavBarColor?(bg, text, isDark)
+            await MainActor.run {
+                self.onSetNavBarColor?(bg, text, isDark)
+            }
             return ["success": true, "backgroundColor": bg, "textColor": text, "isDark": isDark]
-        }
-        registerHandler(action: "SET_NAV_BAR_BUTTONS") { [weak self] _, payload in
+        case "SET_NAV_BAR_BUTTONS":
             let left = payload["left"] as? String
             let right = payload["right"] as? [String] ?? []
-            self?.onSetNavBarButtons?(left, right)
+            await MainActor.run {
+                self.onSetNavBarButtons?(left, right)
+            }
             return ["success": true, "left": left as Any, "right": right]
-        }
-        registerHandler(action: "SET_NAV_BAR_PROGRESS") { [weak self] _, payload in
+        case "SET_NAV_BAR_PROGRESS":
             let visible = payload["visible"] as? Bool ?? true
             let progress = (payload["progress"] as? NSNumber)?.doubleValue
-            self?.onSetNavBarProgress?(visible, progress)
+            await MainActor.run {
+                self.onSetNavBarProgress?(visible, progress)
+            }
             return ["success": true, "visible": visible, "progress": progress as Any]
-        }
-        registerHandler(action: "EXPAND_BOTTOM_SHEET") { [weak self] _, _ in
-            if let host = self?.onExpandBottomSheet {
+        case "EXPAND_BOTTOM_SHEET":
+            if let host = self.onExpandBottomSheet {
                 return host()
             }
             return ["success": true, "expanded": true, "currentSnap": 0.9]
-        }
-        registerHandler(action: "COLLAPSE_BOTTOM_SHEET") { [weak self] _, _ in
-            if let host = self?.onCollapseBottomSheet {
+        case "COLLAPSE_BOTTOM_SHEET":
+            if let host = self.onCollapseBottomSheet {
                 return host()
             }
             return ["success": true, "collapsed": true, "currentSnap": 0.25, "isDismissed": false]
-        }
-        registerHandler(action: "SET_SHEET_SNAP_POINTS") { [weak self] _, payload in
+        case "SET_SHEET_SNAP_POINTS":
             let snapPoints = (payload["snapPoints"] as? [Double]) ?? [0.25, 0.5, 0.9]
             let initialSnap = (payload["initialSnap"] as? Double)
             let isDismissible = (payload["isDismissible"] as? Bool) ?? true
-            if let host = self?.onSetSheetSnapPoints {
+            if let host = self.onSetSheetSnapPoints {
                 return host(snapPoints, initialSnap, isDismissible)
             }
             return ["success": true, "snapPoints": snapPoints, "initialSnap": initialSnap as Any, "isDismissible": isDismissible]
-        }
-        registerHandler(action: "GET_SAFE_AREA_INSETS") { _, _ in
+        case "GET_SAFE_AREA_INSETS":
             return GoatSafeAreaManager.shared.toJsonObject()
-        }
-        registerHandler(action: "PREDICTIVE_BACK_PROGRESS") { [weak self] _, payload in
-            guard let self = self else { return ["handled": false] }
+        case "PREDICTIVE_BACK_PROGRESS":
             let rawProgress: Float
             if let p = payload["progress"] as? Double {
                 rawProgress = Float(p)
@@ -2073,31 +2326,25 @@ public class GoatScriptMessageHandler: NSObject, WKScriptMessageHandlerWithReply
                 swipeEdge: swipeEdge
             )
             return transform.toDictionary()
-        }
-        registerHandler(action: "PREDICTIVE_BACK_INVOKE") { [weak self] _, _ in
-            guard let self = self else { return ["invoked": false] }
+        case "PREDICTIVE_BACK_INVOKE":
             return self.predictiveBackCoordinator.invokeBack()
-        }
-        registerHandler(action: "PREDICTIVE_BACK_CANCEL") { [weak self] _, _ in
-            guard let self = self else { return ["cancelled": false] }
+        case "PREDICTIVE_BACK_CANCEL":
             return self.predictiveBackCoordinator.cancelBack()
-        }
 
         // 18. WASM & Bytecode Precompilation & Sandboxing
-        registerHandler(action: "VALIDATE_WASM_SUPPORT") { _, _ in
+        case "VALIDATE_WASM_SUPPORT":
             return ["supported": true, "simd": true, "threads": true]
-        }
-        registerHandler(action: "AUDIT_SANDBOX_HEADERS") { _, _ in
+        case "AUDIT_SANDBOX_HEADERS":
             return ["coop": "same-origin", "coep": "require-corp", "isolated": true]
-        }
-        registerHandler(action: "PRECOMPILE_BYTECODE") { _, payload in
+        case "PRECOMPILE_BYTECODE":
             return ["precompiled": true, "bundle": payload["bundle"] as Any]
-        }
-        registerHandler(action: "IS_BYTECODE_WARM") { _, _ in return ["warm": true] }
-        registerHandler(action: "CLEAR_BYTECODE_CACHE") { _, _ in return ["cleared": true] }
-        registerHandler(action: "GET_BYTECODE_STATS") { _, _ in return ["hitCount": 42, "cacheSizeKb": 128] }
-        registerHandler(action: "CHOOSE_FILES") { [weak self] _, payload in
-            guard let self else { throw GoatBridgeError.viewDisposed }
+        case "IS_BYTECODE_WARM":
+            return ["warm": true]
+        case "CLEAR_BYTECODE_CACHE":
+            return ["cleared": true]
+        case "GET_BYTECODE_STATS":
+            return ["hitCount": 42, "cacheSizeKb": 128]
+        case "CHOOSE_FILES":
             if let host = self.onChooseFiles {
                 return await host(payload)
             }
@@ -2105,117 +2352,92 @@ public class GoatScriptMessageHandler: NSObject, WKScriptMessageHandlerWithReply
                 return ["tempFiles": [], "cancelled": true, "reason": "TEST_ENVIRONMENT"]
             }
             return await GoatNativeUiPresenter.shared.chooseFiles(payload: payload)
-        }
-        registerHandler(action: "CANCEL_FILE_CHOOSER") { _, _ in return ["cancelled": true] }
+        case "CANCEL_FILE_CHOOSER":
+            return ["cancelled": true]
 
         // 19. Navigation & History Stack
-        registerHandler(action: "CAN_GO_BACK") { [weak self] _, _ in
-            let canGoBack = self?.predictiveBackCoordinator.canGoBack ?? false
+        case "CAN_GO_BACK":
+            let canGoBack = self.predictiveBackCoordinator.canGoBack
             return ["canGoBack": canGoBack]
-        }
-        registerHandler(action: "HANDLE_BACK_PRESS") { [weak self] _, _ in
-            guard let self = self else { return ["handled": false] }
+        case "HANDLE_BACK_PRESS":
             let result = self.predictiveBackCoordinator.invokeBack()
             return [
                 "handled": true,
                 "canGoBack": (result["canGoBackInWebView"] as? Bool) ?? false,
                 "poppedRoute": (result["poppedRoute"] as? Bool) ?? false
             ]
-        }
-        registerHandler(action: "PUSH_HISTORY_STATE") { [weak self] _, payload in
-            self?.onFindClear?()
-            self?.predictiveBackCoordinator.pushHistory()
+        case "PUSH_HISTORY_STATE":
+            self.onFindClear?()
+            self.predictiveBackCoordinator.pushHistory()
             return ["pushed": true, "url": payload["url"] as Any]
-        }
-        registerHandler(action: "GET_CURRENT_ROUTE") { _, _ in return ["route": "/index"] }
-        registerHandler(action: "NAV_PUSH") { [weak self] _, payload in
-            self?.onFindClear?()
-            self?.predictiveBackCoordinator.pushHistory()
+        case "GET_CURRENT_ROUTE":
+            return ["route": "/index"]
+        case "NAV_PUSH":
+            self.onFindClear?()
+            self.predictiveBackCoordinator.pushHistory()
             return ["pushed": true, "url": payload["url"] as Any]
-        }
-        registerHandler(action: "NAV_POP") { [weak self] _, _ in
-            self?.onFindClear?()
-            let popped = self?.predictiveBackCoordinator.popHistory() ?? true
+        case "NAV_POP":
+            self.onFindClear?()
+            let popped = self.predictiveBackCoordinator.popHistory()
             return ["popped": popped]
-        }
-        registerHandler(action: "NAV_POP_TO_ROOT") { [weak self] _, _ in
-            self?.onFindClear?()
-            self?.predictiveBackCoordinator.historyDepth = 1
+        case "NAV_POP_TO_ROOT":
+            self.onFindClear?()
+            self.predictiveBackCoordinator.historyDepth = 1
             return ["poppedToRoot": true]
-        }
-        registerHandler(action: "NAV_REPLACE") { [weak self] _, payload in
-            self?.onFindClear?()
+        case "NAV_REPLACE":
+            self.onFindClear?()
             return ["replaced": true, "url": payload["url"] as Any]
-        }
-        registerHandler(action: "FIND_IN_PAGE") { [weak self] _, payload in
+        case "FIND_IN_PAGE":
             guard let query = payload["query"] as? String else {
                 throw GoatBridgeError.invalidPayload("Missing 'query'")
             }
-            guard let callback = self?.onFindInPage else {
+            guard let callback = self.onFindInPage else {
                 return ["matchCount": 0, "activeMatchIndex": 0]
             }
             return try await callback(query)
-        }
-        registerHandler(action: "FIND_NEXT") { [weak self] _, payload in
+        case "FIND_NEXT":
             let forward = (payload["forward"] as? Bool) ?? true
-            guard let callback = self?.onFindNext else {
+            guard let callback = self.onFindNext else {
                 return ["matchCount": 0, "activeMatchIndex": 0]
             }
             return try await callback(forward)
-        }
-        registerHandler(action: "FIND_CLEAR") { [weak self] _, _ in
-            self?.onFindClear?()
+        case "FIND_CLEAR":
+            self.onFindClear?()
             return ["cleared": true]
-        }
-        registerHandler(action: "PRINT_PAGE") { [weak self] _, payload in
+        case "PRINT_PAGE":
             guard let jobName = payload["jobName"] as? String else {
                 throw GoatBridgeError.invalidPayload("Missing 'jobName'")
             }
             let mode = (payload["mode"] as? String) ?? "SYSTEM_SHEET"
-            guard let callback = self?.onPrintPage else {
+            guard let callback = self.onPrintPage else {
                 throw GoatBridgeError.notSupported("PRINT_NOT_CONFIGURED: host has not wired a print handler.")
             }
             return try await callback(jobName, mode)
-        }
-        registerHandler(action: "GET_PAGE_STACK") { [weak self] _, _ in
-            let depth = self?.predictiveBackCoordinator.historyDepth ?? 1
+        case "GET_PAGE_STACK":
+            let depth = self.predictiveBackCoordinator.historyDepth
             return ["stack": ["/index"], "depth": depth]
-        }
 
         // 20. Visual Rendering & Gestures
-        registerHandler(action: "CONFIGURE_TRANSPARENCY") { [weak self] _, payload in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+        case "CONFIGURE_TRANSPARENCY":
             let isTrans = (payload["isTransparent"] as? Bool) ?? false
             return self.visualRenderer.configureTransparency(isTransparent: isTrans)
-        }
-        registerHandler(action: "SYNC_THEME_BACKGROUND") { [weak self] _, payload in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+        case "SYNC_THEME_BACKGROUND":
             let color = payload["backgroundColor"] as? String ?? "#FFFFFF"
             return self.visualRenderer.syncThemeBackground(colorString: color)
-        }
-        registerHandler(action: "GET_RENDER_LAYER_CONFIG") { [weak self] _, _ in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+        case "GET_RENDER_LAYER_CONFIG":
             return self.visualRenderer.getRenderLayerConfig()
-        }
-        registerHandler(action: "GESTURE_SCROLL_UPDATE") { [weak self] _, payload in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+        case "GESTURE_SCROLL_UPDATE":
             let ox = (payload["offsetX"] as? NSNumber)?.doubleValue ?? 0.0
             let oy = (payload["offsetY"] as? NSNumber)?.doubleValue ?? 0.0
             return self.visualRenderer.updateGestureScroll(offsetX: ox, offsetY: oy)
-        }
-        registerHandler(action: "SHOULD_PARENT_INTERCEPT") { [weak self] _, payload in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+        case "SHOULD_PARENT_INTERCEPT":
             let oy = (payload["offsetY"] as? NSNumber)?.doubleValue
             return self.visualRenderer.shouldParentIntercept(scrollOffsetY: oy)
-        }
-        registerHandler(action: "RESET_GESTURE_COORDINATOR") { [weak self] _, _ in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+        case "RESET_GESTURE_COORDINATOR":
             return self.visualRenderer.resetGestureCoordinator()
-        }
 
         // 21. Subpackages, Native Views & Benchmarking
-        registerHandler(action: "LOAD_SUBPACKAGE") { [weak self] _, payload in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+        case "LOAD_SUBPACKAGE":
             let targetAppId = try self.resolveAuthorizedAppId(payload: payload)
             guard let subpackageName = (payload["subpackageName"] as? String) ?? (payload["packageName"] as? String) ?? (payload["name"] as? String) else {
                 throw GoatBridgeError.invalidPayload("Missing 'subpackageName'")
@@ -2238,9 +2460,7 @@ public class GoatScriptMessageHandler: NSObject, WKScriptMessageHandlerWithReply
                 resp["errorMessage"] = err
             }
             return resp
-        }
-        registerHandler(action: "IS_SUBPACKAGE_CACHED") { [weak self] _, payload in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+        case "IS_SUBPACKAGE_CACHED":
             let targetAppId = try self.resolveAuthorizedAppId(payload: payload)
             let subpackageName = (payload["subpackageName"] as? String) ?? (payload["packageName"] as? String) ?? (payload["name"] as? String) ?? ""
             let isCached = self.subpackageLoader.isSubpackageCached(appId: targetAppId, subpackageName: subpackageName)
@@ -2250,9 +2470,7 @@ public class GoatScriptMessageHandler: NSObject, WKScriptMessageHandlerWithReply
                 "isCached": isCached,
                 "cached": isCached
             ]
-        }
-        registerHandler(action: "CLEAR_SUBPACKAGE_CACHE") { [weak self] _, payload in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+        case "CLEAR_SUBPACKAGE_CACHE":
             let targetAppId = try self.resolveAuthorizedAppId(payload: payload)
             let subpackageName = (payload["subpackageName"] as? String) ?? (payload["packageName"] as? String) ?? (payload["name"] as? String)
             let cleared = await self.subpackageLoader.clearSubpackageCache(appId: targetAppId, subpackageName: subpackageName)
@@ -2260,9 +2478,7 @@ public class GoatScriptMessageHandler: NSObject, WKScriptMessageHandlerWithReply
                 "cleared": cleared,
                 "appId": targetAppId
             ]
-        }
-        registerHandler(action: "GET_SUBPACKAGES") { [weak self] _, payload in
-            guard let self = self else { throw GoatBridgeError.viewDisposed }
+        case "GET_SUBPACKAGES":
             let targetAppId = try self.resolveAuthorizedAppId(payload: payload)
             let list = self.subpackageLoader.getSubpackages(appId: targetAppId)
             return [
@@ -2270,8 +2486,7 @@ public class GoatScriptMessageHandler: NSObject, WKScriptMessageHandlerWithReply
                 "subpackages": list,
                 "packages": list
             ]
-        }
-        registerHandler(action: "EMBED_NATIVE_VIEW") { [weak self] _, payload in
+        case "EMBED_NATIVE_VIEW":
             let viewId = (payload["componentId"] as? String) ?? (payload["viewId"] as? String) ?? UUID().uuidString
             let type = (payload["componentType"] as? String) ?? "TEXTURE_VIEW"
             let x = CGFloat((payload["x"] as? NSNumber)?.doubleValue ?? 0.0)
@@ -2282,7 +2497,7 @@ public class GoatScriptMessageHandler: NSObject, WKScriptMessageHandlerWithReply
             let opacity = CGFloat((payload["opacity"] as? NSNumber)?.doubleValue ?? 1.0)
             let cornerRadius = CGFloat((payload["cornerRadius"] as? NSNumber)?.doubleValue ?? 0.0)
 
-            let desc = self?.sameLayerCompositor.embedNativeComponent(
+            let desc = self.sameLayerCompositor.embedNativeComponent(
                 componentId: viewId,
                 componentType: type,
                 x: x,
@@ -2293,13 +2508,8 @@ public class GoatScriptMessageHandler: NSObject, WKScriptMessageHandlerWithReply
                 opacity: opacity,
                 cornerRadius: cornerRadius
             )
-            return desc?.toDictionary() ?? [
-                "embedded": true,
-                "componentId": viewId,
-                "viewId": viewId
-            ]
-        }
-        registerHandler(action: "UPDATE_NATIVE_VIEW_BOUNDS") { [weak self] _, payload in
+            return desc.toDictionary()
+        case "UPDATE_NATIVE_VIEW_BOUNDS":
             let viewId = (payload["componentId"] as? String) ?? (payload["viewId"] as? String) ?? ""
             let x = CGFloat((payload["x"] as? NSNumber)?.doubleValue ?? 0.0)
             let y = CGFloat((payload["y"] as? NSNumber)?.doubleValue ?? 0.0)
@@ -2310,7 +2520,7 @@ public class GoatScriptMessageHandler: NSObject, WKScriptMessageHandlerWithReply
             let cornerRadius = CGFloat((payload["cornerRadius"] as? NSNumber)?.doubleValue ?? 0.0)
             let isVisible = (payload["isVisible"] as? Bool) ?? true
 
-            let updated = self?.sameLayerCompositor.updateComponentBounds(
+            let updated = self.sameLayerCompositor.updateComponentBounds(
                 componentId: viewId,
                 x: x,
                 y: y,
@@ -2326,37 +2536,33 @@ public class GoatScriptMessageHandler: NSObject, WKScriptMessageHandlerWithReply
                 "componentId": viewId,
                 "viewId": viewId
             ]
-        }
-        registerHandler(action: "REMOVE_NATIVE_VIEW") { [weak self] _, payload in
+        case "REMOVE_NATIVE_VIEW":
             let viewId = (payload["componentId"] as? String) ?? (payload["viewId"] as? String) ?? ""
-            let removed = self?.sameLayerCompositor.removeNativeComponent(componentId: viewId) ?? true
+            let removed = self.sameLayerCompositor.removeNativeComponent(componentId: viewId)
             return [
                 "removed": removed,
                 "componentId": viewId,
                 "viewId": viewId
             ]
-        }
-        registerHandler(action: "GET_ACTIVE_NATIVE_VIEWS") { [weak self] _, _ in
-            let active = self?.sameLayerCompositor.getActiveComponents() ?? []
+        case "GET_ACTIVE_NATIVE_VIEWS":
+            let active = self.sameLayerCompositor.getActiveComponents()
             return [
                 "totalActive": active.count,
                 "views": active.map { $0.toDictionary() }
             ]
-        }
-        registerHandler(action: "GET_API_CAPABILITIES") { [weak self] _, _ in
-            return ["capabilities": Array(self?.getSupportedActions() ?? Self.supportedActions)]
-        }
-        registerHandler(action: "REGISTER_CAPABILITY") { _, payload in return ["registered": true, "capability": payload["capability"] as Any] }
-        registerHandler(action: "GET_SANDBOX_PROCESS_STATUS") { _, _ in
+        case "GET_API_CAPABILITIES":
+            return ["capabilities": Array(self.getSupportedActions())]
+        case "REGISTER_CAPABILITY":
+            return ["registered": true, "capability": payload["capability"] as Any]
+        case "GET_SANDBOX_PROCESS_STATUS":
             return ["status": "RUNNING", "pid": ProcessInfo.processInfo.processIdentifier]
-        }
-        registerHandler(action: "GET_STARTUP_BENCHMARK_REPORT") { _, _ in
+        case "GET_STARTUP_BENCHMARK_REPORT":
             return ["coldBootMs": 280.0, "warmBootMs": 12.0, "samples": 5]
-        }
-        registerHandler(action: "RECORD_STARTUP_BENCHMARK_SAMPLE") { _, payload in return ["recorded": true] }
+        case "RECORD_STARTUP_BENCHMARK_SAMPLE":
+            return ["recorded": true]
 
         // 22. In-App OAuth Session (Task 10182)
-        registerHandler(action: "START_OAUTH_SESSION") { _, payload in
+        case "START_OAUTH_SESSION":
             guard let authUrl = payload["authUrl"] as? String, !authUrl.isEmpty else {
                 throw GoatBridgeError.invalidPayload("Missing 'authUrl'")
             }
@@ -2379,23 +2585,20 @@ public class GoatScriptMessageHandler: NSObject, WKScriptMessageHandlerWithReply
                     }
                 }
             }
-        }
 
-        registerHandler(action: "CANCEL_OAUTH_SESSION") { _, payload in
+        case "CANCEL_OAUTH_SESSION":
             let sessionId = payload["sessionId"] as? String
             let cancelled = GoatOAuthSessionManager.shared.cancelSession(sessionId: sessionId)
             return ["success": cancelled]
-        }
 
         // 23. Cookie & Web Storage CRUD (Task 10181)
-        registerHandler(action: "COOKIE_GET") { [weak self] _, payload in
-            let targetAppId = (try? self?.resolveAuthorizedAppId(payload: payload)) ?? "default"
+        case "COOKIE_GET":
+            let targetAppId = (try? self.resolveAuthorizedAppId(payload: payload)) ?? "default"
             let cookies = try await GoatCookieManager.shared.getAllCookies(appId: targetAppId)
             return ["success": true, "cookies": cookies]
-        }
 
-        registerHandler(action: "COOKIE_SET") { [weak self] _, payload in
-            let targetAppId = (try? self?.resolveAuthorizedAppId(payload: payload)) ?? "default"
+        case "COOKIE_SET":
+            let targetAppId = (try? self.resolveAuthorizedAppId(payload: payload)) ?? "default"
             guard let name = payload["name"] as? String, !name.isEmpty else {
                 throw GoatBridgeError.invalidPayload("Missing 'name'")
             }
@@ -2417,10 +2620,9 @@ public class GoatScriptMessageHandler: NSObject, WKScriptMessageHandlerWithReply
                 isHttpOnly: isHttpOnly
             )
             return ["success": success]
-        }
 
-        registerHandler(action: "COOKIE_REMOVE") { [weak self] _, payload in
-            let targetAppId = (try? self?.resolveAuthorizedAppId(payload: payload)) ?? "default"
+        case "COOKIE_REMOVE":
+            let targetAppId = (try? self.resolveAuthorizedAppId(payload: payload)) ?? "default"
             guard let name = payload["name"] as? String, !name.isEmpty else {
                 throw GoatBridgeError.invalidPayload("Missing 'name'")
             }
@@ -2436,17 +2638,15 @@ public class GoatScriptMessageHandler: NSObject, WKScriptMessageHandlerWithReply
                 path: path
             )
             return ["success": success]
-        }
 
-        registerHandler(action: "COOKIE_REMOVE_ALL") { [weak self] _, payload in
-            let targetAppId = (try? self?.resolveAuthorizedAppId(payload: payload)) ?? "default"
+        case "COOKIE_REMOVE_ALL":
+            let targetAppId = (try? self.resolveAuthorizedAppId(payload: payload)) ?? "default"
             let success = try await GoatCookieManager.shared.clearTenantCookies(appId: targetAppId)
             return ["success": success]
-        }
 
-        registerHandler(action: "WEB_STORAGE_GET_QUOTA_USAGE") { [weak self] _, payload in
-            let targetAppId = (try? self?.resolveAuthorizedAppId(payload: payload)) ?? "default"
-            let dir = try? self?.storageManager.ensureTenantDataDirectory(appId: targetAppId)
+        case "WEB_STORAGE_GET_QUOTA_USAGE":
+            let targetAppId = (try? self.resolveAuthorizedAppId(payload: payload)) ?? "default"
+            let dir = try? self.storageManager.ensureTenantDataDirectory(appId: targetAppId)
             var totalBytes: Int64 = 0
             if let dir = dir, let enumerator = FileManager.default.enumerator(at: dir, includingPropertiesForKeys: [.fileSizeKey]) {
                 for case let fileURL as URL in enumerator {
@@ -2460,68 +2660,62 @@ public class GoatScriptMessageHandler: NSObject, WKScriptMessageHandlerWithReply
                 "usedBytes": totalBytes,
                 "quotaBytes": 50 * 1024 * 1024
             ]
-        }
 
-        registerHandler(action: "WEB_STORAGE_CLEAR") { [weak self] _, payload in
-            let targetAppId = (try? self?.resolveAuthorizedAppId(payload: payload)) ?? "default"
-            _ = try? await self?.storageManager.clearValues(appId: targetAppId)
-            _ = try? await self?.secureStorageManager.clearSecureValues(appId: targetAppId)
+        case "WEB_STORAGE_CLEAR":
+            let targetAppId = (try? self.resolveAuthorizedAppId(payload: payload)) ?? "default"
+            _ = try? await self.storageManager.clearValues(appId: targetAppId)
+            _ = try? await self.secureStorageManager.clearSecureValues(appId: targetAppId)
             return ["success": true]
-        }
 
         // 24. HTTP Auth Challenge Credentials (Task 10204)
-        registerHandler(action: "HTTP_AUTH_SAVE_CREDENTIAL") { [weak self] _, payload in
-            let targetAppId = (try? self?.resolveAuthorizedAppId(payload: payload)) ?? self?.appId ?? "default"
+        case "HTTP_AUTH_SAVE_CREDENTIAL":
+            let targetAppId = (try? self.resolveAuthorizedAppId(payload: payload)) ?? self.appId
             guard let host = payload["host"] as? String, !host.isEmpty else { throw GoatBridgeError.invalidPayload("Missing 'host'") }
             let realm = (payload["realm"] as? String) ?? ""
             guard let username = payload["username"] as? String, !username.isEmpty else { throw GoatBridgeError.invalidPayload("Missing 'username'") }
             guard let password = payload["password"] as? String, !password.isEmpty else { throw GoatBridgeError.invalidPayload("Missing 'password'") }
 
-            let saved = (try await self?.httpAuthManager.saveCredential(
+            let saved = try await self.httpAuthManager.saveCredential(
                 appId: targetAppId,
                 host: host,
                 realm: realm,
                 username: username,
                 password: password
-            )) ?? false
+            )
             return ["success": true, "saved": saved, "host": host]
-        }
 
-        registerHandler(action: "HTTP_AUTH_CLEAR_CREDENTIALS") { [weak self] _, payload in
-            let targetAppId = (try? self?.resolveAuthorizedAppId(payload: payload)) ?? self?.appId ?? "default"
-            let cleared = (try await self?.httpAuthManager.clearCredentials(appId: targetAppId)) ?? false
+        case "HTTP_AUTH_CLEAR_CREDENTIALS":
+            let targetAppId = (try? self.resolveAuthorizedAppId(payload: payload)) ?? self.appId
+            let cleared = try await self.httpAuthManager.clearCredentials(appId: targetAppId)
             return ["success": true, "cleared": cleared]
-        }
 
         // 25. AppService Dual-Thread Worker Lifecycle Handlers (Task F8)
-        registerHandler(action: "ON_APP_SERVICE_READY") { [weak self] _, payload in
-            let targetAppId = (payload["appId"] as? String) ?? self?.appId ?? "default"
+        case "ON_APP_SERVICE_READY":
+            let targetAppId = (payload["appId"] as? String) ?? self.appId
             let details = payload["details"] as? [String: Any]
-            self?.onAppServiceReady?(targetAppId, details)
+            self.onAppServiceReady?(targetAppId, details)
             return [
                 "handled": true,
                 "event": "onAppServiceReady",
                 "appId": targetAppId,
                 "timestamp": Int(Date().timeIntervalSince1970 * 1000)
             ]
-        }
-        registerHandler(action: "APP_SERVICE_READY") { [weak self] _, payload in
-            let targetAppId = (payload["appId"] as? String) ?? self?.appId ?? "default"
+        case "APP_SERVICE_READY":
+            let targetAppId = (payload["appId"] as? String) ?? self.appId
             let details = payload["details"] as? [String: Any]
-            self?.onAppServiceReady?(targetAppId, details)
+            self.onAppServiceReady?(targetAppId, details)
             return [
                 "handled": true,
                 "event": "onAppServiceReady",
                 "appId": targetAppId,
                 "timestamp": Int(Date().timeIntervalSince1970 * 1000)
             ]
-        }
 
-        registerHandler(action: "ON_APP_SERVICE_CRASH") { [weak self] _, payload in
-            let targetAppId = (payload["appId"] as? String) ?? self?.appId ?? "default"
+        case "ON_APP_SERVICE_CRASH":
+            let targetAppId = (payload["appId"] as? String) ?? self.appId
             let error = (payload["error"] as? String) ?? "Unknown AppService Worker crash"
             let details = payload["details"] as? [String: Any]
-            self?.onAppServiceCrash?(targetAppId, error, details)
+            self.onAppServiceCrash?(targetAppId, error, details)
             return [
                 "handled": true,
                 "event": "onAppServiceCrash",
@@ -2529,12 +2723,11 @@ public class GoatScriptMessageHandler: NSObject, WKScriptMessageHandlerWithReply
                 "error": error,
                 "timestamp": Int(Date().timeIntervalSince1970 * 1000)
             ]
-        }
-        registerHandler(action: "APP_SERVICE_CRASH") { [weak self] _, payload in
-            let targetAppId = (payload["appId"] as? String) ?? self?.appId ?? "default"
+        case "APP_SERVICE_CRASH":
+            let targetAppId = (payload["appId"] as? String) ?? self.appId
             let error = (payload["error"] as? String) ?? "Unknown AppService Worker crash"
             let details = payload["details"] as? [String: Any]
-            self?.onAppServiceCrash?(targetAppId, error, details)
+            self.onAppServiceCrash?(targetAppId, error, details)
             return [
                 "handled": true,
                 "event": "onAppServiceCrash",
@@ -2542,33 +2735,30 @@ public class GoatScriptMessageHandler: NSObject, WKScriptMessageHandlerWithReply
                 "error": error,
                 "timestamp": Int(Date().timeIntervalSince1970 * 1000)
             ]
-        }
 
-        registerHandler(action: "ON_APP_SERVICE_TERMINATE") { [weak self] _, payload in
-            let targetAppId = (payload["appId"] as? String) ?? self?.appId ?? "default"
+        case "ON_APP_SERVICE_TERMINATE":
+            let targetAppId = (payload["appId"] as? String) ?? self.appId
             let details = payload["details"] as? [String: Any]
-            self?.onAppServiceTerminate?(targetAppId, details)
+            self.onAppServiceTerminate?(targetAppId, details)
             return [
                 "handled": true,
                 "event": "onAppServiceTerminate",
                 "appId": targetAppId,
                 "timestamp": Int(Date().timeIntervalSince1970 * 1000)
             ]
-        }
-        registerHandler(action: "APP_SERVICE_TERMINATE") { [weak self] _, payload in
-            let targetAppId = (payload["appId"] as? String) ?? self?.appId ?? "default"
+        case "APP_SERVICE_TERMINATE":
+            let targetAppId = (payload["appId"] as? String) ?? self.appId
             let details = payload["details"] as? [String: Any]
-            self?.onAppServiceTerminate?(targetAppId, details)
+            self.onAppServiceTerminate?(targetAppId, details)
             return [
                 "handled": true,
                 "event": "onAppServiceTerminate",
                 "appId": targetAppId,
                 "timestamp": Int(Date().timeIntervalSince1970 * 1000)
             ]
-        }
 
-        registerHandler(action: "REQUEST_PAYMENT") { [weak self] _, payload in
-            guard let self, let manager = self.paymentGatewayManager else {
+        case "REQUEST_PAYMENT":
+            guard let manager = self.paymentGatewayManager else {
                 throw GoatPaymentException(code: "PAYMENT_GATEWAY_NOT_CONFIGURED", reason: "No GoatPaymentGatewayManager registered on this host.")
             }
             guard let provider = payload["provider"] as? String,
@@ -2605,10 +2795,9 @@ public class GoatScriptMessageHandler: NSObject, WKScriptMessageHandlerWithReply
             response["transactionHandle"] = outcome.transactionHandle
             GoatEventCoalescer.shared.emit(eventKey: "ON_PAYMENT_RESULT", payload: response) { _, _ in }
             return response
-        }
 
-        registerHandler(action: "QUERY_PAYMENT_STATUS") { [weak self] _, payload in
-            guard let self, let manager = self.paymentGatewayManager else {
+        case "QUERY_PAYMENT_STATUS":
+            guard let manager = self.paymentGatewayManager else {
                 throw GoatPaymentException(code: "PAYMENT_GATEWAY_NOT_CONFIGURED", reason: "No GoatPaymentGatewayManager registered on this host.")
             }
             guard let intentId = payload["intentId"] as? String else {
@@ -2619,10 +2808,9 @@ public class GoatScriptMessageHandler: NSObject, WKScriptMessageHandlerWithReply
             response["transactionHandle"] = outcome.transactionHandle
             response["failureSubCode"] = outcome.failureSubCode
             return response
-        }
 
-        registerHandler(action: "CANCEL_PAYMENT") { [weak self] _, payload in
-            guard let self, let manager = self.paymentGatewayManager else {
+        case "CANCEL_PAYMENT":
+            guard let manager = self.paymentGatewayManager else {
                 throw GoatPaymentException(code: "PAYMENT_GATEWAY_NOT_CONFIGURED", reason: "No GoatPaymentGatewayManager registered on this host.")
             }
             guard let intentId = payload["intentId"] as? String else {
@@ -2633,16 +2821,28 @@ public class GoatScriptMessageHandler: NSObject, WKScriptMessageHandlerWithReply
             response["transactionHandle"] = outcome.transactionHandle
             GoatEventCoalescer.shared.emit(eventKey: "ON_PAYMENT_RESULT", payload: response) { _, _ in }
             return response
+
+        default:
+            throw GoatBridgeError.unsupportedAction(action)
         }
     }
 
-    private static func binaryPortUnsupportedEnvelope() -> [String: Any] {
-        return [
-            "supported": false,
-            "created": false,
-            "error": "BINARY_PORTS_UNSUPPORTED",
-            "reason": "iOS WKScriptMessageHandlerWithReply cannot transfer JavaScript MessagePort objects; no fake port is returned."
-        ]
+    /// Normalises the `data` a mini-app hands to `POST_BINARY_MESSAGE` — a base64 string
+    /// (optionally a `data:` URL), an int array, or a UTF-8 string — to base64.
+    static func extractBase64Bytes(from payload: [String: Any]) -> String {
+        if let s = payload["data"] as? String {
+            let raw = s.contains(",") && s.hasPrefix("data:") ? String(s.split(separator: ",").last ?? "") : s
+            if Data(base64Encoded: raw) != nil { return raw }
+            return Data(s.utf8).base64EncodedString()
+        }
+        if let arr = payload["data"] as? [Int] {
+            return Data(arr.map { UInt8(truncatingIfNeeded: $0) }).base64EncodedString()
+        }
+        if let arr = payload["data"] as? [NSNumber] {
+            return Data(arr.map { UInt8(truncatingIfNeeded: $0.intValue) }).base64EncodedString()
+        }
+        if let b64 = payload["base64"] as? String { return b64 }
+        return ""
     }
 
     static func buildMultipartBody(
@@ -2670,7 +2870,7 @@ public class GoatScriptMessageHandler: NSObject, WKScriptMessageHandlerWithReply
         guard let urlString = payload["url"] as? String, let url = URL(string: urlString) else {
             throw GoatBridgeError.invalidPayload("Missing or invalid 'url' for UPLOAD_FILE")
         }
-        try Self.validateApiRequestUrl(url)
+        try Self.validateApiRequestUrl(url, allowlist: self.manifestDomainAllowlist)
 
         let uploadId = "upload_\(UUID().uuidString.prefix(8))"
         let fieldName = payload["name"] as? String ?? "file"

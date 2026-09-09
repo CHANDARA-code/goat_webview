@@ -190,6 +190,99 @@ public class GoatAudioManager: NSObject, AVAudioPlayerDelegate, AVAudioRecorderD
         ]
     }
 
+    // MARK: - Save image to the photo library  (SAVE_IMAGE_TO_ALBUM)
+
+    private var saveImageContinuation: CheckedContinuation<[String: Any], Never>?
+
+    /// Writes the image at `filePath` (a local path or `file://` URL) — or, if `dataUrl` /
+    /// `base64` is given, its decoded bytes — into the user's photo library. Requires the host
+    /// app's Info.plist to carry `NSPhotoLibraryAddUsageDescription`.
+    public func saveImageToAlbum(filePath: String?, base64: String?, appId: String = "default") async -> [String: Any] {
+        #if canImport(UIKit)
+        var image: UIImage?
+        if let base64 = base64, !base64.isEmpty {
+            let raw = base64.contains(",") ? String(base64.split(separator: ",").last ?? "") : base64
+            if let d = Data(base64Encoded: raw) { image = UIImage(data: d) }
+        } else if let p = filePath, !p.isEmpty {
+            let path = p.hasPrefix("file://") ? (URL(string: p)?.path ?? p) : p
+            if let d = FileManager.default.contents(atPath: path) { image = UIImage(data: d) }
+        }
+        guard let image = image else {
+            return ["saved": false, "error": "INVALID_IMAGE: could not decode filePath / base64"]
+        }
+        return await withCheckedContinuation { (cont: CheckedContinuation<[String: Any], Never>) in
+            lock.lock(); self.saveImageContinuation = cont; lock.unlock()
+            UIImageWriteToSavedPhotosAlbum(image, self, #selector(self.didFinishSavingImage(_:error:contextInfo:)), nil)
+        }
+        #else
+        return ["saved": false, "error": "UNSUPPORTED_PLATFORM"]
+        #endif
+    }
+
+    #if canImport(UIKit)
+    @objc private func didFinishSavingImage(_ image: UIImage, error: Error?, contextInfo: UnsafeRawPointer) {
+        lock.lock(); let cont = self.saveImageContinuation; self.saveImageContinuation = nil; lock.unlock()
+        if let error = error {
+            cont?.resume(returning: ["saved": false, "error": error.localizedDescription])
+        } else {
+            cont?.resume(returning: ["saved": true])
+        }
+    }
+    #endif
+
+    // MARK: - Record video  (RECORD_VIDEO)
+
+    #if canImport(UIKit)
+    private var videoContinuation: CheckedContinuation<[String: Any], Never>?
+    private var videoPicker: UIImagePickerController?
+    #endif
+
+    /// Presents the camera in video mode and returns the recorded clip's sandboxed temp path.
+    /// Requires `NSCameraUsageDescription` (+ `NSMicrophoneUsageDescription` for sound).
+    public func recordVideo(maxDurationSec: Double = 60, appId: String = "default") async -> [String: Any] {
+        #if canImport(UIKit)
+        let hasCamera = UIImagePickerController.isSourceTypeAvailable(.camera)
+            && AVCaptureDevice.default(for: .video) != nil
+        guard hasCamera else {
+            return ["recorded": false, "error": "CAMERA_UNAVAILABLE"]
+        }
+        return await withCheckedContinuation { (cont: CheckedContinuation<[String: Any], Never>) in
+            lock.lock(); self.videoContinuation = cont; lock.unlock()
+            DispatchQueue.main.async {
+                let picker = UIImagePickerController()
+                picker.sourceType = .camera
+                picker.mediaTypes = ["public.movie"]
+                picker.cameraCaptureMode = .video
+                picker.videoMaximumDuration = maxDurationSec
+                picker.videoQuality = .typeMedium
+                picker.delegate = self
+                self.videoPicker = picker
+                self.presentModally(picker)
+            }
+        }
+        #else
+        return ["recorded": false, "error": "UNSUPPORTED_PLATFORM"]
+        #endif
+    }
+
+    #if canImport(UIKit)
+    private func presentModally(_ vc: UIViewController) {
+        let top = UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .flatMap { $0.windows }
+            .first { $0.isKeyWindow }?
+            .rootViewController
+        var presenter = top
+        while let p = presenter?.presentedViewController { presenter = p }
+        presenter?.present(vc, animated: true)
+    }
+
+    private func resumeVideo(_ result: [String: Any]) {
+        lock.lock(); let cont = self.videoContinuation; self.videoContinuation = nil; self.videoPicker = nil; lock.unlock()
+        cont?.resume(returning: result)
+    }
+    #endif
+
     // MARK: - AVAudioPlayerDelegate
 
     public func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
@@ -203,3 +296,37 @@ public class GoatAudioManager: NSObject, AVAudioPlayerDelegate, AVAudioRecorderD
     }
 }
 
+
+#if canImport(UIKit)
+extension GoatAudioManager: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+    public func imagePickerController(_ picker: UIImagePickerController,
+                                      didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        picker.dismiss(animated: true)
+        guard let mediaURL = info[.mediaURL] as? URL else {
+            resumeVideo(["recorded": false, "error": "NO_MEDIA_URL"]); return
+        }
+        let dest = FileManager.default.temporaryDirectory
+            .appendingPathComponent("goat_video", isDirectory: true)
+        try? FileManager.default.createDirectory(at: dest, withIntermediateDirectories: true)
+        let out = dest.appendingPathComponent("\(UUID().uuidString).mov")
+        try? FileManager.default.removeItem(at: out)
+        if (try? FileManager.default.moveItem(at: mediaURL, to: out)) == nil {
+            try? FileManager.default.copyItem(at: mediaURL, to: out)
+        }
+        let size = ((try? FileManager.default.attributesOfItem(atPath: out.path))?[.size] as? Int64) ?? 0
+        let durationSec = CMTimeGetSeconds(AVURLAsset(url: out).duration)
+        resumeVideo([
+            "recorded": true,
+            "tempFilePath": out.path,
+            "duration": durationSec.isFinite ? durationSec : 0,
+            "size": size,
+            "fileSize": size
+        ])
+    }
+
+    public func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        picker.dismiss(animated: true)
+        resumeVideo(["recorded": false, "cancelled": true])
+    }
+}
+#endif

@@ -184,40 +184,52 @@ public class GoatBluetoothManager: NSObject, CBCentralManagerDelegate, CBPeriphe
 
     // MARK: - GATT Services & Characteristics
 
-    public func getServices(deviceId: String) -> [String: Any] {
-        return [
-            "deviceId": deviceId,
-            "services": ["0000180D-0000-1000-8000-00805F9B34FB", "0000180F-0000-1000-8000-00805F9B34FB"]
-        ]
+    /// GATT operations past connection are **not implemented on iOS**.
+    ///
+    /// These four methods previously returned fabricated values — `getServices` answered two
+    /// hardcoded UUIDs, `getCharacteristics` one, `readCharacteristic` the constant base64
+    /// `"AQIDBA=="`, and `writeCharacteristic` `written: true` without writing anything. A caller
+    /// could not tell that apart from a real result, which is worse than an error: it is silently
+    /// wrong data on a real device.
+    ///
+    /// Android has a real GATT client (`AndroidBleTransport`: `discoverServices`,
+    /// characteristic read/write, `setCharacteristicNotification` + CCCD). iOS needs the
+    /// `CBPeripheralDelegate` equivalents — `didDiscoverServices`,
+    /// `didDiscoverCharacteristicsFor`, `didUpdateValueFor`, `didWriteValueFor`,
+    /// `didUpdateNotificationStateFor` — none of which this class implements today, even though it
+    /// declares `CBPeripheralDelegate` conformance and calls `discoverServices(nil)`, so the
+    /// results have nowhere to land.
+    ///
+    /// Until that exists, these fail closed. `@goat/adapter-dsl` declares the corresponding DSL
+    /// methods `platformOnly: 'android'` to match.
+    public enum GoatBleUnsupported: Error, LocalizedError {
+        case gattNotImplementedOnIOS(String)
+
+        public var errorDescription: String? {
+            switch self {
+            case .gattNotImplementedOnIOS(let op):
+                return "\(op) is not implemented on iOS. CoreBluetooth here supports scan, connect " +
+                       "and disconnect only; GATT service discovery, characteristic read/write and " +
+                       "notifications require the CBPeripheralDelegate callbacks this build does not " +
+                       "have. Android implements them via AndroidBleTransport."
+            }
+        }
     }
 
-    public func getCharacteristics(deviceId: String, serviceId: String) -> [String: Any] {
-        return [
-            "deviceId": deviceId,
-            "serviceId": serviceId,
-            "characteristics": [
-                [
-                    "uuid": "00002A37-0000-1000-8000-00805F9B34FB",
-                    "properties": ["read": true, "notify": true, "write": false]
-                ]
-            ]
-        ]
+    public func getServices(deviceId: String) throws -> [String: Any] {
+        throw GoatBleUnsupported.gattNotImplementedOnIOS("BLE_LIST_SERVICES")
+    }
+
+    public func getCharacteristics(deviceId: String, serviceId: String) throws -> [String: Any] {
+        throw GoatBleUnsupported.gattNotImplementedOnIOS("BLE service characteristic discovery")
     }
 
     public func readCharacteristic(
         deviceId: String? = nil,
         serviceId: String? = nil,
         characteristicId: String? = nil
-    ) -> [String: Any] {
-        let devId = deviceId ?? "dev_01"
-        let sId = serviceId ?? "srv_01"
-        let cId = characteristicId ?? "char_01"
-        return [
-            "deviceId": devId,
-            "serviceId": sId,
-            "characteristicId": cId,
-            "value": "AQIDBA==" // Base64 [1, 2, 3, 4]
-        ]
+    ) throws -> [String: Any] {
+        throw GoatBleUnsupported.gattNotImplementedOnIOS("BLE_READ_CHARACTERISTIC")
     }
 
     public func writeCharacteristic(
@@ -225,17 +237,8 @@ public class GoatBluetoothManager: NSObject, CBCentralManagerDelegate, CBPeriphe
         serviceId: String? = nil,
         characteristicId: String? = nil,
         value: String? = nil
-    ) -> [String: Any] {
-        let valStr = value ?? "0x01"
-        let count = Data(base64Encoded: valStr)?.count ?? valStr.count
-        return [
-            "written": true,
-            "success": true,
-            "deviceId": deviceId ?? "dev_01",
-            "serviceId": serviceId ?? "srv_01",
-            "characteristicId": characteristicId ?? "char_01",
-            "bytesWritten": count
-        ]
+    ) throws -> [String: Any] {
+        throw GoatBleUnsupported.gattNotImplementedOnIOS("BLE_WRITE_CHARACTERISTIC")
     }
 
     // MARK: - CBCentralManagerDelegate

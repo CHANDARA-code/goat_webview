@@ -22,6 +22,12 @@ public class GoatWebProcessTerminationHandler: NSObject, WKNavigationDelegate {
         NSLog("[GoatWebView] WebContent process terminated (OOM Jetsam or crash). Auto-recovering...")
 
         onProcessTerminated?(webView)
+        
+        GoatTelemetryManager.shared.record(
+            action: "CRASH_RECOVERY",
+            requestPayload: ["event": "WebContent process terminated", "attempts": reloadAttempts],
+            durationMs: 0.0
+        )
 
         if reloadAttempts < maxReloadAttempts {
             reloadAttempts += 1

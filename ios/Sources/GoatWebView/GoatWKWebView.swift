@@ -15,6 +15,13 @@ public class GoatWKWebView: WKWebView {
     public let appId: String
     public let version: String
 
+    /// Shared by every `GoatWKWebView` so WebKit can pool WebContent processes and caches.
+    /// Delegates to `GoatProcessPoolManager` -- declaring a second pool here would defeat the
+    /// point, since GoatView and GoatHeadlessWebView now attach to the manager's instance.
+    public static var sharedProcessPool: WKProcessPool {
+        GoatProcessPoolManager.shared.sharedProcessPool
+    }
+
     public init(
         frame: CGRect = .zero,
         appId: String = "default",
@@ -26,6 +33,11 @@ public class GoatWKWebView: WKWebView {
         self.version = version
 
         let config = configuration ?? WKWebViewConfiguration()
+
+        // One process pool across every Goat WebView in the app: WebKit shares the network cache,
+        // resource-load coordinator and JIT tier-up state across instances, and can coalesce
+        // WebContent processes — so the warm pool's 2 parked instances cost less resident RAM.
+        config.processPool = GoatWKWebView.sharedProcessPool
 
         // Enforce tenant data store partitioning if not explicitly assigned
         if config.websiteDataStore == .default() {

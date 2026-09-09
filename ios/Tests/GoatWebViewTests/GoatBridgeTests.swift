@@ -1262,6 +1262,8 @@ final class GoatBridgeTests: XCTestCase {
 
         let compStart = try await handler.dispatchDirect(action: "START_COMPASS", payload: [:])
         XCTAssertEqual(compStart["started"] as? Bool, true)
+        let compStop = try await handler.dispatchDirect(action: "STOP_COMPASS", payload: [:])
+        XCTAssertEqual(compStop["stopped"] as? Bool, true)
 
         let gyroStart = try await handler.dispatchDirect(action: "START_GYROSCOPE", payload: [:])
         XCTAssertEqual(gyroStart["started"] as? Bool, true)
@@ -1431,10 +1433,23 @@ final class GoatBridgeTests: XCTestCase {
 
         let bleConn = try await handler.dispatchDirect(action: "BLE_CONNECT", payload: ["deviceId": "dev_01"])
         XCTAssertEqual(bleConn["connected"] as? Bool, true)
-        let bleRead = try await handler.dispatchDirect(action: "BLE_READ_CHARACTERISTIC", payload: [:])
-        XCTAssertNotNil(bleRead["value"])
-        let bleWrite = try await handler.dispatchDirect(action: "BLE_WRITE_CHARACTERISTIC", payload: ["value": "0x02"])
-        XCTAssertEqual(bleWrite["written"] as? Bool, true)
+        // These used to return a constant base64 value and `written: true` without touching the
+        // peripheral. iOS has no GATT read/write path, so they now surface that instead of
+        // handing a mini-app fabricated data it cannot distinguish from a real result.
+        do {
+            _ = try await handler.dispatchDirect(action: "BLE_READ_CHARACTERISTIC", payload: [:])
+            XCTFail("BLE_READ_CHARACTERISTIC must not fabricate a value on iOS")
+        } catch {
+            XCTAssertTrue(error.localizedDescription.contains("not implemented on iOS"),
+                          "unexpected error: \(error.localizedDescription)")
+        }
+        do {
+            _ = try await handler.dispatchDirect(action: "BLE_WRITE_CHARACTERISTIC", payload: ["value": "0x02"])
+            XCTFail("BLE_WRITE_CHARACTERISTIC must not report success on iOS")
+        } catch {
+            XCTAssertTrue(error.localizedDescription.contains("not implemented on iOS"),
+                          "unexpected error: \(error.localizedDescription)")
+        }
         let bleDisconn = try await handler.dispatchDirect(action: "DISCONNECT_BLE_DEVICE", payload: ["deviceId": "dev_01"])
         XCTAssertEqual(bleDisconn["disconnected"] as? Bool, true)
 
@@ -1456,11 +1471,17 @@ final class GoatBridgeTests: XCTestCase {
         GoatAbuseGuard.shared.recordUserGesture()
 
         let connect = try await handler.dispatchDirect(action: "WEB3_CONNECT_WALLET", payload: [:])
-        XCTAssertEqual(connect["connected"] as? Bool, true)
-        XCTAssertNotNil(connect["account"])
+        XCTAssertNotNil(connect["address"])
+        XCTAssertNotNil(connect["publicKey"])
+        XCTAssertNotNil(connect["wallet"])
+        XCTAssertNotNil(connect["chainId"])
 
-        let sign = try await handler.dispatchDirect(action: "WEB3_SIGN_TRANSACTION", payload: ["tx": "0x123"])
-        XCTAssertNotNil(sign["signedTx"])
+        let sign = try await handler.dispatchDirect(
+            action: "WEB3_SIGN_TRANSACTION",
+            payload: ["to": "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045", "amount": "1"]
+        )
+        XCTAssertNotNil(sign["signature"])
+        XCTAssertNotNil(sign["txHash"])
 
         let account = try await handler.dispatchDirect(action: "WEB3_GET_ACCOUNT", payload: [:])
         XCTAssertEqual(account["connected"] as? Bool, true)
@@ -1478,26 +1499,54 @@ final class GoatBridgeTests: XCTestCase {
         XCTAssertEqual(restore["restored"] as? Bool, true)
     }
 
-    // Domain 14: Binary IPC Channels
+    // Domain 14: Binary IPC Channels — real bidirectional MessageChannel bridge (GoatBinaryPortManager).
     func testDomain14BinaryIpcActions() async throws {
+        // Without a JS evaluator the channel cannot be driven and reports itself unsupported.
+        let noEval = GoatScriptMessageHandler(appId: "d14_noeval")
+        let unsupported = try await noEval.dispatchDirect(action: "CREATE_BINARY_PORT", payload: [:])
+        XCTAssertEqual(unsupported["supported"] as? Bool, false)
+        XCTAssertEqual(unsupported["error"] as? String, "NO_JS_EVALUATOR")
+
         let handler = GoatScriptMessageHandler(appId: "d14_tenant")
+        let evaluatedJS = NSMutableArray()
+        let jsLock = NSLock()
+        handler.onEvaluateJS = { js in
+            jsLock.lock(); evaluatedJS.add(js); jsLock.unlock()
+        }
 
         let createPort = try await handler.dispatchDirect(action: "CREATE_BINARY_PORT", payload: [:])
-        XCTAssertEqual(createPort["supported"] as? Bool, false)
-        XCTAssertEqual(createPort["created"] as? Bool, false)
-        XCTAssertEqual(createPort["error"] as? String, "BINARY_PORTS_UNSUPPORTED")
-        XCTAssertNotNil(createPort["reason"])
+        XCTAssertEqual(createPort["supported"] as? Bool, true)
+        let portId = try XCTUnwrap(createPort["portId"] as? String)
+        XCTAssertTrue(portId.hasPrefix("gport_"))
+        XCTAssertEqual(createPort["jsPort"] as? String, "window.__goatPorts[\"\(portId)\"].port1")
+        jsLock.lock(); let sawChannelInject = evaluatedJS.contains(where: { ($0 as? String)?.contains("new MessageChannel()") == true }); jsLock.unlock()
+        XCTAssertTrue(sawChannelInject, "CREATE_BINARY_PORT must inject the page-side MessageChannel")
 
-        let postBinary = try await handler.dispatchDirect(action: "POST_BINARY_MESSAGE", payload: ["portId": "port_0", "data": "binary_test_data"])
-        XCTAssertEqual(postBinary["posted"] as? Bool, false)
-        XCTAssertEqual(postBinary["error"] as? String, "BINARY_PORTS_UNSUPPORTED")
+        // native -> app : POST_BINARY_MESSAGE injects a port2.postMessage call carrying the bytes.
+        let posted = try await handler.dispatchDirect(action: "POST_BINARY_MESSAGE", payload: ["portId": portId, "data": [9, 8, 7]])
+        XCTAssertEqual(posted["posted"] as? Bool, true)
+        jsLock.lock(); let sawPost = evaluatedJS.contains(where: { ($0 as? String)?.contains("port2.postMessage") == true }); jsLock.unlock()
+        XCTAssertTrue(sawPost)
 
-        let readBinary = try await handler.dispatchDirect(action: "READ_BINARY_MESSAGE", payload: ["portId": "port_0"])
-        XCTAssertEqual(readBinary["error"] as? String, "BINARY_PORTS_UNSUPPORTED")
+        // app -> native : the page forwards bytes through the internal __GOAT_PORT_RX action;
+        // READ_BINARY_MESSAGE then drains them in order.
+        let payloadBytes = Data([1, 2, 3, 4]).base64EncodedString()
+        _ = try await handler.dispatchDirect(action: "__GOAT_PORT_RX", payload: ["portId": portId, "data": payloadBytes])
+        let read = try await handler.dispatchDirect(action: "READ_BINARY_MESSAGE", payload: ["portId": portId])
+        XCTAssertEqual(read["data"] as? String, payloadBytes)
+        XCTAssertEqual(read["type"] as? Int, 1)
 
-        let closePort = try await handler.dispatchDirect(action: "CLOSE_BINARY_PORT", payload: ["portId": "port_0"])
-        XCTAssertEqual(closePort["closed"] as? Bool, false)
-        XCTAssertEqual(closePort["error"] as? String, "BINARY_PORTS_UNSUPPORTED")
+        let drained = try await handler.dispatchDirect(action: "READ_BINARY_MESSAGE", payload: ["portId": portId])
+        XCTAssertNil(drained["data"] as? String)
+        XCTAssertEqual(drained["type"] as? Int, 1)
+
+        let closePort = try await handler.dispatchDirect(action: "CLOSE_BINARY_PORT", payload: ["portId": portId])
+        XCTAssertEqual(closePort["closed"] as? Bool, true)
+
+        // A post to a closed / unknown port is rejected.
+        let postClosed = try await handler.dispatchDirect(action: "POST_BINARY_MESSAGE", payload: ["portId": portId, "data": [0]])
+        XCTAssertEqual(postClosed["posted"] as? Bool, false)
+        XCTAssertEqual(postClosed["error"] as? String, "UNKNOWN_OR_CLOSED_PORT")
     }
 
     // Domain 15: Navigation & Predictive Back

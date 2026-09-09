@@ -343,6 +343,38 @@ public final class GoatCookieManager: @unchecked Sendable {
     }
 
     /**
+     * Removes only session (non-persistent, no `expiresDate`) cookies for `appId`'s partition,
+     * mirroring Android's `CookieManager.removeSessionCookies`. Persistent cookies are untouched.
+     */
+    public func removeSessionCookies(appId: String = "default") async throws -> Bool {
+        if isTestingEnvironment {
+            lock.lock()
+            let list = memoryCookies[appId] ?? []
+            memoryCookies[appId] = list.filter { !$0.isSessionOnly }
+            lock.unlock()
+            return true
+        }
+
+        let store = cookieStore(for: appId)
+        let sessionCookies = await withCheckedContinuation { (continuation: CheckedContinuation<[HTTPCookie], Never>) in
+            store.getAllCookies { cookies in
+                continuation.resume(returning: cookies.filter { $0.isSessionOnly })
+            }
+        }
+        guard !sessionCookies.isEmpty else { return true }
+        await withTaskGroup(of: Void.self) { group in
+            for cookie in sessionCookies {
+                group.addTask {
+                    await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+                        store.delete(cookie) { continuation.resume() }
+                    }
+                }
+            }
+        }
+        return true
+    }
+
+    /**
      * Deterministically generates a UUID v5-compatible UUID from an appId string.
      */
     private func deterministicUUID(from string: String) -> UUID {

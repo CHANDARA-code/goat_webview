@@ -47,16 +47,18 @@ final class GoatAuthAndSecurityEmpiricalChallengeTests: XCTestCase {
     }
 
     // =========================================================================
-    // SECTION 2: ALL 12 PRIVILEGED ACTIONS FAIL CLOSED WITH GESTURE_REQUIRED
+    // SECTION 2: ALL 13 PRIVILEGED ACTIONS FAIL CLOSED WITH GESTURE_REQUIRED
     // =========================================================================
 
-    func testAll12PrivilegedActionsFailClosedWhenStale() async throws {
+    func testAll13PrivilegedActionsFailClosedWhenStale() async throws {
         GoatAbuseGuard.shared.reset() // Stale gesture (timestamp = 0)
         let handler = GoatScriptMessageHandler(appId: "priv_challenge_app")
 
         let privilegedActions = GoatAbuseGuard.privilegedActions
-        // Task 10206 adds CANCEL_PAYMENT to the privileged action set.
-        XCTAssertEqual(privilegedActions.count, 12, "Must contain exactly 12 privileged actions")
+        // Task 10206 adds CANCEL_PAYMENT; the wallet SPI adds WEB3_SIGN_MESSAGE, which carries the
+        // EIP-712 / Permit2 drainer vector and so needs the same gesture gate as WEB3_SIGN_TRANSACTION.
+        XCTAssertEqual(privilegedActions.count, 13, "Must contain exactly 13 privileged actions")
+        XCTAssertTrue(privilegedActions.contains("WEB3_SIGN_MESSAGE"))
 
         for action in privilegedActions {
             let dummyPayload: [String: Any] = [

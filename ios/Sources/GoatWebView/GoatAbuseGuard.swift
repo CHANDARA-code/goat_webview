@@ -22,6 +22,7 @@ public class GoatAbuseGuard {
         "IAP_PURCHASE",
         "OPEN_INVOICE",
         "WEB3_SIGN_TRANSACTION",
+        "WEB3_SIGN_MESSAGE",
         "CANCEL_PAYMENT"
     ]
 

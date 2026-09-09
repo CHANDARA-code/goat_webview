@@ -14,7 +14,27 @@ public enum GoatContentBlocker {
 
     private static let lock = NSLock()
     private static var activeControllers: [String: NSHashTable<WKUserContentController>] = [:]
-    private static var compiledRuleLists: [String: WKContentRuleList] = [:]
+    public private(set) static var compiledRuleLists: [String: WKContentRuleList] = [:]
+
+    /**
+     * Checks whether a compiled rule list is already cached in memory for an appId.
+     */
+    public static func hasCompiledRuleList(for appId: String) -> Bool {
+        lock.lock()
+        defer { lock.unlock() }
+        let cleanId = appId.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        return compiledRuleLists[cleanId] != nil
+    }
+
+    /**
+     * Retrieves the cached compiled rule list for an appId if present.
+     */
+    public static func getCompiledRuleList(for appId: String) -> WKContentRuleList? {
+        lock.lock()
+        defer { lock.unlock() }
+        let cleanId = appId.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        return compiledRuleLists[cleanId]
+    }
 
     /**
      * Extracts allowed domains from manifest JSON data.

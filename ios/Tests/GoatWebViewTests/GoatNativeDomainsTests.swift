@@ -283,17 +283,29 @@ final class GoatNativeDomainsTests: XCTestCase {
         let connect = bleManager.connect(deviceId: "00000000-0000-0000-0000-000000000001")
         XCTAssertEqual(connect["connected"] as? Bool, true)
 
-        let services = bleManager.getServices(deviceId: "00000000-0000-0000-0000-000000000001")
-        XCTAssertNotNil(services["services"])
+        // GATT past connection is not implemented on iOS and now fails closed rather than
+        // returning the hardcoded UUIDs it used to. Asserting the throw is what keeps a future
+        // "it returns something, ship it" regression from passing.
+        XCTAssertThrowsError(
+            try bleManager.getServices(deviceId: "00000000-0000-0000-0000-000000000001")
+        )
+        XCTAssertThrowsError(
+            try bleManager.getCharacteristics(deviceId: "00000000-0000-0000-0000-000000000001", serviceId: "180D")
+        )
 
-        let chars = bleManager.getCharacteristics(deviceId: "00000000-0000-0000-0000-000000000001", serviceId: "180D")
-        XCTAssertNotNil(chars["characteristics"])
-
-        let read = bleManager.readCharacteristic(deviceId: "00000000-0000-0000-0000-000000000001", serviceId: "180D", characteristicId: "2A37")
-        XCTAssertEqual(read["value"] as? String, "AQIDBA==")
-
-        let write = bleManager.writeCharacteristic(deviceId: "00000000-0000-0000-0000-000000000001", serviceId: "180D", characteristicId: "2A37", value: "0x05")
-        XCTAssertEqual(write["written"] as? Bool, true)
+        // This previously asserted the hardcoded constant "AQIDBA==" — a test pinning a fabricated
+        // value in place, which is why the stub survived. iOS has no GATT read/write path, so both
+        // must fail rather than answer.
+        XCTAssertThrowsError(
+            try bleManager.readCharacteristic(
+                deviceId: "00000000-0000-0000-0000-000000000001", serviceId: "180D", characteristicId: "2A37"
+            )
+        )
+        XCTAssertThrowsError(
+            try bleManager.writeCharacteristic(
+                deviceId: "00000000-0000-0000-0000-000000000001", serviceId: "180D", characteristicId: "2A37", value: "0x05"
+            )
+        )
 
         let disconnect = bleManager.disconnect(deviceId: "00000000-0000-0000-0000-000000000001")
         XCTAssertEqual(disconnect["disconnected"] as? Bool, true)
@@ -413,7 +425,8 @@ final class GoatNativeDomainsTests: XCTestCase {
 
         // 8. StoreKit & Web3
         let payRes = try await handler.dispatchDirect(action: "WEB3_CONNECT_WALLET", payload: [:])
-        XCTAssertEqual(payRes["connected"] as? Bool, true)
+        XCTAssertNotNil(payRes["address"])
+        XCTAssertNotNil(payRes["chainId"])
 
         // 9. Visual Renderer
         let renderRes = try await handler.dispatchDirect(action: "GET_RENDER_LAYER_CONFIG", payload: [:])
