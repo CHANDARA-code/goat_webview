@@ -1,0 +1,104 @@
+{
+  "name": "@goat/adapter-dsl",
+  "version": "0.1.0",
+  "description": "Portable WeChat (wx.*) / Alibaba (my.*) / uni-app / Taro mini-app DSL adapters for goat_webview.",
+  "license": "UNLICENSED",
+  "private": true,
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js"
+    },
+    "./wechat": {
+      "types": "./dist/types/wechat/index.d.ts",
+      "import": "./dist/esm/wechat/index.js",
+      "require": "./dist/cjs/wechat/index.js"
+    },
+    "./alibaba": {
+      "types": "./dist/types/alibaba/index.d.ts",
+      "import": "./dist/esm/alibaba/index.js",
+      "require": "./dist/cjs/alibaba/index.js"
+    },
+    "./uniapp": {
+      "types": "./dist/types/uniapp/index.d.ts",
+      "import": "./dist/esm/uniapp/index.js",
+      "require": "./dist/cjs/uniapp/index.js"
+    },
+    "./taro": {
+      "types": "./dist/types/taro/index.d.ts",
+      "import": "./dist/esm/taro/index.js",
+      "require": "./dist/cjs/taro/index.js"
+    },
+    "./features/storage": {
+      "types": "./dist/types/features/storage/index.d.ts",
+      "import": "./dist/esm/features/storage/index.js",
+      "require": "./dist/cjs/features/storage/index.js"
+    },
+    "./features/sensors": {
+      "types": "./dist/types/features/sensors/index.d.ts",
+      "import": "./dist/esm/features/sensors/index.js",
+      "require": "./dist/cjs/features/sensors/index.js"
+    },
+    "./features/scanner": {
+      "types": "./dist/types/features/scanner/index.d.ts",
+      "import": "./dist/esm/features/scanner/index.js",
+      "require": "./dist/cjs/features/scanner/index.js"
+    },
+    "./features/location": {
+      "types": "./dist/types/features/location/index.d.ts",
+      "import": "./dist/esm/features/location/index.js",
+      "require": "./dist/cjs/features/location/index.js"
+    },
+    "./features/bluetooth": {
+      "types": "./dist/types/features/bluetooth/index.d.ts",
+      "import": "./dist/esm/features/bluetooth/index.js",
+      "require": "./dist/cjs/features/bluetooth/index.js"
+    },
+    "./features/media": {
+      "types": "./dist/types/features/media/index.d.ts",
+      "import": "./dist/esm/features/media/index.js",
+      "require": "./dist/cjs/features/media/index.js"
+    },
+    "./features/payments": {
+      "types": "./dist/types/features/payments/index.d.ts",
+      "import": "./dist/esm/features/payments/index.js",
+      "require": "./dist/cjs/features/payments/index.js"
+    },
+    "./features/biometrics": {
+      "types": "./dist/types/features/biometrics/index.d.ts",
+      "import": "./dist/esm/features/biometrics/index.js",
+      "require": "./dist/cjs/features/biometrics/index.js"
+    },
+    "./features/navigation": {
+      "types": "./dist/types/features/navigation/index.d.ts",
+      "import": "./dist/esm/features/navigation/index.js",
+      "require": "./dist/cjs/features/navigation/index.js"
+    },
+    "./features/binary": {
+      "types": "./dist/types/features/binary/index.d.ts",
+      "import": "./dist/esm/features/binary/index.js",
+      "require": "./dist/cjs/features/binary/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build:esm": "esbuild src/index.ts src/wechat/index.ts src/alibaba/index.ts src/uniapp/index.ts src/taro/index.ts src/features/storage/index.ts src/features/sensors/index.ts src/features/scanner/index.ts src/features/location/index.ts src/features/bluetooth/index.ts src/features/media/index.ts src/features/payments/index.ts src/features/biometrics/index.ts src/features/navigation/index.ts src/features/binary/index.ts --outdir=dist/esm --format=esm --outbase=src",
+    "build:cjs": "esbuild src/index.ts src/wechat/index.ts src/alibaba/index.ts src/uniapp/index.ts src/taro/index.ts src/features/storage/index.ts src/features/sensors/index.ts src/features/scanner/index.ts src/features/location/index.ts src/features/bluetooth/index.ts src/features/media/index.ts src/features/payments/index.ts src/features/biometrics/index.ts src/features/navigation/index.ts src/features/binary/index.ts --outdir=dist/cjs --format=cjs --outbase=src",
+    "build:types": "tsc -p tsconfig.types.json",
+    "build": "npm run build:esm && npm run build:cjs && npm run build:types",
+    "test": "esbuild src/__tests__/dsl.test.ts --bundle --outfile=dist-test/dsl.test.js --format=esm --platform=node && esbuild src/__tests__/features.test.ts --bundle --outfile=dist-test/features.test.js --format=esm --platform=node && node --test dist-test/*.test.js",
+    "check:size": "bash scripts/check-size.sh"
+  },
+  "devDependencies": {
+    "esbuild": "^0.24.0",
+    "typescript": "^5.7.3"
+  }
+}
