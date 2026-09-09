@@ -63,6 +63,9 @@ import {
   GeofenceTransitionResult,
   Web3WalletAccountResult,
   Web3SignTransactionPayload,
+  Web3SignMessagePayload,
+  Web3SignedMessageResult,
+  Web3SwitchChainResult,
   Web3SignedTransactionResult,
   InvoicePayload,
   InvoicePaymentResult,
@@ -281,13 +284,15 @@ export class GoatBridge {
         const rawData = event.data;
         const response: BridgeResponse = typeof rawData === 'string' ? JSON.parse(rawData) : rawData;
         
-        this.emitLog({
-          id: response.id,
-          timestamp: new Date().toLocaleTimeString(),
-          type: response.success ? 'res' : 'error',
-          action: 'REPLY',
-          details: response
-        });
+        if (this.hasLogListeners) {
+          this.emitLog({
+            id: response.id,
+            timestamp: new Date().toLocaleTimeString(),
+            type: response.success ? 'res' : 'error',
+            action: 'REPLY',
+            details: response
+          });
+        }
 
         const pending = this.pendingRequests.get(response.id);
         if (pending) {
@@ -359,7 +364,20 @@ export class GoatBridge {
     };
   }
 
+  /**
+   * True when anything is actually observing the bridge log.
+   *
+   * Building a log entry is not free: the timestamp goes through
+   * `Date.prototype.toLocaleTimeString`, i.e. Intl formatting, and this sits on the per-call
+   * bridge path. `logListeners` is empty unless a devtools/observability consumer subscribes, so
+   * without this guard every bridge call formatted a timestamp for nobody.
+   */
+  private get hasLogListeners(): boolean {
+    return this.logListeners.length > 0;
+  }
+
   private emitLog(entry: BridgeLogEntry) {
+    if (this.logListeners.length === 0) return;
     this.logListeners.forEach((fn) => {
       try {
         fn(entry);
@@ -408,13 +426,15 @@ export class GoatBridge {
       const request: BridgeRequest = { id, action, payload };
       const payloadString = JSON.stringify(request);
 
-      this.emitLog({
-        id,
-        timestamp: new Date().toLocaleTimeString(),
-        type: 'req',
-        action,
-        details: payload
-      });
+      if (this.hasLogListeners) {
+        this.emitLog({
+          id,
+          timestamp: new Date().toLocaleTimeString(),
+          type: 'req',
+          action,
+          details: payload
+        });
+      }
 
       const bridgeObj = typeof window !== 'undefined' ? (window as any).nativeBridge : undefined;
       if (bridgeObj && typeof bridgeObj.postMessage === 'function') {
@@ -933,6 +953,19 @@ export class GoatBridge {
             txHash: '0xmock_tx_hash_123',
             network: 'ton-mainnet',
             from: 'EQBvW8Z5huRRJ1S0-Wc03bM4WVOGp6mEIOpz3Sr4bM3_TON'
+          };
+          break;
+        case 'WEB3_SIGN_MESSAGE':
+          mockData = {
+            signature: '0xmock_message_signature',
+            address: '0x71C8366420A0926793fe1b0e3D0b01c7B5b5424D',
+            messageType: (request.payload?.messageType as string) ?? 'personal_sign'
+          };
+          break;
+        case 'WEB3_SWITCH_CHAIN':
+          mockData = {
+            switched: true,
+            chainId: String(request.payload?.chainId ?? '1').replace('eip155:', '')
           };
           break;
         case 'WEB3_DISCONNECT':
@@ -2117,6 +2150,22 @@ export class GoatBridge {
   }
 
   /**
+   * Signs an off-chain message (`personal_sign`) or EIP-712 typed data
+   * (`eth_signTypedData_v4`). Gesture-gated: an off-chain Permit2 allowance can drain a wallet
+   * without an on-chain approval, so this is gated exactly like a transaction.
+   */
+  public async signWeb3Message(options: Web3SignMessagePayload): Promise<Web3SignedMessageResult> {
+    return this.callNative<Web3SignedMessageResult>('WEB3_SIGN_MESSAGE', options as unknown as Record<string, unknown>);
+  }
+
+  /**
+   * Switches the connected wallet session to another chain (EIP-1193 `wallet_switchEthereumChain`).
+   */
+  public async switchWeb3Chain(chainId: string, addChainParams?: Record<string, unknown>): Promise<Web3SwitchChainResult> {
+    return this.callNative<Web3SwitchChainResult>('WEB3_SWITCH_CHAIN', { chainId, addChainParams });
+  }
+
+  /**
    * Disconnects active Web3 wallet session (Task 10120).
    */
   public async disconnectWeb3Wallet(): Promise<boolean> {
@@ -2864,7 +2913,10 @@ export class GoatBridge {
    * Deletes a file in the sandboxed filesystem.
    */
   public async fsDeleteFile(options: FsDeleteFilePayload): Promise<FsDeleteFileResult> {
-    return this.callNative<FsDeleteFileResult>('FS_DELETE_FILE', options as unknown as Record<string, unknown>);
+    // FS_UNLINK, not FS_DELETE_FILE: the latter dispatches on neither platform, so this call
+    // failed on a real device while appearing to work in dev — the in-memory fallback below
+    // handles both spellings, which is exactly what hid it.
+    return this.callNative<FsDeleteFileResult>('FS_UNLINK', options as unknown as Record<string, unknown>);
   }
 
   /**

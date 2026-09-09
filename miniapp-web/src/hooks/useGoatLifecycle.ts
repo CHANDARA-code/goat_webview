@@ -7,6 +7,11 @@ export interface UseGoatLifecycleCallbacks {
   onPause?: () => void;
   onResume?: () => void;
   onDestroy?: () => void;
+  onAppShow?: (options?: any) => void;
+  onAppHide?: () => void;
+  onPageScroll?: (scroll: { scrollTop: number; scrollLeft: number; scrollHeight: number; scrollWidth: number }) => void;
+  onMemoryWarning?: (info: { level?: number | string; memoryPressure?: string }) => void;
+  onWindowResize?: (size: { width: number; height: number; windowWidth: number; windowHeight: number; orientation: string }) => void;
   bridgeInstance?: GoatBridge;
 }
 
@@ -36,12 +41,44 @@ export function useGoatLifecycle(callbacks: UseGoatLifecycleCallbacks = {}) {
       callbacksRef.current.onDestroy?.();
     };
 
+    const handleAppShow = (payload: any) => {
+      callbacksRef.current.onAppShow?.(payload);
+      callbacksRef.current.onResume?.();
+    };
+
+    const handleAppHide = () => {
+      callbacksRef.current.onAppHide?.();
+      callbacksRef.current.onPause?.();
+    };
+
+    const handlePageScroll = (payload: any) => {
+      callbacksRef.current.onPageScroll?.(payload);
+    };
+
+    const handleMemoryWarning = (payload: any) => {
+      callbacksRef.current.onMemoryWarning?.(payload);
+    };
+
+    const handleWindowResize = (payload: any) => {
+      callbacksRef.current.onWindowResize?.(payload);
+    };
+
     const cleanups = [
       activeBridge.on('onPageLoaded', handleLoaded),
       activeBridge.on('onError', handleError),
       activeBridge.on('onPause', handlePause),
       activeBridge.on('onResume', handleResume),
-      activeBridge.on('onDestroy', handleDestroy)
+      activeBridge.on('onDestroy', handleDestroy),
+      activeBridge.on('ON_APP_SHOW', handleAppShow),
+      activeBridge.on('onAppShow', handleAppShow),
+      activeBridge.on('ON_APP_HIDE', handleAppHide),
+      activeBridge.on('onAppHide', handleAppHide),
+      activeBridge.on('ON_PAGE_SCROLL', handlePageScroll),
+      activeBridge.on('onPageScroll', handlePageScroll),
+      activeBridge.on('ON_MEMORY_WARNING', handleMemoryWarning),
+      activeBridge.on('onMemoryWarning', handleMemoryWarning),
+      activeBridge.on('ON_WINDOW_RESIZE', handleWindowResize),
+      activeBridge.on('onWindowResize', handleWindowResize)
     ];
 
     // Browser fallbacks

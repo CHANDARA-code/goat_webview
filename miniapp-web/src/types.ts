@@ -471,6 +471,32 @@ export interface Web3SignedTransactionResult {
   txHash: string;
   network: string;
   from: string;
+  status?: string;
+  simulated?: boolean;
+}
+
+export type Web3ChainFamily = 'EVM' | 'SOLANA' | 'TON' | 'CUSTOM';
+
+export type Web3MessageType = 'personal_sign' | 'eth_signTypedData_v4' | 'solana_signMessage' | 'ton_signData';
+
+export interface Web3SignMessagePayload {
+  message: string;
+  messageType?: Web3MessageType;
+  chainFamily?: Web3ChainFamily;
+  network?: string;
+  address?: string;
+}
+
+export interface Web3SignedMessageResult {
+  signature: string;
+  address: string;
+  messageType: string;
+  simulated?: boolean;
+}
+
+export interface Web3SwitchChainResult {
+  switched: boolean;
+  chainId: string;
 }
 
 export interface InvoicePayload {

@@ -5,10 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build && esbuild src/miniapp-bridge.ts --minify --bundle --outfile=dist/miniapp-bridge.min.js",
+    "build": "tsc && vite build && esbuild src/miniapp-bridge.ts --minify --bundle --outfile=dist/miniapp-bridge.min.js && npm run build:web3-runtime",
     "build:sdk": "esbuild src/miniapp-bridge.ts --minify --bundle --outfile=dist/miniapp-bridge.min.js",
-    "test": "esbuild src/index.ts src/miniapp-bridge.ts src/hooks/*.ts src/__tests__/*.test.ts --outdir=dist-test --format=esm --platform=node && node --test dist-test/__tests__/*.test.js",
-    "preview": "vite preview"
+    "test": "esbuild src/index.ts src/miniapp-bridge.ts src/injected/*.ts src/hooks/*.ts src/__tests__/*.test.ts --outdir=dist-test --format=esm --platform=node && node --test dist-test/__tests__/*.test.js",
+    "preview": "vite preview",
+    "build:web3-runtime": "esbuild src/injected/index.ts --minify --bundle --format=iife --target=es2019 --outfile=dist/goat-web3-runtime.min.js"
   },
   "dependencies": {
     "@ant-design/icons": "^5.6.1",

@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShoppingBag, Cpu, Navigation2, ShieldCheck, TerminalSquare } from 'lucide-react';
+import { ShoppingBag, Cpu, Navigation2, ShieldCheck, TerminalSquare, Wallet } from 'lucide-react';
 import { bridge } from '../../miniapp-bridge';
 
 export interface TabBarProps {
@@ -42,6 +42,14 @@ export const TabBar: React.FC<TabBarProps> = ({ activeTab, onSelectTab, cartCoun
       icon: ShieldCheck,
       activeColor: 'text-purple-400',
       activeBg: 'bg-purple-500/10 border-purple-500/30'
+    },
+    {
+      id: 'wallet',
+      label: 'Wallet',
+      appId: 'com.goat.wallet',
+      icon: Wallet,
+      activeColor: 'text-indigo-400',
+      activeBg: 'bg-indigo-500/10 border-indigo-500/30'
     },
     {
       id: 'diagnostics',

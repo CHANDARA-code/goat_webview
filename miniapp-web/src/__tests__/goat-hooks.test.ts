@@ -158,17 +158,49 @@ describe('React Hooks Suite Unit & Integration Tests (Milestone 3)', () => {
     }
   });
 
-  it('should render useGoatLifecycle and verify callback attachments', async () => {
+  it('should render useGoatLifecycle and verify callback attachments and lifecycle events', async () => {
     const customBridge = new GoatBridge();
     const events: string[] = [];
+    let receivedShow: any = null;
+    let receivedHideCount = 0;
+    let receivedScroll: any = null;
+    let receivedMemory: any = null;
+    let receivedResize: any = null;
+    let cleanupFn: (() => void) | null = null;
 
     function TestComponent() {
+      const dispatcher = (React as any).__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED?.ReactCurrentDispatcher?.current;
+      if (dispatcher) {
+        dispatcher.useEffect = (effect: () => any) => {
+          cleanupFn = effect();
+        };
+      }
       useGoatLifecycle({
         onPageLoaded: (url) => events.push(`loaded:${url}`),
         onError: (err) => events.push(`error:${err}`),
         onPause: () => events.push('pause'),
         onResume: () => events.push('resume'),
         onDestroy: () => events.push('destroy'),
+        onAppShow: (options) => {
+          receivedShow = options;
+          events.push('app_show');
+        },
+        onAppHide: () => {
+          receivedHideCount++;
+          events.push('app_hide');
+        },
+        onPageScroll: (scroll) => {
+          receivedScroll = scroll;
+          events.push('page_scroll');
+        },
+        onMemoryWarning: (info) => {
+          receivedMemory = info;
+          events.push('memory_warning');
+        },
+        onWindowResize: (size) => {
+          receivedResize = size;
+          events.push('window_resize');
+        },
         bridgeInstance: customBridge
       });
       return React.createElement('div', null, 'LifecycleTest');
@@ -177,10 +209,53 @@ describe('React Hooks Suite Unit & Integration Tests (Milestone 3)', () => {
     ReactDOMServer.renderToString(React.createElement(TestComponent));
 
     // Test direct bridge dispatch
+    const showPayload = {
+      entryRoute: '/pages/index',
+      queryParams: { id: '99', tab: 'home' },
+      referrerInfo: { appId: 'superapp_main' },
+      scene: 1001,
+      timestamp: 1718000000000
+    };
+    customBridge.emit('ON_APP_SHOW', showPayload);
+    assert.deepStrictEqual(receivedShow, showPayload);
+    assert.ok(events.includes('app_show'));
+    assert.ok(events.includes('resume'));
+
+    customBridge.emit('ON_APP_HIDE', {});
+    assert.strictEqual(receivedHideCount, 1);
+    assert.ok(events.includes('app_hide'));
+    assert.ok(events.includes('pause'));
+
+    const scrollPayload = { scrollTop: 250, scrollLeft: 0, scrollHeight: 1500, scrollWidth: 390 };
+    customBridge.emit('ON_PAGE_SCROLL', scrollPayload);
+    assert.deepStrictEqual(receivedScroll, scrollPayload);
+
+    const memoryPayload = { level: 'critical', memoryPressure: 'CRITICAL' };
+    customBridge.emit('ON_MEMORY_WARNING', memoryPayload);
+    assert.deepStrictEqual(receivedMemory, memoryPayload);
+
+    const resizePayload = { width: 390, height: 844, windowWidth: 390, windowHeight: 844, orientation: 'portrait' };
+    customBridge.emit('ON_WINDOW_RESIZE', resizePayload);
+    assert.deepStrictEqual(receivedResize, resizePayload);
+
     customBridge.emit('onPageLoaded', 'https://miniapp.goat/index.html');
     customBridge.emit('onPause', {});
     customBridge.emit('onResume', {});
     customBridge.emit('onError', 'Test Error');
+    assert.ok(events.includes('loaded:https://miniapp.goat/index.html'));
+
+    customBridge.emit('onError', 'Sample Error');
+    assert.ok(events.includes('error:Sample Error'));
+
     customBridge.emit('onDestroy', {});
+    assert.ok(events.includes('destroy'));
+
+    if (typeof cleanupFn === 'function') {
+      (cleanupFn as () => void)();
+    }
+
+    receivedHideCount = 0;
+    customBridge.emit('ON_APP_HIDE', {});
+    assert.strictEqual(receivedHideCount, 0);
   });
 });

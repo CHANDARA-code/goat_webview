@@ -8,6 +8,8 @@ import { FieldServiceApp } from './components/fieldservice/FieldServiceApp';
 import { VaultApp } from './components/vault/VaultApp';
 import { DiagnosticsApp } from './components/diagnostics/DiagnosticsApp';
 import { AntdShowcase } from './components/antd/AntdShowcase';
+import { GamesApp } from './components/games/GamesApp';
+import { WalletApp } from './components/wallet/WalletApp';
 import { AntdProvider } from './providers/AntdProvider';
 import { BridgeLogEntry } from './types';
 
@@ -32,6 +34,10 @@ export default function App() {
         setActiveTab('diagnostics');
       } else if (hash.startsWith('ui') || hash.startsWith('antd') || hash.startsWith('kit')) {
         setActiveTab('ui');
+      } else if (hash.startsWith('games') || hash.startsWith('game') || hash.startsWith('play')) {
+        setActiveTab('games');
+      } else if (hash.startsWith('wallet') || hash.startsWith('web3') || hash.startsWith('passkey')) {
+        setActiveTab('wallet');
       } else if (hash.startsWith('ecommerce') || hash.startsWith('store') || hash.startsWith('shop') || hash === '') {
         setActiveTab('ecommerce');
       }
@@ -113,6 +119,10 @@ export default function App() {
         return <VaultApp />;
       case 'ui':
         return <AntdShowcase />;
+      case 'games':
+        return <GamesApp />;
+      case 'wallet':
+        return <WalletApp />;
       case 'diagnostics':
       default:
         return <DiagnosticsApp logs={logs} fps={fps} />;
