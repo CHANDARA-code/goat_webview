@@ -1,5 +1,5 @@
 /**
- * @goat/bridge-mock - Domain 13: Web3 & Payments Handlers (7 Actions)
+ * @goat/bridge-mock - Domain 13: Web3 & Payments Handlers (9 Actions)
  */
 
 import { mockState } from '../state/store.js';
@@ -59,7 +59,49 @@ export class Web3Handlers {
   }
 
   /**
-   * Action 144: WEB3_DISCONNECT
+   * Action 144: WEB3_SIGN_MESSAGE
+   *
+   * Gesture-gated like WEB3_SIGN_TRANSACTION: eth_signTypedData_v4 carries the off-chain
+   * Permit2 allowance vector, so an unattended signature is as dangerous as an unattended send.
+   */
+  public static signMessage(payload: any = {}): {
+    signature: string;
+    address: string;
+    messageType: string;
+  } {
+    if (!mockState.isUserGestureFresh(10000)) {
+      throw new GoatBridgeError(
+        BridgeErrorCodes.GESTURE_REQUIRED,
+        'Signing a message requires recent user confirmation touch'
+      );
+    }
+    const message = payload.message;
+    if (!message) {
+      throw new GoatBridgeError(BridgeErrorCodes.INVALID_ARGUMENT, 'Missing required "message"');
+    }
+    const messageType = payload.messageType || 'personal_sign';
+    return {
+      signature: `0x9f2c...mock_msgsig_${++this.txNonce}`,
+      address: mockState.web3.address,
+      messageType,
+    };
+  }
+
+  /**
+   * Action 145: WEB3_SWITCH_CHAIN
+   */
+  public static switchChain(payload: any = {}): { switched: boolean; chainId: string } {
+    const target = payload.chainId ?? payload.targetChainId;
+    if (!target) {
+      throw new GoatBridgeError(BridgeErrorCodes.INVALID_ARGUMENT, 'Missing required "chainId"');
+    }
+    const normalized = String(target).replace('eip155:', '');
+    mockState.web3.chainId = normalized;
+    return { switched: true, chainId: normalized };
+  }
+
+  /**
+   * Action 146: WEB3_DISCONNECT
    */
   public static disconnect(): { disconnected: boolean } {
     mockState.web3.connected = false;
@@ -67,7 +109,7 @@ export class Web3Handlers {
   }
 
   /**
-   * Action 145: WEB3_GET_ACCOUNT
+   * Action 147: WEB3_GET_ACCOUNT
    */
   public static getAccount(): {
     connected: boolean;
@@ -91,7 +133,7 @@ export class Web3Handlers {
   }
 
   /**
-   * Action 146: OPEN_INVOICE
+   * Action 148: OPEN_INVOICE
    */
   public static openInvoice(payload: any = {}): Promise<InvoicePaymentResult> {
     const invoiceSlug = payload.invoiceSlug;
@@ -121,14 +163,14 @@ export class Web3Handlers {
   }
 
   /**
-   * Action 147: GET_PURCHASE_PRODUCTS
+   * Action 149: GET_PURCHASE_PRODUCTS
    */
   public static getProducts(): { products: IapProductItem[] } {
     return { products: [...mockState.iapProducts] };
   }
 
   /**
-   * Action 148: RESTORE_PURCHASES
+   * Action 150: RESTORE_PURCHASES
    */
   public static restorePurchases(): { purchases: Array<{ invoiceSlug: string; status: string; transactionId: string; amount: number }> } {
     return { purchases: [...mockState.iapPurchases] };

@@ -164,7 +164,7 @@ describe('HermeticWorkerBridgeMockTransport & Headless Simulation Suite', () => 
     assert.ok(errRes.error?.message.includes('Simulated host error'));
   });
 
-  it('executes exhaustive catalog validation of all 197 actions via worker transport', async () => {
+  it('executes exhaustive catalog validation of the full mocked action catalog via worker transport', async () => {
     const allActions: Array<{ action: string; payload?: any }> = [
       // Domain 1: Core & System Lifecycle (12)
       { action: 'GET_DEVICE_INFO' },
@@ -334,6 +334,8 @@ describe('HermeticWorkerBridgeMockTransport & Headless Simulation Suite', () => 
       // Domain 13: Web3 (7)
       { action: 'WEB3_CONNECT_WALLET' },
       { action: 'WEB3_SIGN_TRANSACTION', payload: { to: '0x123', amount: '1' } },
+      { action: 'WEB3_SIGN_MESSAGE', payload: { message: 'Sign in', messageType: 'personal_sign' } },
+      { action: 'WEB3_SWITCH_CHAIN', payload: { chainId: '137' } },
       { action: 'WEB3_GET_ACCOUNT' },
       { action: 'WEB3_DISCONNECT' },
       { action: 'OPEN_INVOICE', payload: { invoiceSlug: 'inv_1' } },

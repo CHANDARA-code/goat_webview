@@ -2,10 +2,18 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { GoatBridgeMock, SUPPORTED_ACTIONS } from '../src/index.js';
 
-test('Full Catalog Parity: Exhaustive Validation of All 197 Action Strings across 18 Domains', async (t) => {
+test('Full Catalog Parity: Exhaustive Validation of All 210 Action Strings across 18 Domains', async (t) => {
   const bridge = new GoatBridgeMock();
 
-  assert.equal(SUPPORTED_ACTIONS.size >= 185, true, `Expected >= 185 actions, got ${SUPPORTED_ACTIONS.size}`);
+  // Exact, not >=. The test title has claimed 197 since it was written while the assertion allowed
+  // 185, so twelve actions could have gone missing without this failing. The engine-side check is
+  // scripts/verify-action-parity.mjs, which cross-checks this same set against both platforms.
+  assert.equal(
+    SUPPORTED_ACTIONS.size,
+    210,
+    `Expected exactly 210 mocked actions, got ${SUPPORTED_ACTIONS.size}. If this is a deliberate ` +
+      `change, update this number AND re-run scripts/verify-action-parity.mjs.`,
+  );
 
   const allActions: Array<{ action: string; payload?: any }> = [
     // Domain 1: Core & System Lifecycle (12)
@@ -95,11 +103,12 @@ test('Full Catalog Parity: Exhaustive Validation of All 197 Action Strings acros
     { action: 'CLOSE_MINI_APP', payload: { instanceId: 'inst_1' } },
     { action: 'ON_MINI_APP_CLOSED' },
 
-    // Domain 6: Sensors (12)
+    // Domain 6: Sensors (13)
     { action: 'START_ACCELEROMETER' },
     { action: 'GET_LATEST_ACCELEROMETER' },
     { action: 'STOP_ACCELEROMETER' },
     { action: 'START_COMPASS' },
+    { action: 'STOP_COMPASS' },
     { action: 'START_GYROSCOPE' },
     { action: 'GET_LATEST_GYROSCOPE' },
     { action: 'STOP_GYROSCOPE' },
@@ -173,9 +182,24 @@ test('Full Catalog Parity: Exhaustive Validation of All 197 Action Strings acros
     { action: 'START_NFC_DISCOVERY' },
     { action: 'STOP_NFC_DISCOVERY' },
 
-    // Domain 13: Web3 (7)
+    // Domain 13: Web3 (9)
     { action: 'WEB3_CONNECT_WALLET' },
     { action: 'WEB3_SIGN_TRANSACTION', payload: { to: '0x123', amount: '1' } },
+    { action: 'WEB3_SIGN_MESSAGE', payload: { message: 'Sign in', messageType: 'personal_sign' } },
+    { action: 'WEB3_SWITCH_CHAIN', payload: { chainId: '137' } },
+
+    // Domain 13c: Passkeys & hardware vault (5)
+    { action: 'PASSKEY_CHECK_SUPPORT' },
+    { action: 'PASSKEY_REGISTER', payload: { optionsJson: '{"rp":{"id":"shop.example.com"}}' } },
+    { action: 'PASSKEY_ASSERT', payload: { optionsJson: '{"rpId":"shop.example.com"}' } },
+    { action: 'VAULT_ENCRYPT', payload: { vaultId: 'catalog_vault', plaintext: 'hello' } },
+
+    // Domain 13d: Digital wallet passes (5)
+    { action: 'WALLET_SAVE_PASS', payload: { provider: 'GENERIC', payload: 'body', metadata: { passTypeIdentifier: 'pass.demo', serialNumber: 'SN-1' } } },
+    { action: 'WALLET_GET_PASS_STATE', payload: { provider: 'GENERIC', passId: 'pass.demo:SN-1' } },
+    { action: 'WALLET_OPEN_PASS', payload: { provider: 'APPLE_WALLET', passId: 'pass.demo:SN-1' } },
+    { action: 'WALLET_LIST_PASSES' },
+    { action: 'WALLET_DELETE_PASS', payload: { passId: 'pass.demo:SN-1' } },
     { action: 'WEB3_GET_ACCOUNT' },
     { action: 'WEB3_DISCONNECT' },
     { action: 'OPEN_INVOICE', payload: { invoiceSlug: 'inv_1' } },

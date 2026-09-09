@@ -16,6 +16,8 @@ import { ContactsHandlers } from './contacts.js';
 import { PushHandlers } from './push.js';
 import { BleNfcHandlers } from './ble.js';
 import { Web3Handlers } from './web3.js';
+import { PasskeyHandlers } from './passkey.js';
+import { PassHandlers } from './passes.js';
 import { BinaryHandlers } from './binary.js';
 import { NavigationHandlers } from './navigation.js';
 import { SubpackageHandlers } from './subpackages.js';
@@ -131,11 +133,12 @@ export const SUPPORTED_ACTIONS: Set<string> = new Set([
   'CLOSE_MINI_APP',
   'ON_MINI_APP_CLOSED',
 
-  // Domain 6: Hardware Sensors & Telephony (12)
+  // Domain 6: Hardware Sensors & Telephony (13)
   'START_ACCELEROMETER',
   'STOP_ACCELEROMETER',
   'GET_LATEST_ACCELEROMETER',
   'START_COMPASS',
+  'STOP_COMPASS',
   'START_GYROSCOPE',
   'STOP_GYROSCOPE',
   'GET_LATEST_GYROSCOPE',
@@ -212,6 +215,18 @@ export const SUPPORTED_ACTIONS: Set<string> = new Set([
   // Domain 13: Web3 & Payments (7)
   'WEB3_CONNECT_WALLET',
   'WEB3_SIGN_TRANSACTION',
+  'WEB3_SIGN_MESSAGE',
+  'WEB3_SWITCH_CHAIN',
+  'PASSKEY_CHECK_SUPPORT',
+  'PASSKEY_REGISTER',
+  'PASSKEY_ASSERT',
+  'VAULT_ENCRYPT',
+  'VAULT_DECRYPT',
+  'WALLET_SAVE_PASS',
+  'WALLET_GET_PASS_STATE',
+  'WALLET_OPEN_PASS',
+  'WALLET_LIST_PASSES',
+  'WALLET_DELETE_PASS',
   'WEB3_DISCONNECT',
   'WEB3_GET_ACCOUNT',
   'OPEN_INVOICE',
@@ -404,6 +419,7 @@ export function normalizeActionName(rawAction: string): string {
     stopAccelerometer: 'STOP_ACCELEROMETER',
     getLatestAccelerometer: 'GET_LATEST_ACCELEROMETER',
     startCompass: 'START_COMPASS',
+    stopCompass: 'STOP_COMPASS',
     startGyroscope: 'START_GYROSCOPE',
     stopGyroscope: 'STOP_GYROSCOPE',
     getLatestGyroscope: 'GET_LATEST_GYROSCOPE',
@@ -510,6 +526,22 @@ export function normalizeActionName(rawAction: string): string {
     requestWalletConnect: 'WEB3_CONNECT_WALLET',
     web3SignTransaction: 'WEB3_SIGN_TRANSACTION',
     signTransaction: 'WEB3_SIGN_TRANSACTION',
+    web3SignMessage: 'WEB3_SIGN_MESSAGE',
+    signMessage: 'WEB3_SIGN_MESSAGE',
+    web3SwitchChain: 'WEB3_SWITCH_CHAIN',
+    switchChain: 'WEB3_SWITCH_CHAIN',
+    checkPasskeySupport: 'PASSKEY_CHECK_SUPPORT',
+    registerCredential: 'PASSKEY_REGISTER',
+    assertCredential: 'PASSKEY_ASSERT',
+    vaultEncrypt: 'VAULT_ENCRYPT',
+    vaultDecrypt: 'VAULT_DECRYPT',
+    walletSavePass: 'WALLET_SAVE_PASS',
+    savePass: 'WALLET_SAVE_PASS',
+    walletGetPassState: 'WALLET_GET_PASS_STATE',
+    hasPass: 'WALLET_GET_PASS_STATE',
+    walletOpenPass: 'WALLET_OPEN_PASS',
+    walletListPasses: 'WALLET_LIST_PASSES',
+    walletDeletePass: 'WALLET_DELETE_PASS',
     web3Disconnect: 'WEB3_DISCONNECT',
     web3GetAccount: 'WEB3_GET_ACCOUNT',
     openInvoice: 'OPEN_INVOICE',
@@ -922,11 +954,38 @@ export async function dispatchBridgeAction(
     case 'STOP_NFC_DISCOVERY':
       return BleNfcHandlers.stopNfcDiscovery();
 
-    // === Domain 13: Web3 & Payments (7) ===
+    // === Domain 13: Web3 & Payments (9) ===
     case 'WEB3_CONNECT_WALLET':
       return Web3Handlers.connectWallet(payload);
     case 'WEB3_SIGN_TRANSACTION':
       return Web3Handlers.signTransaction(payload);
+    case 'WEB3_SIGN_MESSAGE':
+      return Web3Handlers.signMessage(payload);
+    case 'PASSKEY_CHECK_SUPPORT':
+    case 'CHECK_PASSKEY_SUPPORT':
+      return PasskeyHandlers.checkSupport();
+    case 'PASSKEY_REGISTER':
+      return PasskeyHandlers.register(payload);
+    case 'PASSKEY_ASSERT':
+      return PasskeyHandlers.assert(payload);
+    case 'VAULT_ENCRYPT':
+      return PasskeyHandlers.encryptVault(payload);
+    case 'VAULT_DECRYPT':
+      return PasskeyHandlers.decryptVault(payload);
+
+    case 'WALLET_SAVE_PASS':
+      return PassHandlers.savePass(payload);
+    case 'WALLET_GET_PASS_STATE':
+      return PassHandlers.getPassState(payload);
+    case 'WALLET_OPEN_PASS':
+      return PassHandlers.openPass(payload);
+    case 'WALLET_LIST_PASSES':
+      return PassHandlers.listPasses(payload);
+    case 'WALLET_DELETE_PASS':
+      return PassHandlers.deletePass(payload);
+
+    case 'WEB3_SWITCH_CHAIN':
+      return Web3Handlers.switchChain(payload);
     case 'WEB3_DISCONNECT':
       return Web3Handlers.disconnect();
     case 'WEB3_GET_ACCOUNT':
