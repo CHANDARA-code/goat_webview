@@ -7,7 +7,7 @@ description: Complete API reference for Subpackages, WASM & Bytecode (9 actions)
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-# Domain 16: Subpackages, WASM & Bytecode 📦
+# Domain 16: Subpackages, WASM & Bytecode
 
 Dynamic on-demand subpackage downloading and extraction, V8 code cache / JSC bytecode precompilation, and WASM SIMD validation.
 
@@ -42,14 +42,14 @@ Downloads and extracts a split subpackage bundle on-demand with SHA-256 integrit
 **Purpose & Context:** Enables sub-package bundle splitting, keeping main bundle size under 2 MB for instant cold boot.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `LOAD_SUBPACKAGE`
 - **Supported Aliases:** `loadSubpackage`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |
@@ -125,14 +125,14 @@ Tests whether a subpackage bundle is already extracted on disk and warm.
 **Purpose & Context:** Checks if subpackage navigation will require a network download.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `IS_SUBPACKAGE_CACHED`
 - **Supported Aliases:** `isSubpackageCached`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |
@@ -202,14 +202,14 @@ Deletes cached subpackage bundles from disk to reclaim storage space.
 **Purpose & Context:** Purges unneeded subpackages during storage cleanup.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `CLEAR_SUBPACKAGE_CACHE`
 - **Supported Aliases:** `clearSubpackageCache`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |
@@ -277,14 +277,14 @@ Lists all available subpackages registered in the mini-app manifest.
 **Purpose & Context:** Queries subpackage directory for prefetching algorithms.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `GET_SUBPACKAGES`
 - **Supported Aliases:** `getSubpackages`, `prefetchSubpackage`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |
@@ -351,14 +351,14 @@ Triggers Ahead-Of-Time (AOT) JavaScript bytecode precompilation (V8 Code Cache o
 **Purpose & Context:** Reduces JavaScript parse/compile time from 150ms to &lt;10ms for instantaneous sub-millisecond execution.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `PRECOMPILE_BYTECODE`
 - **Supported Aliases:** `precompileBytecode`, `compileBytecodeCache`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |
@@ -431,14 +431,14 @@ Checks if precompiled bytecode cache is warm and ready on disk for the calling a
 **Purpose & Context:** Verifies warm boot readiness.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `IS_BYTECODE_WARM`
 - **Supported Aliases:** `isBytecodeWarm`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |
@@ -504,14 +504,14 @@ Purges compiled V8/JSC bytecode cache files.
 **Purpose & Context:** Invalidates stale bytecode when a new bundle version is downloaded.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `CLEAR_BYTECODE_CACHE`
 - **Supported Aliases:** `clearBytecodeCache`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |
@@ -577,14 +577,14 @@ Queries global bytecode cache footprint (total cached bundles, total cache size 
 **Purpose & Context:** Monitors overall code cache memory consumption.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `GET_BYTECODE_STATS`
 - **Supported Aliases:** `getBytecodeStats`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 _No input parameters required (`{}`)._
@@ -649,14 +649,14 @@ Probes host WebAssembly engine capabilities (SIMD-128, SharedArrayBuffer, thread
 **Purpose & Context:** Enables high-performance physics engines, crypto libraries, and OpenCV WASM modules.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `VALIDATE_WASM_SUPPORT`
 - **Supported Aliases:** `validateWasmSupport`, `probeWasmSupport`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 _No input parameters required (`{}`)._

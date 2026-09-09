@@ -9,7 +9,7 @@ The **Goat WebView Multi-WebView Page Stack** is engineered to eliminate the fun
 
 ---
 
-## 🏛️ Architectural Topology
+## Architectural Topology
 
 ```
 ┌────────────────────────────────────────────────────────────────────────────────────────┐
@@ -30,7 +30,7 @@ The **Goat WebView Multi-WebView Page Stack** is engineered to eliminate the fun
 
 ---
 
-## ⚡ The 5 Pillars of Native-Feel Fluidity
+## The 5 Pillars of Native-Feel Fluidity
 
 ### Pillar 1: Multi-WebView Native Page Stack
 
@@ -101,7 +101,7 @@ When a page is pushed into the background:
 
 ---
 
-## 📊 Performance Benchmarks
+## Performance Benchmarks
 
 | Metric | Traditional SPA Hybrid | Goat Multi-WebView FastPool | Improvement |
 | :--- | :--- | :--- | :--- |

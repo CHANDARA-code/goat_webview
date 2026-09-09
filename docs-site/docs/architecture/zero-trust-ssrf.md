@@ -9,7 +9,7 @@ The **Goat Zero-Trust SSRF Defense System** safeguards host applications from Se
 
 ---
 
-## 🛑 Attack Vectors in Mini-App SuperApps
+## Attack Vectors in Mini-App SuperApps
 
 Mini-apps execute untrusted third-party code within a host enterprise application. If unconstrained, malicious mini-app code could exploit native networking privileges to:
 1. **Exfiltrate Cloud Metadata:** Query AWS, GCP, or Azure Instance Metadata Services (`http://169.254.169.254/latest/meta-data/`) to steal IAM session credentials.
@@ -18,7 +18,7 @@ Mini-apps execute untrusted third-party code within a host enterprise applicatio
 
 ---
 
-## 🏛️ 5-Layer Security Pipeline
+## 5-Layer Security Pipeline
 
 ```
 ┌────────────────────────────────────────────────────────────────────────────────────────┐
@@ -50,7 +50,7 @@ Mini-apps execute untrusted third-party code within a host enterprise applicatio
 
 ---
 
-## 🛡️ Forbidden IP Subnet Matrix
+## Forbidden IP Subnet Matrix
 
 Every resolved IP address is validated against the following security blacklist:
 
@@ -67,7 +67,7 @@ Every resolved IP address is validated against the following security blacklist:
 
 ---
 
-## 💻 Multi-Platform Native Enforcement
+## Multi-Platform Native Enforcement
 
 ### 1. Android Kotlin Implementation (`GoatBridgeActionHandler.kt`)
 
@@ -161,7 +161,7 @@ func validateUrlSecurity(urlString: String, allowlist: [String]) -> (allowed: Bo
 
 ---
 
-## 🔒 DNS Rebinding Protection via Socket Pinning
+## DNS Rebinding Protection via Socket Pinning
 
 To eliminate Time-Of-Check to Time-Of-Use (TOCTOU) DNS rebinding vulnerabilities:
 1. The DNS records are resolved and verified in Layer 3.

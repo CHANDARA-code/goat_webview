@@ -7,7 +7,7 @@ description: Complete API reference for Visual Rendering & Same-Layer (10 action
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-# Domain 17: Visual Rendering & Same-Layer 🖼️
+# Domain 17: Visual Rendering & Same-Layer
 
 WebView window transparency, anti-white-flash background color synchronization, nested scrolling coordinator, and same-layer native views.
 
@@ -43,14 +43,14 @@ Enables alpha transparency on the native WebView surface view, allowing host UI 
 **Purpose & Context:** Powers AR overlays, transparent blur overlays, and floating UI widgets.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `CONFIGURE_TRANSPARENCY`
 - **Supported Aliases:** `configureTransparency`, `setWebviewTransparent`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |
@@ -124,14 +124,14 @@ Synchronizes host native window background color with mini-app theme before DOM 
 **Purpose & Context:** Guarantees zero white flash when launching dark-mode mini-apps.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `SYNC_THEME_BACKGROUND`
 - **Supported Aliases:** `syncThemeBg`, `setWindowBackground`, `preventWhiteFlash`, `syncThemeBackground`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |
@@ -202,14 +202,14 @@ Queries active hardware layer acceleration, surface transparency, and background
 **Purpose & Context:** Diagnostics for compositor layer performance.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `GET_RENDER_LAYER_CONFIG`
 - **Supported Aliases:** `getRenderLayerConfig`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 _No input parameters required (`{}`)._
@@ -275,14 +275,14 @@ Dispatches scroll coordinates into the nested scrolling coordinator, determining
 **Purpose & Context:** Enables nested scrolling between bottom sheet containers and inner scrollable lists.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `GESTURE_SCROLL_UPDATE`
 - **Supported Aliases:** `gestureScrollUpdate`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |
@@ -359,14 +359,14 @@ Queries whether the parent container should intercept upcoming drag gestures.
 **Purpose & Context:** Prevents scroll locking in nested sheets.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `SHOULD_PARENT_INTERCEPT`
 - **Supported Aliases:** `shouldParentIntercept`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |
@@ -431,14 +431,14 @@ Resets scroll physics and boundary states in the nested scrolling coordinator.
 **Purpose & Context:** Resets coordinator when route changes or DOM elements refresh.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `RESET_GESTURE_COORDINATOR`
 - **Supported Aliases:** `resetGestureCoordinator`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 _No input parameters required (`{}`)._
@@ -501,14 +501,14 @@ Embeds a high-performance native component (MapView, Hardware Video Player, Came
 **Purpose & Context:** Overcomes WebView HTML5 performance limits by rendering 60/120 FPS native views synchronized with DOM scroll offsets.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `EMBED_NATIVE_VIEW`
 - **Supported Aliases:** `embedNativeView`, `enableSameLayerRendering`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |
@@ -598,14 +598,14 @@ Updates position, dimensions, visibility, and z-index of an embedded native view
 **Purpose & Context:** Synchronizes embedded native view layout with DOM bounding client rects.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `UPDATE_NATIVE_VIEW_BOUNDS`
 - **Supported Aliases:** `updateNativeViewBounds`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |
@@ -685,14 +685,14 @@ Destroys an embedded native component and frees its native graphics memory.
 **Purpose & Context:** Cleans up embedded views when their DOM element unmounts.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `REMOVE_NATIVE_VIEW`
 - **Supported Aliases:** `removeNativeView`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |
@@ -758,14 +758,14 @@ Lists all currently composited native view instances.
 **Purpose & Context:** Inspects active embedded views for debugging.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `GET_ACTIVE_NATIVE_VIEWS`
 - **Supported Aliases:** `getActiveNativeViews`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 _No input parameters required (`{}`)._

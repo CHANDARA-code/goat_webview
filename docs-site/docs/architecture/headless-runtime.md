@@ -9,7 +9,7 @@ To achieve **sub-15ms cold startup times** and execute background data synchroni
 
 ---
 
-## 🏛️ Headless Runtime Execution
+## Headless Runtime Execution
 
 The Headless Runtime instantiates invisible, unattached WebViews to execute background tasks, service workers, pre-fetching algorithms, and offline sync routines:
 
@@ -33,7 +33,7 @@ The Headless Runtime instantiates invisible, unattached WebViews to execute back
 
 ---
 
-## ⚡ Key Capabilities
+## Key Capabilities
 
 1. **Background Tasks without UI Overhead:**
    Execute cron-style sync routines, push notification processing, and offline state reconciliation without rendering DOM elements to the screen.

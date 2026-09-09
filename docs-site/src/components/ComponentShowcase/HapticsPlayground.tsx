@@ -50,7 +50,6 @@ await GoatWebView.channel.invokeMethod('hapticFeedback', {
       <div className={styles.cardHeader}>
         <div>
           <div className={styles.cardTitle}>
-            <span>📳</span>
             <span>GoatHaptics Component Playground</span>
           </div>
           <div className={styles.cardDesc}>
@@ -91,21 +90,21 @@ await GoatWebView.channel.invokeMethod('hapticFeedback', {
               style={{ background: '#059669' }}
               onClick={() => handleTrigger('success')}
             >
-              ✓ Success Pattern
+              Success Pattern
             </button>
             <button
               className={styles.actionButton}
               style={{ background: '#d97706' }}
               onClick={() => handleTrigger('warning')}
             >
-              ⚠️ Warning Pattern
+              Warning Pattern
             </button>
             <button
               className={styles.actionButton}
               style={{ background: '#dc2626' }}
               onClick={() => handleTrigger('error')}
             >
-              ✕ Error Pattern
+              Error Pattern
             </button>
             <button
               className={styles.secondaryButton}

@@ -7,7 +7,7 @@ description: Complete API reference for Location & Geofencing (7 actions).
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-# Domain 7: Location & Geofencing 📍
+# Domain 7: Location & Geofencing
 
 High-accuracy GPS positioning (WGS84 / GCJ02), map location pickers, and circular geofence boundary transition triggers.
 
@@ -40,14 +40,14 @@ Retrieves current geographical coordinates (latitude, longitude, speed, altitude
 **Purpose & Context:** Enables ride-hailing pickup, food delivery address detection, and nearby store locators.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `GET_LOCATION`
 - **Supported Aliases:** `getLocation`
 - **Permission Scope:** `scope.userLocation`
 - **Required Manifest Permissions:** `android.permission.ACCESS_FINE_LOCATION`, `android.permission.ACCESS_COARSE_LOCATION`, `NSLocationWhenInUseUsageDescription`
-- **Security Constraint:** ⚠️ **Active User Gesture Required** (User touch within &lt;10s)
+- **Security Constraint:** Warning: **Active User Gesture Required** (User touch within &lt;10s)
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |
@@ -132,14 +132,14 @@ Presents a native full-screen interactive map picker for choosing a physical poi
 **Purpose & Context:** Allows users to visually select delivery addresses or meeting spots on a map.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `CHOOSE_LOCATION`
 - **Supported Aliases:** `chooseLocation`
 - **Permission Scope:** `scope.userLocation`
 - **Required Manifest Permissions:** `android.permission.ACCESS_FINE_LOCATION`, `NSLocationWhenInUseUsageDescription`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 _No input parameters required (`{}`)._
@@ -208,14 +208,14 @@ Opens native system map application (Google Maps / Apple Maps) centered at desig
 **Purpose & Context:** Directs user to navigate to merchant location in external turn-by-turn navigation apps.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `OPEN_LOCATION`
 - **Supported Aliases:** `openLocation`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |
@@ -300,14 +300,14 @@ Registers a circular geofence boundary zone for background transition monitoring
 **Purpose & Context:** Triggers proximity discounts, store arrival notifications, or automated check-ins.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `START_GEOFENCE`
 - **Supported Aliases:** `startGeofence`, `geofence`
 - **Permission Scope:** `scope.userLocation`
 - **Required Manifest Permissions:** `android.permission.ACCESS_FINE_LOCATION`, `android.permission.ACCESS_BACKGROUND_LOCATION`, `NSLocationAlwaysAndWhenInUseUsageDescription`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |
@@ -397,14 +397,14 @@ Removes an active circular geofence zone.
 **Purpose & Context:** Cleans up location monitoring when leaving an area.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `STOP_GEOFENCE`
 - **Supported Aliases:** `stopGeofence`
 - **Permission Scope:** `scope.userLocation`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |
@@ -472,14 +472,14 @@ Queries all currently active monitored geofence regions.
 **Purpose & Context:** Inspects active perimeter boundaries.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `LIST_GEOFENCES`
 - **Supported Aliases:** `listGeofences`
 - **Permission Scope:** `scope.userLocation`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 _No input parameters required (`{}`)._
@@ -542,14 +542,14 @@ Manually tests current coordinate against registered geofence zones and returns 
 **Purpose & Context:** Simulates or performs client-side geofence boundary testing.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `EVALUATE_GEOFENCE`
 - **Supported Aliases:** `evaluateGeofence`, `onLocationChange`
 - **Permission Scope:** `scope.userLocation`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |

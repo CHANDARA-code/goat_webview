@@ -7,7 +7,7 @@ description: Complete API reference for Core & System Lifecycle (12 actions).
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-# Domain 1: Core & System Lifecycle ⚡
+# Domain 1: Core & System Lifecycle
 
 Hardware metrics, vibration haptics, status bar appearance, brightness, screen wake locks, clipboard exchange, back navigation, and secure OAuth sessions.
 
@@ -45,14 +45,14 @@ Retrieves comprehensive hardware specifications, operating system release, scree
 **Purpose & Context:** Allows mini-apps to adapt responsive layouts, feature tiers, and dark/light system theme rendering based on host hardware attributes.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `GET_DEVICE_INFO`
 - **Supported Aliases:** `getDeviceInfo`, `getSystemInfo`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 _No input parameters required (`{}`)._
@@ -153,14 +153,14 @@ Triggers tactile haptic feedback impulses on supported hardware actuators (Tapti
 **Purpose & Context:** Provides subtle physical confirmation for user UI gestures such as button taps, pull-to-refresh snaps, and error states.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `HAPTIC_FEEDBACK`
 - **Supported Aliases:** `triggerHaptic`, `hapticFeedback`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `android.permission.VIBRATE`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |
@@ -242,14 +242,14 @@ Configures the host status bar icon and text tinting between dark and light mode
 **Purpose & Context:** Ensures status bar icons (clock, battery, Wi-Fi) remain clearly legible over custom mini-app header backgrounds.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `SET_STATUS_BAR_THEME`
 - **Supported Aliases:** `setStatusBarTheme`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |
@@ -317,14 +317,14 @@ Overrides the current window display brightness level between 0.0 (minimum) and 
 **Purpose & Context:** Useful for high-visibility situations such as presenting barcode/QR tickets at payment counters.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `SET_SCREEN_BRIGHTNESS`
 - **Supported Aliases:** `setScreenBrightness`, `setBrightness`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |
@@ -394,14 +394,14 @@ Queries the current active screen brightness level of the host window.
 **Purpose & Context:** Allows mini-apps to cache original user brightness before boosting it for barcode scanning.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `GET_SCREEN_BRIGHTNESS`
 - **Supported Aliases:** `getScreenBrightness`, `getBrightness`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 _No input parameters required (`{}`)._
@@ -464,14 +464,14 @@ Acquires or releases the host window screen wake lock preventing the display fro
 **Purpose & Context:** Keeps the screen awake during video playback, route navigation, or continuous scanner reading.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `SET_KEEP_SCREEN_ON`
 - **Supported Aliases:** `setKeepScreenOn`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `android.permission.WAKE_LOCK`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |
@@ -540,14 +540,14 @@ Copies plain text strings onto the native system clipboard.
 **Purpose & Context:** Enables quick copy-to-clipboard functionality for order numbers, coupon codes, and shareable links.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `CLIPBOARD_SET`
 - **Supported Aliases:** `setClipboard`, `setClipboardData`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |
@@ -616,14 +616,14 @@ Reads current plain text string from system clipboard under active user gesture 
 **Purpose & Context:** Allows pasting tracking codes, invite tokens, or addresses directly into mini-app forms.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `CLIPBOARD_GET`
 - **Supported Aliases:** `getClipboard`, `getClipboardData`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ⚠️ **Active User Gesture Required** (User touch within &lt;10s)
+- **Security Constraint:** Warning: **Active User Gesture Required** (User touch within &lt;10s)
 
 #### Input Parameters
 _No input parameters required (`{}`)._
@@ -689,14 +689,14 @@ Signals the host container to pop the top page or finish the mini-app activity i
 **Purpose & Context:** Standardizes physical back gesture and custom mini-app header back button handling.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `NAVIGATE_BACK`
 - **Supported Aliases:** `navigateBack`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 _No input parameters required (`{}`)._
@@ -760,14 +760,14 @@ Probes host bridge runtime support for a specific action string or capability.
 **Purpose & Context:** Allows progressive enhancement and graceful fallback when running on older host app versions.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `CAN_I_USE`
 - **Supported Aliases:** `canIUse`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |
@@ -838,14 +838,14 @@ Launches a secure in-app authentication session (ASWebAuthenticationSession on i
 **Purpose & Context:** Enables single sign-on (SSO) OAuth2/OIDC authorization with isolated cookie jars and zero plain credential leakage.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `START_OAUTH_SESSION`
 - **Supported Aliases:** `startOAuthSession`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |
@@ -929,14 +929,14 @@ Dismisses an active in-app OAuth authentication browser sheet.
 **Purpose & Context:** Allows programmatic timeout or user cancellation of pending OAuth authentication requests.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `CANCEL_OAUTH_SESSION`
 - **Supported Aliases:** `cancelOAuthSession`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 _No input parameters required (`{}`)._

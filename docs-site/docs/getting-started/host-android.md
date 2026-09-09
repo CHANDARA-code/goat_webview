@@ -9,7 +9,7 @@ The **Goat Android SDK** (`com.goat.webview:core:1.0.0`) provides enterprise-gra
 
 ---
 
-## 📦 Installation
+## Installation
 
 Add the Goat WebView core dependency to your app module's `build.gradle.kts`:
 
@@ -27,7 +27,7 @@ dependencies {
 
 ---
 
-## 🚀 Application-Level Initialization & Fast Pool Setup
+## Application-Level Initialization & Fast Pool Setup
 
 In your `Application` class, initialize the **`GoatFastPool`** memory hooks and pre-warm the standby pool during idle startup:
 
@@ -52,7 +52,7 @@ class HostApplication : Application() {
 
 ---
 
-## 🧩 Embedding `GoatWebView` in Jetpack Compose
+## Embedding `GoatWebView` in Jetpack Compose
 
 Use the `GoatWebView` composable in your UI screen. It binds directly to the active Activity lifecycle, listens for native back-button presses, handles multi-file chooser dialogs, and coordinates custom bridge actions:
 
@@ -125,7 +125,7 @@ suspend fun handleCustomBridgeAction(action: String, payload: JsonObject): Resul
 
 ---
 
-## ⚙️ Core Technical Capabilities
+## Core Technical Capabilities
 
 ### 1. The Lean 2-Instance `GoatFastPool`
 

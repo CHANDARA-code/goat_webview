@@ -7,7 +7,7 @@ description: Complete API reference for Hardware Sensors & Telephony (13 actions
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-# Domain 6: Hardware Sensors & Telephony 🧭
+# Domain 6: Hardware Sensors & Telephony
 
 Hardware motion sensors (accelerometer, gyroscope, compass, device motion) with 50ms coalesced throttling, plus phone calls and SMS.
 
@@ -46,14 +46,14 @@ Subscribes to hardware 3-axis accelerometer sensor events with coalesced 50ms th
 **Purpose & Context:** Powers shake detection, step counting, and device tilt interactions.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `START_ACCELEROMETER`
 - **Supported Aliases:** `startAccelerometer`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `android.permission.HIGH_SAMPLING_RATE_SENSORS`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |
@@ -122,14 +122,14 @@ Unregisters hardware accelerometer listener and powers down the sensor to conser
 **Purpose & Context:** Stops accelerometer sampling when exiting motion screen.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `STOP_ACCELEROMETER`
 - **Supported Aliases:** `stopAccelerometer`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 _No input parameters required (`{}`)._
@@ -192,14 +192,14 @@ Queries the latest cached 3-axis acceleration vector (X, Y, Z in m/s²).
 **Purpose & Context:** Provides instantaneous single-frame sensor snapshot.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `GET_LATEST_ACCELEROMETER`
 - **Supported Aliases:** `getLatestAccelerometer`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 _No input parameters required (`{}`)._
@@ -265,14 +265,14 @@ Subscribes to hardware magnetometer / digital compass orientation changes.
 **Purpose & Context:** Enables real-time map heading rotation and directional navigation arrows.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `START_COMPASS`
 - **Supported Aliases:** `startCompass`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 _No input parameters required (`{}`)._
@@ -338,14 +338,14 @@ Unregisters the magnetometer listener to conserve power.
 **Purpose & Context:** Stops continuous compass polling.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `STOP_COMPASS`
 - **Supported Aliases:** `stopCompass`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 _No input parameters required (`{}`)._
@@ -408,14 +408,14 @@ Subscribes to 3-axis angular velocity gyroscope measurements (radians/sec).
 **Purpose & Context:** Powers 3D panorama photo viewers, VR/AR experiences, and motion games.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `START_GYROSCOPE`
 - **Supported Aliases:** `startGyroscope`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |
@@ -480,14 +480,14 @@ Deactivates the hardware gyroscope.
 **Purpose & Context:** Stops high-frequency angular rotation sampling.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `STOP_GYROSCOPE`
 - **Supported Aliases:** `stopGyroscope`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 _No input parameters required (`{}`)._
@@ -550,14 +550,14 @@ Retrieves latest cached angular velocity readings (x, y, z rad/s).
 **Purpose & Context:** Single frame query for rotation rates.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `GET_LATEST_GYROSCOPE`
 - **Supported Aliases:** `getLatestGyroscope`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 _No input parameters required (`{}`)._
@@ -623,14 +623,14 @@ Activates sensor fusion pipeline combining accelerometer, gyroscope, and gravity
 **Purpose & Context:** Delivers high-precision device tilt and attitude matrices.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `START_DEVICE_MOTION`
 - **Supported Aliases:** `startDeviceMotion`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |
@@ -696,14 +696,14 @@ Shuts down sensor fusion motion tracking.
 **Purpose & Context:** Conserves CPU and battery when motion tracking is inactive.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `STOP_DEVICE_MOTION`
 - **Supported Aliases:** `stopDeviceMotion`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 _No input parameters required (`{}`)._
@@ -766,14 +766,14 @@ Queries latest sensor fusion attitude sample.
 **Purpose & Context:** Snapshot of device orientation vector.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `GET_LATEST_DEVICE_MOTION`
 - **Supported Aliases:** `getLatestDeviceMotion`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 _No input parameters required (`{}`)._
@@ -840,14 +840,14 @@ Launches native phone dialer with pre-populated phone number string.
 **Purpose & Context:** Enables "Call Merchant" or "Customer Support" quick dial buttons.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `MAKE_PHONE_CALL`
 - **Supported Aliases:** `makePhoneCall`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `android.permission.CALL_PHONE (optional)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |
@@ -916,14 +916,14 @@ Opens native messaging app with pre-filled recipient and message body text.
 **Purpose & Context:** Enables SMS invite sharing and customer service text messaging.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `SEND_SMS`
 - **Supported Aliases:** `sendSms`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `android.permission.SEND_SMS (optional)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |

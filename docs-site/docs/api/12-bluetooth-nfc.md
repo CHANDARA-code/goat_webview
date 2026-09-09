@@ -7,7 +7,7 @@ description: Complete API reference for Bluetooth Low Energy & NFC (16 actions).
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-# Domain 12: Bluetooth Low Energy & NFC 📡
+# Domain 12: Bluetooth Low Energy & NFC
 
 GATT client communication (device discovery, service discovery, characteristic read/write) and ISO 14443 / NDEF NFC tag operations.
 
@@ -49,14 +49,14 @@ Powers on Bluetooth adapter and initiates scanning for nearby BLE peripheral dev
 **Purpose & Context:** Discovers IoT smart devices, fitness bands, smart locks, and BLE payment terminals.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `BLE_START_SCAN`
 - **Supported Aliases:** `bleStartScan`, `openBluetoothAdapter`, `startBluetoothDevicesDiscovery`
 - **Permission Scope:** `scope.bluetooth`
 - **Required Manifest Permissions:** `android.permission.BLUETOOTH_SCAN`, `android.permission.BLUETOOTH_CONNECT`, `NSBluetoothAlwaysUsageDescription`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |
@@ -133,14 +133,14 @@ Alias for BLE_START_SCAN.
 **Purpose & Context:** Standard alias for BLE device discovery.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `START_BLE_SCAN`
 - **Supported Aliases:** `startBluetoothDevicesDiscovery`
 - **Permission Scope:** `scope.bluetooth`
 - **Required Manifest Permissions:** `android.permission.BLUETOOTH_SCAN`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |
@@ -208,14 +208,14 @@ Stops BLE device discovery and closes the scanner session.
 **Purpose & Context:** Conserves device battery once target peripheral has been discovered.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `BLE_STOP_SCAN`
 - **Supported Aliases:** `bleStopScan`, `closeBluetoothAdapter`, `stopBluetoothDevicesDiscovery`
 - **Permission Scope:** `scope.bluetooth`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 _No input parameters required (`{}`)._
@@ -278,14 +278,14 @@ Alias for BLE_STOP_SCAN.
 **Purpose & Context:** Compatibility alias for stopping BLE scan.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `STOP_BLE_SCAN`
 - **Supported Aliases:** `stopBluetoothDevicesDiscovery`
 - **Permission Scope:** `scope.bluetooth`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 _No input parameters required (`{}`)._
@@ -348,14 +348,14 @@ Establishes a GATT client connection to a discovered BLE peripheral device.
 **Purpose & Context:** Opens GATT session for reading/writing characteristics and services.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `BLE_CONNECT`
 - **Supported Aliases:** `bleConnect`, `createBLEConnection`
 - **Permission Scope:** `scope.bluetooth`
 - **Required Manifest Permissions:** `android.permission.BLUETOOTH_CONNECT`, `NSBluetoothAlwaysUsageDescription`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |
@@ -425,14 +425,14 @@ Alias for BLE_CONNECT.
 **Purpose & Context:** Standard alias for BLE GATT connection.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `CONNECT_BLE_DEVICE`
 - **Supported Aliases:** `connectBleDevice`
 - **Permission Scope:** `scope.bluetooth`
 - **Required Manifest Permissions:** `android.permission.BLUETOOTH_CONNECT`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |
@@ -498,14 +498,14 @@ Terminates the GATT connection and releases the peripheral connection handle.
 **Purpose & Context:** Closes BLE session.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `DISCONNECT_BLE_DEVICE`
 - **Supported Aliases:** `closeBLEConnection`, `disconnectBleDevice`
 - **Permission Scope:** `scope.bluetooth`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |
@@ -572,14 +572,14 @@ Reads binary data from a GATT characteristic on the connected peripheral.
 **Purpose & Context:** Fetches battery levels, sensor measurements, or firmware revisions from BLE devices.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `BLE_READ_CHARACTERISTIC`
 - **Supported Aliases:** `bleReadCharacteristic`, `readBLECharacteristicValue`, `readBleChar`
 - **Permission Scope:** `scope.bluetooth`
 - **Required Manifest Permissions:** `android.permission.BLUETOOTH_CONNECT`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |
@@ -656,14 +656,14 @@ Alias for BLE_READ_CHARACTERISTIC.
 **Purpose & Context:** Standard alias for reading GATT characteristic.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `READ_BLE_CHARACTERISTIC`
 - **Supported Aliases:** `readBLECharacteristicValue`, `readBleChar`
 - **Permission Scope:** `scope.bluetooth`
 - **Required Manifest Permissions:** `android.permission.BLUETOOTH_CONNECT`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |
@@ -731,14 +731,14 @@ Writes a binary or Base64 payload into a GATT characteristic on the connected pe
 **Purpose & Context:** Sends commands (e.g. unlock door, toggle LED, configure calibration) to IoT devices.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `BLE_WRITE_CHARACTERISTIC`
 - **Supported Aliases:** `bleWriteCharacteristic`, `writeBLECharacteristicValue`, `writeBleChar`
 - **Permission Scope:** `scope.bluetooth`
 - **Required Manifest Permissions:** `android.permission.BLUETOOTH_CONNECT`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |
@@ -818,14 +818,14 @@ Alias for BLE_WRITE_CHARACTERISTIC.
 **Purpose & Context:** Standard alias for writing GATT characteristic.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `WRITE_BLE_CHARACTERISTIC`
 - **Supported Aliases:** `writeBLECharacteristicValue`, `writeBleChar`
 - **Permission Scope:** `scope.bluetooth`
 - **Required Manifest Permissions:** `android.permission.BLUETOOTH_CONNECT`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |
@@ -894,14 +894,14 @@ Awaits an NFC tag touch and decodes ISO 14443 / NDEF payload records (text, URI,
 **Purpose & Context:** Reads smart transit passes, NFC poster tags, and inventory assets.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `NFC_READ_TAG`
 - **Supported Aliases:** `nfcReadTag`, `readNfcTag`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `android.permission.NFC`, `NFCReaderUsageDescription`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 _No input parameters required (`{}`)._
@@ -967,14 +967,14 @@ Alias for NFC_READ_TAG.
 **Purpose & Context:** Reads NDEF message from NFC tag.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `READ_NFC_NDEF_MESSAGE`
 - **Supported Aliases:** `readNfcNdefMessage`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `android.permission.NFC`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 _No input parameters required (`{}`)._
@@ -1039,14 +1039,14 @@ Formats and writes an NDEF record payload onto a writable physical NFC tag.
 **Purpose & Context:** Programs NFC tags for smart home triggers, Wi-Fi sharing, or equipment labeling.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `NFC_WRITE_TAG`
 - **Supported Aliases:** `nfcWriteTag`, `writeNfcTag`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `android.permission.NFC`, `NFCReaderUsageDescription`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |
@@ -1120,14 +1120,14 @@ Presents the native NFC scanning sheet and listens for continuous tag encounters
 **Purpose & Context:** Enables continuous inventory tag scanning.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `START_NFC_DISCOVERY`
 - **Supported Aliases:** `startNfcDiscovery`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `android.permission.NFC`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 _No input parameters required (`{}`)._
@@ -1191,14 +1191,14 @@ Dismisses the native NFC scanning sheet and ends the discovery session.
 **Purpose & Context:** Shuts down NFC polling.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `STOP_NFC_DISCOVERY`
 - **Supported Aliases:** `stopNfcDiscovery`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 _No input parameters required (`{}`)._

@@ -7,7 +7,7 @@ description: Complete API reference for Binary IPC Channels (4 actions).
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-# Domain 14: Binary IPC Channels ⚡
+# Domain 14: Binary IPC Channels
 
 High-throughput, zero-copy ArrayBuffer binary message ports for large payloads (images, audio frames, WASM memory buffers).
 
@@ -37,14 +37,14 @@ Initializes a high-throughput, zero-copy ArrayBuffer binary message port channel
 **Purpose & Context:** Enables streaming large binary payloads (WASM memory heap, camera image frame buffers, audio PCM buffers) without JSON stringification overhead.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `CREATE_BINARY_PORT`
 - **Supported Aliases:** `createBinaryPort`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |
@@ -111,14 +111,14 @@ Transmits a binary ArrayBuffer frame through the active binary port.
 **Purpose & Context:** High-speed transfer of raw byte arrays.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `POST_BINARY_MESSAGE`
 - **Supported Aliases:** `postBinaryMessage`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |
@@ -195,14 +195,14 @@ Reads or dequeues the next available binary message packet from the designated p
 **Purpose & Context:** Receives native-generated camera frames or sensor buffers.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `READ_BINARY_MESSAGE`
 - **Supported Aliases:** `readBinaryMessage`, `onBinaryMessage`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |
@@ -271,14 +271,14 @@ Closes and disposes the binary IPC port, freeing native ring buffers.
 **Purpose & Context:** Cleans up binary streaming channels.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `CLOSE_BINARY_PORT`
 - **Supported Aliases:** `closeBinaryPort`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |

@@ -27,91 +27,21 @@
   transition: transform 0.2s ease;
 }
 
-.chassis {
-  position: relative;
-  background: #0f1117;
-  border: 10px solid #232733;
-  border-radius: 50px;
-  box-shadow:
-    0 0 0 2px #383e52,
-    0 25px 60px -15px rgba(0, 0, 0, 0.7),
-    inset 0 0 6px rgba(255, 255, 255, 0.1);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.chassis.scaleCompact {
-  width: 290px;
-  height: 600px;
-  border-radius: 44px;
-}
-
-.chassis.scaleNormal {
-  width: 340px;
-  height: 700px;
-  border-radius: 50px;
-}
-
-.chassis.scaleLarge {
-  width: 380px;
-  height: 780px;
-  border-radius: 54px;
-}
-
-/* Metallic Rim Buttons */
-.hwButtonLeftVolUp {
-  position: absolute;
-  left: -14px;
-  top: 130px;
-  width: 4px;
-  height: 48px;
-  background: #383e52;
-  border-radius: 3px 0 0 3px;
-}
-
-.hwButtonLeftVolDown {
-  position: absolute;
-  left: -14px;
-  top: 190px;
-  width: 4px;
-  height: 48px;
-  background: #383e52;
-  border-radius: 3px 0 0 3px;
-}
-
-.hwButtonLeftAction {
-  position: absolute;
-  left: -14px;
-  top: 80px;
-  width: 4px;
-  height: 32px;
-  background: #383e52;
-  border-radius: 3px 0 0 3px;
-}
-
-.hwButtonRightPower {
-  position: absolute;
-  right: -14px;
-  top: 140px;
-  width: 4px;
-  height: 65px;
-  background: #383e52;
-  border-radius: 0 3px 3px 0;
-}
-
-/* Status Bar */
+/* Status Bar — the real notch / Dynamic Island / punch-hole cutout is drawn by
+   react-device-mockup itself (see DeviceFrame.tsx); this row only carries our own
+   simulator-reactive time/network/battery content, deliberately split to the two edges
+   (`justify-content: space-between`) so the center stays clear of that cutout.
+   No color is set here — it inherits from `.screen.darkTheme`/`.screen.lightTheme` so it
+   never goes white-on-white (or black-on-black) when the simulated device theme flips. */
 .statusBar {
   height: 36px;
   width: 100%;
   display: flex;
-  justifyContent: space-between;
+  justify-content: space-between;
   align-items: center;
   padding: 0 16px;
   font-size: 11px;
   font-weight: 600;
-  color: #ffffff;
   z-index: 30;
   position: relative;
   box-sizing: border-box;
@@ -128,67 +58,8 @@
   gap: 6px;
 }
 
-/* Dynamic Island (iPhone 16 Pro) */
-.dynamicIsland {
-  position: absolute;
-  top: 8px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #000000;
-  border-radius: 20px;
-  height: 24px;
-  width: 96px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
-  z-index: 40;
-  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.dynamicIslandExpanded {
-  width: 220px;
-  height: 48px;
-  border-radius: 24px;
-  padding: 0 14px;
-  background: #050505;
-}
-
-.cameraLens {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 35% 35%, #252836 0%, #08090d 80%);
-  border: 1px solid #1a1c24;
-}
-
-.sensorDot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #11141e;
-}
-
-/* Punch Hole (Pixel 9 Pro) */
-.punchHole {
-  position: absolute;
-  top: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 35% 35%, #232733 0%, #000000 80%);
-  border: 1px solid #141720;
-  z-index: 40;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
-}
-
 /* Screen Viewport */
 .screen {
-  flex: 1;
-  width: 100%;
   position: relative;
   overflow: hidden;
   display: flex;
@@ -204,37 +75,6 @@
 .screen.lightTheme {
   background: #ffffff;
   color: #0f172a;
-}
-
-/* Bottom Bar */
-.bottomNav {
-  height: 28px;
-  width: 100%;
-  display: flex;
-  justifyContent: center;
-  align-items: center;
-  z-index: 30;
-  position: relative;
-}
-
-.homeIndicatorIos {
-  width: 120px;
-  height: 4px;
-  border-radius: 4px;
-  background: rgba(148, 163, 184, 0.6);
-}
-
-.androidNavButtons {
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-  width: 60%;
-}
-
-.androidNavIcon {
-  font-size: 11px;
-  color: #94a3b8;
-  cursor: pointer;
 }
 
 /* Haptic Ripple Effect */

@@ -9,7 +9,7 @@ The **Goat React 19 Template** provides a robust, high-performance foundation fo
 
 ---
 
-## 🚀 Quick Scaffolding
+## Quick Scaffolding
 
 Scaffold a React 19 project using `@goat/cli`:
 
@@ -22,7 +22,7 @@ goat dev
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```text
 my-react-miniapp/
@@ -46,7 +46,7 @@ my-react-miniapp/
 
 ---
 
-## 🧩 Core Architecture & Setup
+## Core Architecture & Setup
 
 ### 1. Application Entry Point (`src/main.tsx`)
 
@@ -201,7 +201,7 @@ export function BiometricAuth() {
 
 ---
 
-## ⚡ React 19 Performance Best Practices for 120 FPS
+## React 19 Performance Best Practices for 120 FPS
 
 1. **Avoid Layout Thrashing on Scroll:**
    Do not read `window.scrollY` in React state. Use CSS `position: sticky` and hardware-composited transforms (`transform: translate3d(0, 0, 0)`).

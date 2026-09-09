@@ -1,11 +1,28 @@
 import React, { useState, useEffect } from 'react';
+import {
+  Input,
+  Select,
+  Segmented,
+  Button,
+  Empty,
+  Typography,
+} from 'antd';
+import {
+  SearchOutlined,
+  AimOutlined,
+  ThunderboltOutlined,
+  LockOutlined,
+} from '@ant-design/icons';
 import { ALL_API_ACTIONS, API_DOMAINS, ApiAction, ApiPlatformSupport, searchApiActions } from '../../data/api-matrix';
+import { SimulatorProvider } from '../../context/SimulatorContext';
 import { ActionCard } from './ActionCard';
 import { ActionModal } from './ActionModal';
 import { QuickSearchModal } from './QuickSearchModal';
 import styles from './styles.module.css';
 
-export const ApiCatalog: React.FC = () => {
+const { Text } = Typography;
+
+const ApiCatalogInner: React.FC = () => {
   const [query, setQuery] = useState('');
   const [selectedDomain, setSelectedDomain] = useState<string>('all');
   const [selectedPlatform, setSelectedPlatform] = useState<keyof ApiPlatformSupport | 'all'>('all');
@@ -13,12 +30,11 @@ export const ApiCatalog: React.FC = () => {
   const [activeAction, setActiveAction] = useState<ApiAction | null>(null);
   const [isQuickSearchOpen, setIsQuickSearchOpen] = useState(false);
 
-  // Global shortcut: Cmd+K / Ctrl+K
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
-        setIsQuickSearchOpen(prev => !prev);
+        setIsQuickSearchOpen((prev) => !prev);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -32,111 +48,121 @@ export const ApiCatalog: React.FC = () => {
       permissionFilter === 'all' ? undefined : permissionFilter === 'required',
   });
 
+  const domainOptions = [
+    { value: 'all', label: 'All Domains (18)' },
+    ...API_DOMAINS.map((d) => ({
+      value: d.slug,
+      label: `${d.name} (${d.actionCount})`,
+    })),
+  ];
+
   return (
     <div className={styles.catalogWrapper}>
       {/* Header Controls */}
       <div className={styles.searchSection}>
-        <div className={styles.searchBarRow}>
-          <div className={styles.searchInputWrapper}>
-            <span className={styles.searchPrefixIcon}>🔍</span>
-            <input
-              type="text"
-              className={styles.mainSearchInput}
+        <div className={styles.searchBarRow} style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
+          <div style={{ flex: 1 }}>
+            <Input
+              prefix={<SearchOutlined />}
               placeholder="Search across all 197 native bridge actions..."
               value={query}
-              onChange={e => setQuery(e.target.value)}
+              onChange={(e) => setQuery(e.target.value)}
+              allowClear
+              size="large"
             />
-            {query && (
-              <button className={styles.clearSearchBtn} onClick={() => setQuery('')}>
-                ✕
-              </button>
-            )}
           </div>
-          <button
-            className={styles.quickSearchTriggerBtn}
+          <Button
+            size="large"
+            icon={<AimOutlined />}
             onClick={() => setIsQuickSearchOpen(true)}
             title="Global Quick Search (Cmd+K)"
           >
             <kbd className={styles.kbdBadge}>⌘K</kbd> Quick Search
-          </button>
+          </Button>
         </div>
 
         {/* Filter Controls */}
-        <div className={styles.filterControls}>
+        <div className={styles.filterControls} style={{ display: 'flex', flexWrap: 'wrap', gap: 16, marginBottom: 16 }}>
           {/* Domain selector */}
           <div className={styles.filterGroup}>
-            <label className={styles.filterLabel}>Domain:</label>
-            <select
-              className={styles.filterSelect}
+            <Text type="secondary" style={{ fontSize: 12, display: 'block', marginBottom: 4 }}>
+              Domain:
+            </Text>
+            <Select
+              style={{ width: 240 }}
+              showSearch
               value={selectedDomain}
-              onChange={e => setSelectedDomain(e.target.value)}
-            >
-              <option value="all">All Domains (18)</option>
-              {API_DOMAINS.map(d => (
-                <option key={d.slug} value={d.slug}>
-                  {d.icon} {d.name} ({d.actionCount})
-                </option>
-              ))}
-            </select>
+              onChange={(val) => setSelectedDomain(val)}
+              options={domainOptions}
+              filterOption={(input, option) =>
+                (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+              }
+            />
           </div>
 
           {/* Platform chips */}
           <div className={styles.filterGroup}>
-            <label className={styles.filterLabel}>Platform:</label>
-            <div className={styles.chipGroup}>
-              {[
-                { id: 'all', label: 'All' },
-                { id: 'android', label: 'Android' },
-                { id: 'ios', label: 'iOS' },
-                { id: 'reactNative', label: 'React Native' },
-                { id: 'flutter', label: 'Flutter' },
-                { id: 'web', label: 'Web Mock' },
-              ].map(p => (
-                <button
-                  key={p.id}
-                  className={`${styles.filterChip} ${selectedPlatform === p.id ? styles.filterChipActive : ''}`}
-                  onClick={() => setSelectedPlatform(p.id as any)}
-                >
-                  {p.label}
-                </button>
-              ))}
-            </div>
+            <Text type="secondary" style={{ fontSize: 12, display: 'block', marginBottom: 4 }}>
+              Platform:
+            </Text>
+            <Segmented
+              value={selectedPlatform}
+              onChange={(val) => setSelectedPlatform(val as any)}
+              options={[
+                { label: 'All', value: 'all' },
+                { label: 'Android', value: 'android' },
+                { label: 'iOS', value: 'ios' },
+                { label: 'React Native', value: 'reactNative' },
+                { label: 'Flutter', value: 'flutter' },
+                { label: 'Web Mock', value: 'web' },
+              ]}
+            />
           </div>
 
           {/* Permission chips */}
           <div className={styles.filterGroup}>
-            <label className={styles.filterLabel}>Permissions:</label>
-            <div className={styles.chipGroup}>
-              <button
-                className={`${styles.filterChip} ${permissionFilter === 'all' ? styles.filterChipActive : ''}`}
-                onClick={() => setPermissionFilter('all')}
-              >
-                All
-              </button>
-              <button
-                className={`${styles.filterChip} ${permissionFilter === 'zero' ? styles.filterChipActive : ''}`}
-                onClick={() => setPermissionFilter('zero')}
-              >
-                ⚡ Zero-Permission
-              </button>
-              <button
-                className={`${styles.filterChip} ${permissionFilter === 'required' ? styles.filterChipActive : ''}`}
-                onClick={() => setPermissionFilter('required')}
-              >
-                🔒 Requires Manifest Scope
-              </button>
-            </div>
+            <Text type="secondary" style={{ fontSize: 12, display: 'block', marginBottom: 4 }}>
+              Permissions:
+            </Text>
+            <Segmented
+              value={permissionFilter}
+              onChange={(val) => setPermissionFilter(val as any)}
+              options={[
+                { label: 'All', value: 'all' },
+                {
+                  label: (
+                    <span>
+                      <ThunderboltOutlined /> Zero-Permission
+                    </span>
+                  ),
+                  value: 'zero',
+                },
+                {
+                  label: (
+                    <span>
+                      <LockOutlined /> Requires Scope
+                    </span>
+                  ),
+                  value: 'required',
+                },
+              ]}
+            />
           </div>
         </div>
 
         {/* Results Counter */}
-        <div className={styles.resultsCounterRow}>
-          <span>
-            Showing <strong>{filteredActions.length}</strong> of <strong>{ALL_API_ACTIONS.length}</strong> action strings
-          </span>
+        <div
+          className={styles.resultsCounterRow}
+          style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}
+        >
+          <Text type="secondary">
+            Showing <Text strong>{filteredActions.length}</Text> of{' '}
+            <Text strong>{ALL_API_ACTIONS.length}</Text> action strings
+          </Text>
           {(query || selectedDomain !== 'all' || selectedPlatform !== 'all' || permissionFilter !== 'all') && (
-            <button
-              className={styles.resetFiltersBtn}
+            <Button
+              type="link"
+              danger
               onClick={() => {
                 setQuery('');
                 setSelectedDomain('all');
@@ -145,30 +171,30 @@ export const ApiCatalog: React.FC = () => {
               }}
             >
               Reset Filters
-            </button>
+            </Button>
           )}
         </div>
       </div>
 
       {/* Action Cards Grid */}
       {filteredActions.length === 0 ? (
-        <div className={styles.emptyState}>
-          <h3>No matching actions found</h3>
-          <p>Try adjusting your search keywords or clearing active filters.</p>
-        </div>
+        <Empty
+          description="No matching actions found. Try adjusting your search keywords or clearing active filters."
+          style={{ margin: '48px 0' }}
+        />
       ) : (
         <div className={styles.actionGrid}>
-          {filteredActions.map(action => (
+          {filteredActions.map((action) => (
             <ActionCard
               key={action.id}
               action={action}
-              onSelect={selected => setActiveAction(selected)}
+              onSelect={(selected) => setActiveAction(selected)}
             />
           ))}
         </div>
       )}
 
-      {/* Detail Modal */}
+      {/* Detail Modal / Drawer */}
       {activeAction && (
         <ActionModal
           action={activeAction}
@@ -180,10 +206,16 @@ export const ApiCatalog: React.FC = () => {
       <QuickSearchModal
         isOpen={isQuickSearchOpen}
         onClose={() => setIsQuickSearchOpen(false)}
-        onSelectAction={action => setActiveAction(action)}
+        onSelectAction={(action) => setActiveAction(action)}
       />
     </div>
   );
 };
+
+export const ApiCatalog: React.FC = () => (
+  <SimulatorProvider>
+    <ApiCatalogInner />
+  </SimulatorProvider>
+);
 
 export default ApiCatalog;

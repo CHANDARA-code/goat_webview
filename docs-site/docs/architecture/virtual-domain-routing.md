@@ -9,7 +9,7 @@ The **Goat Virtual Domain Asset Routing Engine** replaces legacy `file:///` URLs
 
 ---
 
-## 🛑 Why `file:///` URLs Are Banned
+## Why `file:///` URLs Are Banned
 
 | Risk / Limitation | `file:///` Protocol | Goat Virtual Domain Routing |
 | :--- | :--- | :--- |
@@ -21,7 +21,7 @@ The **Goat Virtual Domain Asset Routing Engine** replaces legacy `file:///` URLs
 
 ---
 
-## 🏛️ Multi-Platform Virtual Domain Matrix
+## Multi-Platform Virtual Domain Matrix
 
 ```
 ┌────────────────────────────────────────────────────────────────────────────────────────┐
@@ -40,7 +40,7 @@ The **Goat Virtual Domain Asset Routing Engine** replaces legacy `file:///` URLs
 
 ---
 
-## 📱 Android Implementation (`WebViewAssetLoader`)
+## Android Implementation (`WebViewAssetLoader`)
 
 On Android, Goat WebView utilizes AndroidX WebKit's `WebViewAssetLoader` with a custom `InternalStoragePathHandler` mapped to the mini-app's sandboxed asset directory:
 
@@ -72,7 +72,7 @@ https://appassets.androidplatform.net/assets/index.html
 
 ---
 
-## 🍏 iOS Implementation (`GoatURLSchemeHandler`)
+## iOS Implementation (`GoatURLSchemeHandler`)
 
 On iOS, Goat WebView registers a custom `WKURLSchemeHandler` for the `goat` scheme on the `WKWebViewConfiguration`:
 
@@ -136,7 +136,7 @@ public class GoatURLSchemeHandler: NSObject, WKURLSchemeHandler {
 
 ---
 
-## 🛡️ Sandbox Security: Path Traversal & Zip Slip Guards
+## Sandbox Security: Path Traversal & Zip Slip Guards
 
 A major vector in mini-app ecosystems is **Path Traversal / Zip Slip attacks**, where an attacker crafts requests like:
 ```text
@@ -150,7 +150,7 @@ Goat WebView enforces **Two-Stage Canonical Path Validation**:
 
 ---
 
-## ⚡ Zero-Overhead Disk-to-GPU Media & WebAssembly Streaming
+## Zero-Overhead Disk-to-GPU Media & WebAssembly Streaming
 
 By streaming file chunks directly into native response buffers (`WebResourceResponse` InputStream on Android, `WKURLSchemeTask` NSData chunks on iOS):
 - **WebAssembly:** `WebAssembly.instantiateStreaming(fetch('module.wasm'))` streams bytecode directly into the V8/JSC compiler while bytes are read from disk, without staging the entire file in JavaScript memory.

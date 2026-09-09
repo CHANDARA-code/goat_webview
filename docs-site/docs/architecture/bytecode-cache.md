@@ -9,7 +9,7 @@ To eliminate JavaScript parsing and compilation overhead on the main UI thread, 
 
 ---
 
-## ⚡ The Compilation Bottleneck in Mobile WebViews
+## The Compilation Bottleneck in Mobile WebViews
 
 When a mobile browser loads a 1MB JavaScript bundle:
 1. **Lexical Analysis (Scanning):** Converting source text into tokens (~25ms).
@@ -20,7 +20,7 @@ Total CPU stall on mid-range devices: **100ms+ of main-thread jank before the fi
 
 ---
 
-## 🚀 How Goat Bytecode Caching Works
+## How Goat Bytecode Caching Works
 
 ```
 ┌────────────────────────────────────────────────────────────────────────────────────────┐

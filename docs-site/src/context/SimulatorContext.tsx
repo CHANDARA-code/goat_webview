@@ -110,7 +110,52 @@ const DEFAULT_BIOMETRICS_MODAL_STATE: BiometricsModalState = {
   authResult: null,
 };
 
-export type ActiveWidgetTab = 'navbar' | 'bottomsheet' | 'permission' | 'externallink' | 'haptics' | 'biometrics';
+export const DEFAULT_PLAYGROUND_CODE = `<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      body { font-family: -apple-system, sans-serif; padding: 16px; color: #f1f5f9; }
+      button { padding: 10px 14px; border-radius: 8px; border: none; background: #6366f1; color: #fff; font-weight: 600; }
+      pre { background: #0f172a; padding: 10px; border-radius: 8px; font-size: 11px; overflow-x: auto; }
+    </style>
+  </head>
+  <body>
+    <h3>Hello, Goat Bridge</h3>
+    <button id="btn">Get Device Info</button>
+    <pre id="out">Press the button…</pre>
+    <script>
+      document.getElementById('btn').addEventListener('click', async () => {
+        const info = await goatBridge.callNative('GET_DEVICE_INFO', {});
+        document.getElementById('out').textContent = JSON.stringify(info, null, 2);
+      });
+    </script>
+  </body>
+</html>
+`;
+
+/**
+ * Docs snippets across the API catalog use `{ scope: 'scope.camera' }` (see
+ * src/data/domains/biometrics.ts); the curated ComponentShowcase tabs use the shorter
+ * `{ permission: 'camera' }`. Both are accepted so either convention actually works.
+ */
+function resolvePermissionType(payload: Record<string, any>): PermissionType {
+  const raw = (payload.permission ?? payload.scope ?? 'camera') as string;
+  return (raw.startsWith('scope.') ? raw.slice('scope.'.length) : raw) as PermissionType;
+}
+
+/**
+ * Docs snippets use `{ type: 'impact'|'notification'|'selection', style, notificationType }`
+ * (see src/data/domains/core.ts); the curated HapticsPlayground tab uses a flat enum in
+ * `type` directly. Both are accepted.
+ */
+function resolveHapticType(payload: Record<string, any>): HapticEvent['type'] {
+  if (payload.type === 'impact' && payload.style) return payload.style as HapticEvent['type'];
+  if (payload.type === 'notification' && payload.notificationType) return payload.notificationType as HapticEvent['type'];
+  if (payload.type === 'selection') return 'selection';
+  return (payload.type as HapticEvent['type']) || 'light';
+}
+
+export type ActiveWidgetTab = 'playground' | 'navbar' | 'bottomsheet' | 'permission' | 'externallink' | 'haptics' | 'biometrics';
 
 interface SimulatorContextType {
   hardware: MockHardwareState;
@@ -137,9 +182,14 @@ interface SimulatorContextType {
   
   activeWidgetTab: ActiveWidgetTab;
   setActiveWidgetTab: (tab: ActiveWidgetTab) => void;
-  
+
   frameScale: 'compact' | 'normal' | 'large';
   setFrameScale: (scale: 'compact' | 'normal' | 'large') => void;
+
+  playgroundCode: string;
+  setPlaygroundCode: (code: string) => void;
+  playgroundRunKey: number;
+  runPlayground: () => void;
   
   traces: BridgeTrace[];
   callBridge: (action: string, payload: Record<string, any>, domain?: string) => Promise<BridgeTrace>;
@@ -172,6 +222,12 @@ export const SimulatorProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [isHapticRippling, setIsHapticRippling] = useState(false);
   const [activeWidgetTab, setActiveWidgetTab] = useState<ActiveWidgetTab>('navbar');
   const [frameScale, setFrameScale] = useState<'compact' | 'normal' | 'large'>('normal');
+  const [playgroundCode, setPlaygroundCode] = useState<string>(DEFAULT_PLAYGROUND_CODE);
+  const [playgroundRunKey, setPlaygroundRunKey] = useState(0);
+
+  const runPlayground = useCallback(() => {
+    setPlaygroundRunKey((k) => k + 1);
+  }, []);
   const [traces, setTraces] = useState<BridgeTrace[]>([
     {
       id: 'rpc-seed-101',
@@ -356,23 +412,23 @@ export const SimulatorProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           break;
         }
         case 'REQUEST_PERMISSION': {
-          const perm = (payload.permission as PermissionType) || 'camera';
+          const perm = resolvePermissionType(payload);
           const currentStatus = permissionDialog.statusMap[perm] || 'not_determined';
           if (currentStatus === 'granted') {
-            response = { granted: true, permission: perm, status: 'granted' };
+            response = { granted: true, permission: perm, scope: `scope.${perm}`, status: 'granted', isDeclaredInManifest: true };
           } else if (currentStatus === 'permanently_denied') {
             status = 'error';
             errorMessage = 'PERMISSION_PERMANENTLY_DENIED: Direct user to OS settings';
-            response = { granted: false, permission: perm, status: 'permanently_denied', requiresSettings: true };
+            response = { granted: false, permission: perm, scope: `scope.${perm}`, status: 'permanently_denied', requiresSettings: true };
           } else {
-            response = { granted: true, permission: perm, status: 'prompt_triggered' };
+            response = { granted: true, permission: perm, scope: `scope.${perm}`, status: 'prompt_triggered', isDeclaredInManifest: true };
           }
           break;
         }
         case 'CHECK_PERMISSION': {
-          const perm = (payload.permission as PermissionType) || 'camera';
+          const perm = resolvePermissionType(payload);
           const currentStatus = permissionDialog.statusMap[perm] || 'not_determined';
-          response = { permission: perm, status: currentStatus, granted: currentStatus === 'granted' };
+          response = { permission: perm, scope: `scope.${perm}`, status: currentStatus, granted: currentStatus === 'granted' };
           break;
         }
         case 'OPEN_SETTING': {
@@ -407,7 +463,7 @@ export const SimulatorProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           break;
         }
         case 'HAPTIC_FEEDBACK': {
-          const type = (payload.type as HapticEvent['type']) || 'light';
+          const type = resolveHapticType(payload);
           setLastHaptic({ type, timestamp: Date.now() });
           setIsHapticRippling(true);
           setTimeout(() => setIsHapticRippling(false), 500);
@@ -424,7 +480,14 @@ export const SimulatorProvider: React.FC<{ children: React.ReactNode }> = ({ chi
               // ignore vibration restriction
             }
           }
-          response = { success: true, type, patternMs: [15] };
+          response = {
+            success: true,
+            triggered: true,
+            type,
+            style: payload.style,
+            notificationType: payload.notificationType,
+            patternMs: [15],
+          };
           break;
         }
         case 'CHECK_BIOMETRIC_SUPPORT': {
@@ -458,6 +521,7 @@ export const SimulatorProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           } else {
             response = {
               success: true,
+              authenticated: true,
               token: `goat_bio_jwt_${Date.now()}_valid_signature_256`,
               biometryType: currentHw.biometrics.biometryType,
               authenticatedAt: new Date().toISOString(),
@@ -697,6 +761,10 @@ export const SimulatorProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         setActiveWidgetTab,
         frameScale,
         setFrameScale,
+        playgroundCode,
+        setPlaygroundCode,
+        playgroundRunKey,
+        runPlayground,
         traces,
         callBridge,
         clearTraces,

@@ -1,7 +1,22 @@
 import React, { useState } from 'react';
+import { Tag, Button, Collapse, App, Space, Typography, Alert } from 'antd';
+import {
+  CheckCircleOutlined,
+  CloseCircleOutlined,
+  SyncOutlined,
+  CopyOutlined,
+  ReloadOutlined,
+  ThunderboltOutlined,
+  MobileOutlined,
+  RollbackOutlined,
+  ClockCircleOutlined,
+  InboxOutlined,
+} from '@ant-design/icons';
 import type { BridgeTrace } from '../../types/simulator';
 import { JsonViewer } from '../Common/JsonViewer';
 import styles from './BridgeInspector.module.css';
+
+const { Text } = Typography;
 
 interface TraceItemAccordionProps {
   trace: BridgeTrace;
@@ -9,12 +24,11 @@ interface TraceItemAccordionProps {
 }
 
 export const TraceItemAccordion: React.FC<TraceItemAccordionProps> = ({ trace, onReplay }) => {
-  const [expanded, setExpanded] = useState(false);
-  const [copiedEnvelope, setCopiedEnvelope] = useState(false);
+  const { message } = App.useApp();
+  const [activeKey, setActiveKey] = useState<string | string[]>([]);
 
   const formattedTime = new Date(trace.timestamp).toLocaleTimeString();
 
-  // Normalize lane attribution
   const threadLane =
     trace.threadLane ||
     (trace.action.includes('UI_PATCH')
@@ -23,7 +37,6 @@ export const TraceItemAccordion: React.FC<TraceItemAccordionProps> = ({ trace, o
       ? 'native_to_appview'
       : 'appview_to_native');
 
-  // Compute 3-Stage Latency Breakdown: T_worker_ipc, T_native_exec, T_dom_flush
   const totalDuration = Math.max(trace.latencyMs || 0, 0.1);
   const workerIpcLatency =
     trace.workerIpcLatencyMs !== undefined
@@ -49,8 +62,7 @@ export const TraceItemAccordion: React.FC<TraceItemAccordionProps> = ({ trace, o
     e.stopPropagation();
     try {
       await navigator.clipboard.writeText(JSON.stringify(trace, null, 2));
-      setCopiedEnvelope(true);
-      setTimeout(() => setCopiedEnvelope(false), 2000);
+      message.success('Copied JSON-RPC trace envelope');
     } catch (err) {
       console.error('Failed to copy envelope', err);
     }
@@ -61,199 +73,157 @@ export const TraceItemAccordion: React.FC<TraceItemAccordionProps> = ({ trace, o
     onReplay(trace);
   };
 
-  const renderLaneBadge = () => {
+  const renderStatusTag = () => {
+    if (trace.status === 'success') {
+      return <Tag color="success" icon={<CheckCircleOutlined />}>200 OK</Tag>;
+    }
+    if (trace.status === 'error') {
+      return <Tag color="error" icon={<CloseCircleOutlined />}>ERR</Tag>;
+    }
+    return <Tag color="processing" icon={<SyncOutlined spin />}>PENDING</Tag>;
+  };
+
+  const renderLaneTag = () => {
     switch (threadLane) {
       case 'appservice_to_appview':
       case 'AppService':
-        return <span className={`${styles.laneBadge} ${styles.laneBadgeWorker}`}>⚡ Worker ➔ View</span>;
+        return <Tag color="purple" icon={<ThunderboltOutlined />}>Worker -&gt; View</Tag>;
       case 'appview_to_native':
       case 'AppView':
-        return <span className={`${styles.laneBadge} ${styles.laneBadgeNative}`}>📱 View ➔ Native</span>;
+        return <Tag color="blue" icon={<MobileOutlined />}>View -&gt; Native</Tag>;
       case 'native_to_appview':
       case 'Host':
       case 'native':
-        return <span className={`${styles.laneBadge} ${styles.laneBadgeHost}`}>↩ Native ➔ View</span>;
-      case 'appview_to_appservice':
-        return <span className={`${styles.laneBadge} ${styles.laneBadgeReply}`}>↩ View ➔ Worker</span>;
+        return <Tag color="cyan" icon={<RollbackOutlined />}>Native -&gt; View</Tag>;
       default:
-        return <span className={`${styles.laneBadge} ${styles.laneBadgeNative}`}>📱 {threadLane}</span>;
+        return <Tag color="default" icon={<MobileOutlined />}>{threadLane}</Tag>;
     }
   };
 
-  return (
-    <div className={styles.traceCard} data-testid="bridge-trace-card" data-action={trace.action}>
-      <div className={styles.traceSummary} onClick={() => setExpanded(!expanded)}>
-        <div className={styles.traceLeft}>
-          <span style={{ fontSize: '11px', color: '#64748b' }}>{formattedTime}</span>
-          {renderLaneBadge()}
-          <span className={styles.domainBadge}>{trace.domain}</span>
-          {trace.seqId !== undefined && (
-            <span className={styles.seqBadge} title="Sequence ID">#{trace.seqId}</span>
-          )}
-          {trace.batchId && (
-            <span className={styles.seqBadge} title="Batch ID">📦 {trace.batchId}</span>
-          )}
-          <span className={styles.actionName}>{trace.action}</span>
-        </div>
+  const panelHeader = (
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+      <Space wrap size="small">
+        <Text type="secondary" style={{ fontSize: 11 }}>{formattedTime}</Text>
+        {renderLaneTag()}
+        <Tag color="geekblue">{trace.domain}</Tag>
+        {trace.seqId !== undefined && <Tag style={{ fontSize: 10 }}>#{trace.seqId}</Tag>}
+        {trace.batchId && (
+          <Tag icon={<InboxOutlined />} style={{ fontSize: 10 }}>
+            {trace.batchId}
+          </Tag>
+        )}
+        <Text strong>
+          {trace.action}
+        </Text>
+      </Space>
 
-        <div className={styles.traceRight}>
-          {trace.latencyMs > 0 && (
-            <span
-              className={styles.latencyBadge}
-              style={{
-                color:
-                  trace.latencyMs < 5
-                    ? '#34d399'
-                    : trace.latencyMs < 50
-                    ? '#38bdf8'
-                    : trace.latencyMs < 120
-                    ? '#fbbf24'
-                    : '#f87171',
-              }}
-            >
-              {trace.latencyMs}ms
-            </span>
-          )}
-
-          <span
-            className={`${styles.statusBadge} ${
-              trace.status === 'success'
-                ? styles.statusSuccess
-                : trace.status === 'error'
-                ? styles.statusError
-                : styles.statusPending
-            }`}
+      <Space size="small">
+        {trace.latencyMs > 0 && (
+          <Text
+            style={{
+              fontSize: 11,
+              fontWeight: 600,
+              color:
+                trace.latencyMs < 5
+                  ? '#34d399'
+                  : trace.latencyMs < 50
+                  ? '#38bdf8'
+                  : trace.latencyMs < 120
+                  ? '#fbbf24'
+                  : '#f87171',
+            }}
           >
-            {trace.status === 'success' ? '✓ 200' : trace.status === 'error' ? '✕ ERR' : '⏳ PENDING'}
-          </span>
+            {trace.latencyMs}ms
+          </Text>
+        )}
+        {renderStatusTag()}
+      </Space>
+    </div>
+  );
 
-          <span style={{ color: '#94a3b8', fontSize: '10px' }}>{expanded ? '▲' : '▼'}</span>
-        </div>
-      </div>
+  return (
+    <div className={styles.traceCard} data-testid="bridge-trace-card" data-action={trace.action} style={{ marginBottom: 8 }}>
+      <Collapse
+        activeKey={activeKey}
+        onChange={(keys) => setActiveKey(keys)}
+        items={[
+          {
+            key: trace.id,
+            label: panelHeader,
+            children: (
+              <div className={styles.traceDetail}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                  <Text type="secondary" style={{ fontSize: 11 }}>
+                    ID: <code>{trace.id}</code>
+                  </Text>
+                  <Space size="small">
+                    <Button icon={<CopyOutlined />} size="small" onClick={handleCopyEnvelope}>
+                      Copy Envelope
+                    </Button>
+                    <Button type="primary" icon={<ReloadOutlined />} size="small" onClick={handleReplay}>
+                      Replay Call
+                    </Button>
+                  </Space>
+                </div>
 
-      {expanded && (
-        <div className={styles.traceDetail}>
-          {/* Header Metadata and Controls */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-            <span style={{ color: '#94a3b8', fontSize: '11px' }}>ID: <code>{trace.id}</code></span>
-            <div style={{ display: 'flex', gap: '6px' }}>
-              <button
-                className={styles.btnSmall}
-                onClick={handleCopyEnvelope}
-                title="Copy entire JSON-RPC envelope"
-              >
-                {copiedEnvelope ? '✓ Copied Envelope' : 'Copy Envelope'}
-              </button>
-              <button
-                className={styles.btnSmall}
-                onClick={handleReplay}
-                style={{ background: '#4338ca', color: '#ffffff', borderColor: '#4f46e5' }}
-                title="Re-execute this action on the bridge"
-              >
-                ↻ Replay Call
-              </button>
-            </div>
-          </div>
+                {/* 3-Stage Latency Waterfall */}
+                <div className={styles.waterfallContainer} data-testid="latency-waterfall-container" style={{ marginBottom: 12 }}>
+                  <div className={styles.waterfallHeader}>
+                    <Text strong style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <ClockCircleOutlined /> 3-Stage Latency Waterfall Breakdown
+                    </Text>
+                    <Tag color={isWarmPath ? 'success' : 'default'}>
+                      {isWarmPath ? 'Warm-Path Target Verified (<5ms)' : `Total: ${totalCalculated}ms`}
+                    </Tag>
+                  </div>
 
-          {/* 3-Stage Latency Waterfall Breakdown Display */}
-          <div className={styles.waterfallContainer} data-testid="latency-waterfall-container">
-            <div className={styles.waterfallHeader}>
-              <span className={styles.waterfallTitle}>
-                <span>⏱️</span>
-                <span>3-Stage Latency Waterfall Breakdown</span>
-              </span>
-              <span className={styles.warmPathBadge}>
-                {isWarmPath ? '✓ Warm-Path Target Verified (<5ms)' : `Total: ${totalCalculated}ms`}
-              </span>
-            </div>
+                  <div
+                    className={styles.waterfallBar}
+                    style={{ height: 8, borderRadius: 4, display: 'flex', overflow: 'hidden', margin: '8px 0', backgroundColor: '#334155' }}
+                  >
+                    <div className={styles.waterfallSegmentWorker} style={{ width: `${workerPct}%`, backgroundColor: '#c084fc' }} />
+                    <div className={styles.waterfallSegmentNative} style={{ width: `${nativePct}%`, backgroundColor: '#60a5fa' }} />
+                    <div className={styles.waterfallSegmentRender} style={{ width: `${domPct}%`, backgroundColor: '#34d399' }} />
+                  </div>
 
-            {/* Segmented Waterfall Progress Bar */}
-            <div className={styles.waterfallBar} title={`Worker IPC: ${workerIpcLatency}ms | Native Exec: ${nativeExecLatency}ms | DOM Flush: ${domRenderLatency}ms`}>
-              <div
-                className={styles.waterfallSegmentWorker}
-                style={{ width: `${workerPct}%` }}
-                title={`Stage 1: T_worker_ipc (${workerIpcLatency}ms - ${workerPct}%)`}
-              />
-              <div
-                className={styles.waterfallSegmentNative}
-                style={{ width: `${nativePct}%` }}
-                title={`Stage 2: T_native_exec (${nativeExecLatency}ms - ${nativePct}%)`}
-              />
-              <div
-                className={styles.waterfallSegmentRender}
-                style={{ width: `${domPct}%` }}
-                title={`Stage 3: T_dom_flush (${domRenderLatency}ms - ${domPct}%)`}
-              />
-            </div>
+                  <div className={styles.waterfallGrid} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginTop: 8 }}>
+                    <div className={styles.waterfallCard}>
+                      <Text style={{ fontSize: 10, color: '#c084fc', display: 'block' }}>T_worker_ipc</Text>
+                      <Text strong style={{ fontSize: 12 }}>{workerIpcLatency} ms</Text>
+                    </div>
+                    <div className={styles.waterfallCard}>
+                      <Text style={{ fontSize: 10, color: '#60a5fa', display: 'block' }}>T_native_exec</Text>
+                      <Text strong style={{ fontSize: 12 }}>{nativeExecLatency} ms</Text>
+                    </div>
+                    <div className={styles.waterfallCard}>
+                      <Text style={{ fontSize: 10, color: '#34d399', display: 'block' }}>T_dom_flush</Text>
+                      <Text strong style={{ fontSize: 12 }}>{domRenderLatency} ms</Text>
+                    </div>
+                  </div>
+                </div>
 
-            {/* Metric Breakdown Cards */}
-            <div className={styles.waterfallGrid}>
-              <div className={styles.waterfallCard}>
-                <span className={styles.waterfallCardLabel}>
-                  <span style={{ color: '#c084fc' }}>🟣</span> T_worker_ipc
-                </span>
-                <span className={styles.waterfallCardValue}>{workerIpcLatency} ms</span>
-                <span className={styles.waterfallCardPct}>Worker IPC Transit ({workerPct}%)</span>
+                <JsonViewer data={trace.payload} label="Request Payload (Params)" defaultExpanded={true} />
+
+                {trace.response && (
+                  <div style={{ marginTop: 8 }}>
+                    <JsonViewer data={trace.response} label="Native Bridge Response" defaultExpanded={true} />
+                  </div>
+                )}
+
+                {trace.errorMessage && (
+                  <Alert
+                    type="error"
+                    showIcon
+                    message="Bridge Error"
+                    description={trace.errorMessage}
+                    style={{ marginTop: 8 }}
+                  />
+                )}
               </div>
-
-              <div className={styles.waterfallCard}>
-                <span className={styles.waterfallCardLabel}>
-                  <span style={{ color: '#60a5fa' }}>🔵</span> T_native_exec
-                </span>
-                <span className={styles.waterfallCardValue}>{nativeExecLatency} ms</span>
-                <span className={styles.waterfallCardPct}>Native Host Execution ({nativePct}%)</span>
-              </div>
-
-              <div className={styles.waterfallCard}>
-                <span className={styles.waterfallCardLabel}>
-                  <span style={{ color: '#34d399' }}>🟢</span> T_dom_flush
-                </span>
-                <span className={styles.waterfallCardValue}>{domRenderLatency} ms</span>
-                <span className={styles.waterfallCardPct}>DOM Flush / Reply ({domPct}%)</span>
-              </div>
-            </div>
-
-            {/* Formula Notation Display */}
-            <div className={styles.waterfallFormula}>
-              <span>
-                <strong>Formula:</strong> <code>T_total = T_worker_ipc + T_native_exec + T_dom_flush</code>
-              </span>
-              <span>
-                <code>{totalCalculated} ms = {workerIpcLatency}ms + {nativeExecLatency}ms + {domRenderLatency}ms</code>
-              </span>
-            </div>
-          </div>
-
-          {/* Request Payload */}
-          <JsonViewer data={trace.payload} label="Request Payload (Params)" defaultExpanded={true} />
-
-          {/* Response */}
-          {trace.response && (
-            <JsonViewer
-              data={trace.response}
-              label="Native Bridge Response"
-              defaultExpanded={true}
-            />
-          )}
-
-          {/* Error Message */}
-          {trace.errorMessage && (
-            <div
-              style={{
-                padding: '6px 10px',
-                borderRadius: '6px',
-                background: 'rgba(239, 68, 68, 0.15)',
-                border: '1px solid #ef4444',
-                color: '#fca5a5',
-                fontSize: '11px',
-                marginTop: '6px',
-              }}
-            >
-              <strong>Error: </strong> {trace.errorMessage}
-            </div>
-          )}
-        </div>
-      )}
+            ),
+          },
+        ]}
+      />
     </div>
   );
 };

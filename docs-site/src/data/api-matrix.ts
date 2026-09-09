@@ -16,6 +16,7 @@ import { contactsActions } from './domains/contacts';
 import { pushActions } from './domains/push';
 import { bleActions } from './domains/ble';
 import { web3Actions } from './domains/web3';
+import { walletPassActions } from './domains/wallet-passes';
 import { binaryActions } from './domains/binary';
 import { navigationActions } from './domains/navigation';
 import { subpackageActions } from './domains/subpackages';
@@ -96,7 +97,7 @@ export const API_DOMAINS: ApiDomain[] = [
     slug: 'core-system',
     actionCount: 12,
     description: 'Hardware metrics, vibration haptics, status bar appearance, brightness, screen wake locks, clipboard exchange, back navigation, and secure OAuth sessions.',
-    icon: '⚡',
+    icon: '',
     badgeColor: '#3b82f6',
   },
   {
@@ -105,7 +106,7 @@ export const API_DOMAINS: ApiDomain[] = [
     slug: 'storage-sandboxing',
     actionCount: 16,
     description: 'Hardware-backed AES-256-GCM enclave storage, tenant isolation per appId, RFC 6265 cookie management, and web storage quota accounting.',
-    icon: '🔒',
+    icon: '',
     badgeColor: '#10b981',
   },
   {
@@ -114,7 +115,7 @@ export const API_DOMAINS: ApiDomain[] = [
     slug: 'sandboxed-filesystem',
     actionCount: 11,
     description: 'Sandboxed file I/O operations inside app-isolated directory (/sandbox/data/{appId}/) with path-traversal guards and native file choosers.',
-    icon: '📁',
+    icon: '',
     badgeColor: '#f59e0b',
   },
   {
@@ -123,7 +124,7 @@ export const API_DOMAINS: ApiDomain[] = [
     slug: 'networking-http',
     actionCount: 10,
     description: 'Zero-trust networking stack with anti-SSRF protections, chunked streaming downloads/uploads, WebSocket bridge, and SSL pinning audits.',
-    icon: '🌐',
+    icon: '',
     badgeColor: '#06b6d4',
   },
   {
@@ -132,7 +133,7 @@ export const API_DOMAINS: ApiDomain[] = [
     slug: 'ui-navigation-bars',
     actionCount: 28,
     description: 'Native navigation bar styling, multi-snap draggable bottom sheets, safe-area window insets, toasts, modals, and multi-tab presentation.',
-    icon: '🎨',
+    icon: '',
     badgeColor: '#8b5cf6',
   },
   {
@@ -141,7 +142,7 @@ export const API_DOMAINS: ApiDomain[] = [
     slug: 'hardware-sensors',
     actionCount: 12,
     description: 'Hardware motion sensors (accelerometer, gyroscope, compass, device motion) with 50ms coalesced throttling, plus phone calls and SMS.',
-    icon: '🧭',
+    icon: '',
     badgeColor: '#ec4899',
   },
   {
@@ -150,7 +151,7 @@ export const API_DOMAINS: ApiDomain[] = [
     slug: 'location-geofencing',
     actionCount: 7,
     description: 'High-accuracy GPS positioning (WGS84 / GCJ02), map location pickers, and circular geofence boundary transition triggers.',
-    icon: '📍',
+    icon: '',
     badgeColor: '#14b8a6',
   },
   {
@@ -159,7 +160,7 @@ export const API_DOMAINS: ApiDomain[] = [
     slug: 'biometrics-security',
     actionCount: 8,
     description: 'Hardware biometric authentication (FaceID, TouchID, BiometricPrompt), two-stage permission priming dialogs, and COOP/COEP sandbox auditing.',
-    icon: '🛡️',
+    icon: '',
     badgeColor: '#ef4444',
   },
   {
@@ -168,7 +169,7 @@ export const API_DOMAINS: ApiDomain[] = [
     slug: 'media-audio',
     actionCount: 7,
     description: 'Camera QR/barcode scanner, photo gallery and video pickers, multi-image preview gallery, and background audio player controller.',
-    icon: '🎬',
+    icon: '',
     badgeColor: '#f97316',
   },
   {
@@ -177,7 +178,7 @@ export const API_DOMAINS: ApiDomain[] = [
     slug: 'contacts-social',
     actionCount: 5,
     description: 'Address book picker with privacy guardrails, contacts counter, system share sheet, and Instagram/Snapchat Story sharing.',
-    icon: '👥',
+    icon: '',
     badgeColor: '#6366f1',
   },
   {
@@ -186,7 +187,7 @@ export const API_DOMAINS: ApiDomain[] = [
     slug: 'push-notifications',
     actionCount: 9,
     description: 'APNs / FCM push token retrieval, application notification badges, in-app local notification dispatch, and pub/sub topic subscriptions.',
-    icon: '🔔',
+    icon: '',
     badgeColor: '#e11d48',
   },
   {
@@ -195,7 +196,7 @@ export const API_DOMAINS: ApiDomain[] = [
     slug: 'bluetooth-nfc',
     actionCount: 16,
     description: 'GATT client communication (device discovery, service discovery, characteristic read/write) and ISO 14443 / NDEF NFC tag operations.',
-    icon: '📡',
+    icon: '',
     badgeColor: '#2563eb',
   },
   {
@@ -204,7 +205,7 @@ export const API_DOMAINS: ApiDomain[] = [
     slug: 'web3-payments',
     actionCount: 7,
     description: 'EVM / Solana Web3 wallet connection, transaction signing with user gesture gate, in-app invoice checkout, and IAP product queries.',
-    icon: '💳',
+    icon: '',
     badgeColor: '#059669',
   },
   {
@@ -213,7 +214,7 @@ export const API_DOMAINS: ApiDomain[] = [
     slug: 'binary-ipc',
     actionCount: 4,
     description: 'High-throughput, zero-copy ArrayBuffer binary message ports for large payloads (images, audio frames, WASM memory buffers).',
-    icon: '⚡',
+    icon: '',
     badgeColor: '#7c3aed',
   },
   {
@@ -222,7 +223,7 @@ export const API_DOMAINS: ApiDomain[] = [
     slug: 'navigation-stack',
     actionCount: 12,
     description: 'Multi-page navigation stack management (push, pop, replace, popToRoot) and Android 14+ / iOS 18+ predictive back gesture physics.',
-    icon: '🔙',
+    icon: '',
     badgeColor: '#0284c7',
   },
   {
@@ -231,7 +232,7 @@ export const API_DOMAINS: ApiDomain[] = [
     slug: 'subpackages-wasm',
     actionCount: 9,
     description: 'Dynamic on-demand subpackage downloading and extraction, V8 code cache / JSC bytecode precompilation, and WASM SIMD validation.',
-    icon: '📦',
+    icon: '',
     badgeColor: '#d97706',
   },
   {
@@ -240,7 +241,7 @@ export const API_DOMAINS: ApiDomain[] = [
     slug: 'visual-rendering',
     actionCount: 10,
     description: 'WebView window transparency, anti-white-flash background color synchronization, nested scrolling coordinator, and same-layer native views.',
-    icon: '🖼️',
+    icon: '',
     badgeColor: '#475569',
   },
   {
@@ -249,7 +250,7 @@ export const API_DOMAINS: ApiDomain[] = [
     slug: 'apm-telemetry',
     actionCount: 14,
     description: 'Runtime API capability discovery, dynamic plugin registration, isolated process status, boot SLA benchmark metrics, and OpenTelemetry spans.',
-    icon: '📊',
+    icon: '',
     badgeColor: '#dc2626',
   },
 ];
@@ -268,6 +269,7 @@ export const ALL_API_ACTIONS: ApiAction[] = [
   ...pushActions,
   ...bleActions,
   ...web3Actions,
+  ...walletPassActions,
   ...binaryActions,
   ...navigationActions,
   ...subpackageActions,

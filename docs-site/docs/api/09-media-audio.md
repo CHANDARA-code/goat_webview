@@ -7,7 +7,7 @@ description: Complete API reference for Media & Audio (7 actions).
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-# Domain 9: Media & Audio 🎬
+# Domain 9: Media & Audio
 
 Camera QR/barcode scanner, photo gallery and video pickers, multi-image preview gallery, and background audio player controller.
 
@@ -40,14 +40,14 @@ Launches full-screen native camera barcode/QR scanner viewfinder with automatic 
 **Purpose & Context:** Enables instant QR payment scanning, asset tracking, and package barcode check-in.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `SCAN_CODE`
 - **Supported Aliases:** `scanCode`
 - **Permission Scope:** `scope.camera`
 - **Required Manifest Permissions:** `android.permission.CAMERA`, `NSCameraUsageDescription`
-- **Security Constraint:** ⚠️ **Active User Gesture Required** (User touch within &lt;10s)
+- **Security Constraint:** Warning: **Active User Gesture Required** (User touch within &lt;10s)
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |
@@ -124,14 +124,14 @@ Presents native media picker for selecting photos or recording videos from camer
 **Purpose & Context:** Allows uploading profile avatars, KYC identity documents, and video clips.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `CHOOSE_MEDIA`
 - **Supported Aliases:** `chooseMedia`, `chooseImage`, `chooseVideo`
 - **Permission Scope:** `scope.camera`
 - **Required Manifest Permissions:** `android.permission.CAMERA`, `android.permission.READ_MEDIA_IMAGES`, `NSPhotoLibraryUsageDescription`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |
@@ -207,14 +207,14 @@ Launches full-screen multi-image gallery viewer with pinch-to-zoom and swipe ges
 **Purpose & Context:** Displays high-resolution product photos or gallery collections.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `PREVIEW_IMAGE`
 - **Supported Aliases:** `previewImage`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |
@@ -291,14 +291,14 @@ Initiates background audio playback with lock screen media metadata (title, arti
 **Purpose & Context:** Enables podcast, music, and voice narration playback.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `AUDIO_PLAY`
 - **Supported Aliases:** `audioPlay`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |
@@ -380,14 +380,14 @@ Pauses active background audio playback.
 **Purpose & Context:** Temporarily halts audio playback.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `AUDIO_PAUSE`
 - **Supported Aliases:** `audioPause`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 _No input parameters required (`{}`)._
@@ -452,14 +452,14 @@ Stops audio playback and releases audio focus.
 **Purpose & Context:** Stops audio playback completely.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `AUDIO_STOP`
 - **Supported Aliases:** `audioStop`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 _No input parameters required (`{}`)._
@@ -524,14 +524,14 @@ Seeks playback position to the specified timestamp in seconds.
 **Purpose & Context:** Enables scrubber bar positioning.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `AUDIO_SEEK`
 - **Supported Aliases:** `audioSeek`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |

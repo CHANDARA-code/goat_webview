@@ -9,7 +9,7 @@ The **Goat CLI** is the unified, developer-first command-line toolchain for buil
 
 ---
 
-## 📦 Installation & Setup
+## Installation & Setup
 
 Install `@goat/cli` globally via npm, yarn, or pnpm:
 
@@ -33,17 +33,17 @@ goat doctor
 
 Output:
 ```text
-🐐 Goat Doctor — Environment Health Check
+ Goat Doctor — Environment Health Check
 
-  ✅ Node.js          v20.15.0 (≥ 20 ✅)
-  ✅ Bun              v1.1.20 ✅
-  ✅ Java             openjdk 17.0.10 (≥ 17 ✅)
-  ✅ ANDROID_HOME     /Users/developer/Library/Android/sdk ✅
-  ✅ ADB              Android Debug Bridge version 1.0.41 — 1 device(s) connected ✅
-  ✅ Xcode            Xcode 16.0 ✅
-  ✅ Simulators       2 simulator(s) booted ✅
+  [Supported] Node.js          v20.15.0 (≥ 20 [Supported])
+  [Supported] Bun              v1.1.20 [Supported]
+  [Supported] Java             openjdk 17.0.10 (≥ 17 [Supported])
+  [Supported] ANDROID_HOME     /Users/developer/Library/Android/sdk [Supported]
+  [Supported] ADB              Android Debug Bridge version 1.0.41 — 1 device(s) connected [Supported]
+  [Supported] Xcode            Xcode 16.0 [Supported]
+  [Supported] Simulators       2 simulator(s) booted [Supported]
 
-✅ All checks passed! Your environment is ready for Goat development.
+[Supported] All checks passed! Your environment is ready for Goat development.
 ```
 
 #### Doctor Options & Flags
@@ -55,7 +55,7 @@ Output:
 
 ---
 
-## 🛠️ CLI Commands Reference
+## CLI Commands Reference
 
 ```
 ┌────────────────────────────────────────────────────────────────────────────────────────┐
@@ -124,7 +124,7 @@ goat dev [--port=3000] [--mock] [--host] [--tunnel] [--server-port=7373]
 #### Example Output
 
 ```text
-🐐 Starting Goat Dev Server…
+ Starting Goat Dev Server…
    Port        : 3000
    Mock bridge : enabled
    LAN host    : enabled
@@ -133,11 +133,11 @@ goat dev [--port=3000] [--mock] [--host] [--tunnel] [--server-port=7373]
 
 [GoatDev] Vite HMR server listening on http://localhost:3000
 [GoatDev] Virtual domain: http://appassets.androidplatform.net:3000
-[GoatDev] @goat/bridge-mock injected — all 185 bridge actions mocked
+[GoatDev] @goat/bridge-mock injected — all 197 bridge actions mocked
 [GoatDev] QR pairing URL: http://192.168.1.100:3000
 [GoatDev] Connected to @goat/server on port 7373
 
-✅ Dev server ready. Press Ctrl+C to stop.
+[Supported] Dev server ready. Press Ctrl+C to stop.
 ```
 
 ---
@@ -191,7 +191,7 @@ goat build [--prod] [--bytecode] [--split-subpackages] [--out-dir=dist]
 #### Example Output
 
 ```text
-🐐 Goat Build — Production
+ Goat Build — Production
    Mode            : production
    V8 Bytecode     : enabled
    Subpackage split: enabled
@@ -200,13 +200,13 @@ goat build [--prod] [--bytecode] [--split-subpackages] [--out-dir=dist]
 [GoatBuild] TypeScript compilation starting...
 [GoatBuild] Vite bundling with tree-shaking...
 [GoatBuild] Asset minification complete.
-[GoatBuild] Subpackage splitting: pages/home → pages/profile → pages/settings
+[GoatBuild] Subpackage splitting: pages/home -> pages/profile -> pages/settings
 [GoatBuild] V8 bytecode pre-compilation: generating .jsc files...
 [GoatBuild] Bytecode headers embedded in bundle.
 [GoatBuild] SHA-256 integrity: 8f4e2c91a3b570d4e6f81a29c34e7b89d012e3456789abcdef0123456789abcd
 [GoatBuild] Writing integrity manifest to dist/integrity.json
 
-✅ Build complete → dist/
+[Supported] Build complete -> dist/
    main.js         32.4 KB (gzip: 10.2 KB)
    main.jsc        28.1 KB (V8 bytecode)
    subpackages/    3 chunks × ~8 KB
@@ -215,7 +215,7 @@ goat build [--prod] [--bytecode] [--split-subpackages] [--out-dir=dist]
 
 ---
 
-## ⚙️ Mini-App Manifest (`goat.config.json`)
+## Mini-App Manifest (`goat.config.json`)
 
 Every Goat Mini-App is governed by a declarative `goat.config.json` manifest at its root:
 
@@ -276,7 +276,7 @@ Every Goat Mini-App is governed by a declarative `goat.config.json` manifest at 
 
 ---
 
-## 🔒 Security Best Practices in CLI
+## Security Best Practices in CLI
 
 1. **Deterministic Checksums:** Always verify `dist/integrity.json` in your CI/CD deployment pipeline before uploading bundles to the mini-app registry.
 2. **Permission Minimization:** Only request permissions in `goat.config.json` that are strictly necessary for the core user experience.

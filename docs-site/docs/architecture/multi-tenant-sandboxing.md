@@ -9,7 +9,7 @@ In a super-app ecosystem, multiple independent mini-apps developed by third-part
 
 ---
 
-## 🏛️ Multi-Tenant Sandboxing Topology
+## Multi-Tenant Sandboxing Topology
 
 ```
 ┌────────────────────────────────────────────────────────────────────────────────────────┐
@@ -32,7 +32,7 @@ In a super-app ecosystem, multiple independent mini-apps developed by third-part
 
 ---
 
-## 🔒 1. Storage & Filesystem Partitioning
+## 1. Storage & Filesystem Partitioning
 
 Every persistent operation is strictly scoped by the tenant's cryptographic `appId` and the active user `accountId`:
 
@@ -49,7 +49,7 @@ Every persistent operation is strictly scoped by the tenant's cryptographic `app
 
 ---
 
-## 🌐 2. Web Engine & Process Sandboxing
+## 2. Web Engine & Process Sandboxing
 
 - **Cookie Partitioning:** Cookies are stored in isolated per-tenant cookie jars, preventing session hijacking across mini-apps.
 - **IndexedDB & Web Storage:** Isolated origins (`goat://{appId}/` or `https://appassets.androidplatform.net/assets/{appId}/`) prevent cross-origin DOM storage leaks.

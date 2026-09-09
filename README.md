@@ -1,7 +1,7 @@
 # 🐐 Goat WebView
 
 > **Enterprise-Grade Multi-Platform Mini-App Engine & SuperApp Runtime**  
-> Instant startup (<300ms cold, <50ms warm) • Zero white flash • 197+ Native Bridge Actions • Multi-tenant Sandboxing • OWASP MASVS v2.0 Compliant
+> Instant startup (<300ms cold, <50ms warm) • Zero white flash • 210+ Native Bridge Actions • Web3 / Passkey / Wallet Passes • Drop-in `flutter_inappwebview` & `react-native-webview` adapters • Multi-tenant Sandboxing • OWASP MASVS v2.0 Compliant
 
 ---
 
@@ -14,7 +14,18 @@ Goat WebView overcomes these challenges by providing a unified multi-tenant arch
 - **Zero-Trust Security**: Exclusive communication via AndroidX `WebMessageListener` and WebKit message handlers restricted to virtual HTTPS domains (`https://appassets.androidplatform.net` and `goat://assets/`).
 - **Multi-Tenant Sandboxing**: 100% partition isolation for local storage keyspaces (`goat_storage_<appId>`), cookies (`WKWebsiteDataStore`), filesystem directories, and Hardware KeyStore keys.
 - **Dual-Thread Execution Architecture**: Modeled after WeChat/Skyline, executing JavaScript business logic in an isolated Worker thread (`AppService`) decoupled from the DOM rendering thread (`AppView`).
-- **Comprehensive SuperApp Capability Matrix**: 197+ standardized bridge actions across 18 functional domains including Biometrics, BLE/NFC, Geofencing, Same-Layer Video/Map rendering, Subpackages, and Payment Gateways.
+- **Comprehensive SuperApp Capability Matrix**: 210+ standardized bridge actions across 18 functional domains including Biometrics, BLE/NFC, Geofencing, Same-Layer Video/Map rendering, Subpackages, and Payment Gateways.
+
+---
+
+## ✨ New in `1.0.0-alpha.2`
+
+- **Web3, Passkey & Vault vertical** — hardware-isolated EVM / Solana / TON transaction decoders, a host-supplied `GoatWalletAdapter` SPI (goat holds no keys), EIP-6963 / Solana / TON-Connect provider discovery, W3C passkey (`navigator.credentials`) with an AndroidKeyStore / iOS-Keychain AES-256-GCM vault that **fails closed** on missing hardware, and Google Wallet / Apple PassKit pass builders. Android modules: `feature-web3`, `feature-web3-compose`, `feature-wallet-passes`, `feature-payments-wechat`. iOS: `Sources/GoatWebView/{Web3,Passkey,Passes}`.
+- **`goat_webview_compat`** — drop-in replacement for `package:flutter_inappwebview` (`InAppWebView` widget + `InAppWebViewController` façade, lazy `CookieManager`, pull-to-refresh, document-start injection), with a `custom_lint` rule that forbids retaining migration config. See [`goat_webview_compat/MIGRATION.md`](./goat_webview_compat/MIGRATION.md).
+- **`react-native-goat-webview-compat`** — drop-in replacement for `react-native-webview` (`<WebView>` wrapper, 10 Fabric commands, `window.ReactNativeWebView.postMessage` emulation), with an ESLint zero-retention rule. See [`react-native-goat-webview-compat/MIGRATION.md`](./react-native-goat-webview-compat/MIGRATION.md).
+- **`@goat/adapter-dsl`** — portable WeChat (`wx.*`) / Alipay (`my.*`) / uni-app / Taro shims, each entry point < 2.2 KB gzipped, with a `canIUse` capability router and a 20 Hz native sensor rate limiter.
+- **2D/3D web-games embeddability suite** (`tests/games/`) — LittleJS, Phaser 3, Three.js, React-Three-Fiber (plus Babylon.js and PixiJS) demos with a 4-tier E2E harness (`node --experimental-strip-types tests/games/e2e-verify.ts`, 262 assertions) proving offline `file:///` asset resolution, DPR clamping, and ≤ 0.05 KB/cycle retention across 100 unmount cycles.
+- **Core-engine hardening** — Android `feature-sensors` / `feature-web3` decoupled from `:core`, `GoatDeviceTier` low-RAM skip-prewarm, bridge sender-origin validation; iOS `GoatLifecycleManager`, `GoatProcessPoolManager` / `GoatWebViewPool`, `GoatNetworkPrewarmer`, `GoatAssetByteCache`, `GoatThemeManager`, `GoatOrientationController`, `GoatIntegrityVerifier`.
 
 ---
 
@@ -84,7 +95,9 @@ The repository enforces a 7-sub-suite verification matrix with 100% automated pa
 | **Web JS SDK** | `npm run test:web` | `bash scripts/verify-web.sh` | Runs Web Bridge tests and production compilation |
 | **Dual-Thread Engine** | `npm run test:appservice` | `npm --prefix packages/appservice test` | Runs AppService/AppView dual-thread E2E tests |
 | **Tooling (10 Pkgs)** | `npm run verify:packages` | `bash scripts/verify-packages.sh` | Runs test suites across all 10 monorepo tooling packages |
-| **Zero-Trust Security** | `npm run test:security` | `bash scripts/run-security-fuzz.sh` | Runs 197-action mutation fuzzing, SSRF & sandbox tests |
+| **Zero-Trust Security** | `npm run test:security` | `bash scripts/run-security-fuzz.sh` | Runs 210-action mutation fuzzing, SSRF & sandbox tests |
+| **Wallet / Passkey / Vault** | — | `bash scripts/verify-wallet-passkey-adapters.sh` | 13-step gate: chain decoders, passkey engine, hardware vault, adversarial suite |
+| **Web Games Embeddability** | — | `node --experimental-strip-types tests/games/e2e-verify.ts` | 4-tier games E2E harness (262 assertions, 100-cycle unmount endurance) |
 | **Cross-MiniApp E2E** | `npm run test:e2e` | `bash scripts/verify-e2e.sh` | Runs 939 master monorepo 4-tier + 97 Task 10201 cross-mini-app E2E tests |
 
 ### Full Master CI Gate Command
@@ -136,9 +149,9 @@ Feature plugins auto-register when `features-all-in` is on the classpath (`GoatV
 .package(url: "https://github.com/CHANDARA-code/goat_webview.git", from: "1.0.0")
 ```
 
-> **Alpha (`v1.0.0-alpha.1`):** pin the exact prerelease — a `from:` range will not match one:
+> **Alpha (`v1.0.0-alpha.2`):** pin the exact prerelease — a `from:` range will not match one:
 > ```swift
-> .package(url: "https://github.com/CHANDARA-code/goat_webview.git", exact: "1.0.0-alpha.1")
+> .package(url: "https://github.com/CHANDARA-code/goat_webview.git", exact: "1.0.0-alpha.2")
 > ```
 > Products: `GoatWebView` (core), `GoatWebViewAllIn`, or any single feature library
 > (`GoatWebViewMedia`, `GoatWebViewScanner`, `GoatWebViewLocation`, `GoatWebViewBiometrics`,
@@ -146,7 +159,7 @@ Feature plugins auto-register when `features-all-in` is on the classpath (`GoatV
 
 ```ruby
 # Podfile
-pod 'GoatWebView', :git => 'https://github.com/CHANDARA-code/goat_webview.git', :tag => 'v1.0.0'
+pod 'GoatWebView', :git => 'https://github.com/CHANDARA-code/goat_webview.git', :tag => 'v1.0.0-alpha.2'
 pod 'GoatWebView/Scanner'   # optional capability subspecs: Media, Scanner, Location, Biometrics, Bluetooth, Network
 ```
 
@@ -268,6 +281,11 @@ For complete technical specifications, sequence diagrams, and interface contract
 - 🛡️ [**@goat/core**](./packages/core/README.md) — Zero-trust network security and SSRF defense pipeline.
 - 🎋 [**@goat/compiler-taro**](./packages/compiler-taro/README.md) — Taro framework compiler adapter plugin.
 - 🦄 [**@goat/compiler-uniapp**](./packages/compiler-uniapp/README.md) — Uni-app framework compiler adapter plugin.
+- 🧩 [**@goat/adapter-dsl**](./packages/adapter-dsl/README.md) — Portable WeChat / Alipay / uni-app / Taro `wx.*` · `my.*` shims.
+- 🔌 [**goat_webview_compat**](./goat_webview_compat/MIGRATION.md) — Drop-in replacement for `flutter_inappwebview`.
+- 🔌 [**react-native-goat-webview-compat**](./react-native-goat-webview-compat/MIGRATION.md) — Drop-in replacement for `react-native-webview`.
+- 🎮 [**tests/games**](./tests/games/) — 2D/3D web-games embeddability suite + 4-tier E2E harness.
+- 🔐 [**Wallet, Passkey & Vault**](./docs-site/docs/security/wallet-passkey-vault.md) — Web3 signer SPI, passkey engine, and hardware vault security model.
 
 ---
 

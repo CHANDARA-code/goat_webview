@@ -9,7 +9,7 @@ The **Goat iOS Framework** (`GoatWebView`) delivers hardware-accelerated WebKit 
 
 ---
 
-## 📦 Installation
+## Installation
 
 ### Swift Package Manager (Recommended)
 
@@ -33,7 +33,7 @@ pod 'GoatWebView', '~> 1.0.0'
 
 ---
 
-## 🚀 SwiftUI Integration (`GoatSwiftUIView`)
+## SwiftUI Integration (`GoatSwiftUIView`)
 
 `GoatSwiftUIView` wraps the native WebKit container via `UIViewRepresentable` using the **Coordinator Pattern**, keeping bridge callbacks, navigation state, and error handling perfectly synchronized with SwiftUI state:
 
@@ -81,7 +81,7 @@ struct MiniAppHostScreen: View {
 
 ---
 
-## 🏛️ UIKit Integration (`GoatView`)
+## UIKit Integration (`GoatView`)
 
 For UIKit-based host architectures, instantiate `GoatView` directly in a `UIViewController`:
 
@@ -138,7 +138,7 @@ class MiniAppViewController: UIViewController {
 
 ---
 
-## ⚙️ Core Technical Architecture
+## Core Technical Architecture
 
 ### 1. Custom URL Scheme Asset Routing (`GoatURLSchemeHandler`)
 

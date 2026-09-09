@@ -59,7 +59,7 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({
           }}
         >
           <span style={{ fontWeight: 600, color: '#38bdf8' }}>
-            {expanded ? '▼' : '▶'} {label}
+            {expanded ? '-' : '+'} {label}
           </span>
           <button
             onClick={handleCopy}
@@ -73,7 +73,7 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({
               cursor: 'pointer',
             }}
           >
-            {copied ? '✓ Copied' : 'Copy'}
+            {copied ? 'Copied' : 'Copy'}
           </button>
         </div>
       )}

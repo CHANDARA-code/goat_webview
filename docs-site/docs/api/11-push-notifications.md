@@ -7,7 +7,7 @@ description: Complete API reference for Push Notifications (9 actions).
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-# Domain 11: Push Notifications 🔔
+# Domain 11: Push Notifications
 
 APNs / FCM push token retrieval, application notification badges, in-app local notification dispatch, and pub/sub topic subscriptions.
 
@@ -42,14 +42,14 @@ Retrieves native APNs / Firebase Cloud Messaging (FCM) device push registration 
 **Purpose & Context:** Registers device token with mini-app backend for targeted push alerts and order updates.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `PUSH_GET_TOKEN`
 - **Supported Aliases:** `push.getToken`, `getNotificationToken`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |
@@ -116,14 +116,14 @@ Alias for PUSH_GET_TOKEN.
 **Purpose & Context:** Standard alias for push token retrieval.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `GET_PUSH_TOKEN`
 - **Supported Aliases:** `getPushToken`, `push.getPushToken`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 _No input parameters required (`{}`)._
@@ -187,14 +187,14 @@ Requests notification delivery permissions from the host operating system (POST_
 **Purpose & Context:** Prompts user to enable incoming push alert banners.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `PUSH_REQUEST_PERMISSION`
 - **Supported Aliases:** `push.requestPermission`, `requestNotificationPermission`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `android.permission.POST_NOTIFICATIONS`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 _No input parameters required (`{}`)._
@@ -262,14 +262,14 @@ Updates the numerical unread notification badge count on the host app launcher i
 **Purpose & Context:** Displays unread message or item count on the home screen icon.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `PUSH_SET_BADGE`
 - **Supported Aliases:** `push.setBadge`, `setBadge`, `setBadgeCount`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |
@@ -337,14 +337,14 @@ Dispatches an immediate in-app local notification banner into the system status 
 **Purpose & Context:** Alerts user when long-running background tasks (downloads, exports) finish.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `PUSH_SHOW_NOTIFICATION`
 - **Supported Aliases:** `push.showNotification`, `showNotification`, `showLocalNotification`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `android.permission.POST_NOTIFICATIONS`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |
@@ -428,14 +428,14 @@ Subscribes device to a pub/sub broadcast notification topic (e.g. "flash_sales",
 **Purpose & Context:** Enables group topic broadcasts without individual token tracking.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `SUBSCRIBE_PUSH_TOPIC`
 - **Supported Aliases:** `push.subscribeTopic`, `subscribePushTopic`, `subscribeTopic`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |
@@ -503,14 +503,14 @@ Unsubscribes device from a push broadcast topic.
 **Purpose & Context:** Allows users to opt out of specific notification topics.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `UNSUBSCRIBE_PUSH_TOPIC`
 - **Supported Aliases:** `push.unsubscribeTopic`, `unsubscribePushTopic`, `unsubscribeTopic`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |
@@ -578,14 +578,14 @@ Retrieves array of queued or scheduled notifications waiting in the system tray.
 **Purpose & Context:** Inspects upcoming alarms or pending reminder notifications.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `GET_PENDING_NOTIFICATIONS`
 - **Supported Aliases:** `push.getPending`, `getPendingNotifications`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 _No input parameters required (`{}`)._
@@ -649,14 +649,14 @@ Clears all delivered and pending notifications posted by this mini-app.
 **Purpose & Context:** Cleans up status bar tray when user opens the app.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `CLEAR_NOTIFICATIONS`
 - **Supported Aliases:** `push.clear`, `clearNotifications`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 _No input parameters required (`{}`)._

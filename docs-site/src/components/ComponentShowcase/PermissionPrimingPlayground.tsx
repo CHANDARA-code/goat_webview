@@ -78,7 +78,6 @@ final granted = await GoatWebView.channel.invokeMethod<bool>('requestPermissionW
       <div className={styles.cardHeader}>
         <div>
           <div className={styles.cardTitle}>
-            <span>🔔</span>
             <span>GoatPermissionPrimingDialog Component Playground</span>
           </div>
           <div className={styles.cardDesc}>
@@ -102,7 +101,7 @@ final granted = await GoatWebView.channel.invokeMethod<bool>('requestPermissionW
                 }}
                 style={{ textTransform: 'capitalize' }}
               >
-                {perm === 'camera' ? '📷 Camera' : perm === 'location' ? '📍 Location' : perm === 'notifications' ? '🔔 Notifications' : perm === 'contacts' ? '👥 Contacts' : '📶 Bluetooth'}
+                {perm === 'camera' ? 'Camera' : perm === 'location' ? 'Location' : perm === 'notifications' ? 'Notifications' : perm === 'contacts' ? 'Contacts' : 'Bluetooth'}
               </button>
             ))}
           </div>
@@ -126,7 +125,6 @@ final granted = await GoatWebView.channel.invokeMethod<bool>('requestPermissionW
 
       <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
         <button className={styles.actionButton} onClick={() => handleRequest(selectedPerm)}>
-          <span>🚀</span>
           <span>Launch 2-Stage Permission Flow</span>
         </button>
         <button className={styles.secondaryButton} onClick={handleResetPermissions}>

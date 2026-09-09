@@ -151,7 +151,6 @@ await GoatWebView.channel.invokeMethod('setNavBar', {
       <div className={styles.cardHeader}>
         <div>
           <div className={styles.cardTitle}>
-            <span>🔝</span>
             <span>GoatNavigationBar Component Playground</span>
           </div>
           <div className={styles.cardDesc}>
@@ -246,7 +245,6 @@ await GoatWebView.channel.invokeMethod('setNavBar', {
 
       <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
         <button className={styles.actionButton} onClick={handleApplyTitle}>
-          <span>⚡</span>
           <span>Apply Title & Settings to Simulator</span>
         </button>
       </div>

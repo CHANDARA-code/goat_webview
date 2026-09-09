@@ -9,7 +9,7 @@ The **Goat Vue 3.5 Template** provides an ultra-fast, reactive framework for dev
 
 ---
 
-## 🚀 Quick Scaffolding
+## Quick Scaffolding
 
 Scaffold a new Vue 3.5 mini-app with `@goat/cli`:
 
@@ -22,7 +22,7 @@ goat dev
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```text
 my-vue-miniapp/
@@ -46,7 +46,7 @@ my-vue-miniapp/
 
 ---
 
-## 🧩 Composables & Native Bridge Setup
+## Composables & Native Bridge Setup
 
 ### 1. Application Entry (`src/main.ts`)
 
@@ -220,7 +220,7 @@ async function startScan() {
 
 ---
 
-## ⚡ Vue 3.5 Best Practices in Mini-Apps
+## Vue 3.5 Best Practices in Mini-Apps
 
 1. **Leverage Vue 3.5 Reactive Props Destructure:**
    Vue 3.5 introduces reactive prop destructuring without losing reactivity:

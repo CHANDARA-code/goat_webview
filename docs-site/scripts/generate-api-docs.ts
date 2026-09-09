@@ -45,11 +45,11 @@ function escapeCell(text: string): string {
 // Generate single action markdown section
 function renderActionDoc(action: ApiAction, index: number): string {
   const platformBadges = [
-    action.platforms.android ? '`Android: ✅`' : '`Android: ❌`',
-    action.platforms.ios ? '`iOS: ✅`' : '`iOS: ❌`',
-    action.platforms.reactNative ? '`React Native: ✅`' : '`React Native: ❌`',
-    action.platforms.flutter ? '`Flutter: ✅`' : '`Flutter: ❌`',
-    action.platforms.web ? '`Web Mock: ✅`' : '`Web Mock: ❌`',
+    action.platforms.android ? '`Android: Yes`' : '`Android: No`',
+    action.platforms.ios ? '`iOS: Yes`' : '`iOS: No`',
+    action.platforms.reactNative ? '`React Native: Yes`' : '`React Native: No`',
+    action.platforms.flutter ? '`Flutter: Yes`' : '`Flutter: No`',
+    action.platforms.web ? '`Web Mock: Yes`' : '`Web Mock: No`',
   ].join(' ');
 
   const aliasesText = action.aliases.length > 0
@@ -61,8 +61,8 @@ function renderActionDoc(action: ApiAction, index: number): string {
     : '`None (Zero-Permission)`';
 
   const gestureBadge = action.permissions.requiresGesture
-    ? '⚠️ **Active User Gesture Required** (User touch within &lt;10s)'
-    : '✅ **No Gesture Required**';
+    ? '**Active User Gesture Required** (User touch within &lt;10s)'
+    : '**No Gesture Required**';
 
   let paramsTable = '';
   if (action.params.length === 0) {

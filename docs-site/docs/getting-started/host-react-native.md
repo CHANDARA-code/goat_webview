@@ -9,7 +9,7 @@ The **Goat React Native SDK** (`@goat/react-native-goat-webview`) integrates the
 
 ---
 
-## 📦 Installation
+## Installation
 
 Install the package in your React Native project:
 
@@ -26,7 +26,7 @@ cd ios && pod install
 
 ---
 
-## 🚀 Embedding `GoatWebView` in React Native
+## Embedding `GoatWebView` in React Native
 
 ```tsx
 import React, { useRef } from 'react';
@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
 
 ---
 
-## ⚙️ Fabric Native Component Specification (`GoatWebViewNativeComponent`)
+## Fabric Native Component Specification (`GoatWebViewNativeComponent`)
 
 The component is generated using React Native's strict **Codegen** pipeline:
 
@@ -138,7 +138,7 @@ export interface NativeProps extends ViewProps {
 
 ---
 
-## 🔌 Using the `useGoatBridge` Hook
+## Using the `useGoatBridge` Hook
 
 The package exports a helper hook `useGoatBridge` for issuing native calls or listening for telemetry events outside the JSX tree:
 
@@ -160,6 +160,6 @@ export function CustomActionBar() {
 
 ---
 
-## 🏛️ Backward Compatibility (Legacy Architecture Fallback)
+## Backward Compatibility (Legacy Architecture Fallback)
 
 While optimized for Fabric and TurboModules, `@goat/react-native-goat-webview` automatically falls back to `UIManager.getViewManagerConfig('GoatWebView')` on React Native applications still running the legacy Paper architecture.

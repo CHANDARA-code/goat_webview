@@ -9,7 +9,7 @@ The **Goat Remote Debugging Architecture** integrates standard **Chrome DevTools
 
 ---
 
-## 🏛️ Remote Debugging Architecture Topology
+## Remote Debugging Architecture Topology
 
 ```
 ┌────────────────────────────────────────────────────────────────────────────────────────┐
@@ -45,7 +45,7 @@ The **Goat Remote Debugging Architecture** integrates standard **Chrome DevTools
 
 ---
 
-## 🔌 Discovery Endpoints (`@goat/server`)
+## Discovery Endpoints (`@goat/server`)
 
 The `@goat/server` daemon runs on port `9222` (or `7373` in CLI dev mode) and exposes standard HTTP discovery endpoints:
 
@@ -87,7 +87,7 @@ Enumerates active mini-app target pages:
 
 ---
 
-## 🎯 Custom `GoatBridge` Inspection Domain
+## Custom `GoatBridge` Inspection Domain
 
 In addition to standard Chromium CDP domains (`DOM`, `CSS`, `Network`, `Runtime`), Goat WebView implements a specialized `GoatBridge` domain designed specifically for auditing mini-app native IPC calls:
 
@@ -158,7 +158,7 @@ Allows developers to dynamically mock or override native hardware responses from
 
 ---
 
-## 📱 In-App Developer Menu (`GoatDevMenuManager`)
+## In-App Developer Menu (`GoatDevMenuManager`)
 
 On debug builds, Goat WebView includes an embedded **In-App DevMenu** designed for on-device diagnostics without physical USB tethering:
 
@@ -166,12 +166,12 @@ On debug builds, Goat WebView includes an embedded **In-App DevMenu** designed f
 ┌────────────────────────────────────────────────────────────┐
 │                    GOAT IN-APP DEVMENU                     │
 ├────────────────────────────────────────────────────────────┤
-│ 🟢 CDP Server: ws://localhost:9222/devtools/page/...       │
-│ 📊 HUD: 120 FPS | RAM: 34.2 MB | DOM Nodes: 182            │
+│  CDP Server: ws://localhost:9222/devtools/page/...       │
+│  HUD: 120 FPS | RAM: 34.2 MB | DOM Nodes: 182            │
 ├────────────────────────────────────────────────────────────┤
-│ [🔄 Reload Current Page]       [🧹 Purge Storage & Cache]  │
-│ [🐛 Toggle vConsole Overlay]   [📡 Mock Bridge State]      │
-│ [🔍 Inspect Network IPC]       [❌ Dismiss DevMenu]        │
+│ [ Reload Current Page]       [ Purge Storage & Cache]  │
+│ [ Toggle vConsole Overlay]   [ Mock Bridge State]      │
+│ [ Inspect Network IPC]       [[Unsupported] Dismiss DevMenu]        │
 └────────────────────────────────────────────────────────────┘
 ```
 

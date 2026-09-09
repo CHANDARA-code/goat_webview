@@ -7,7 +7,7 @@ description: Complete API reference for Web3 & Payments (7 actions).
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-# Domain 13: Web3 & Payments 💳
+# Domain 13: Web3 & Payments
 
 EVM / Solana Web3 wallet connection, transaction signing with user gesture gate, in-app invoice checkout, and IAP product queries.
 
@@ -40,14 +40,14 @@ Requests connection to the host embedded Web3 crypto wallet (EVM / Solana) or la
 **Purpose & Context:** Authorizes mini-app to query public address, active chainId, and request token transactions.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `WEB3_CONNECT_WALLET`
 - **Supported Aliases:** `web3ConnectWallet`, `requestWalletConnect`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |
@@ -117,14 +117,14 @@ Prompts user with native transaction confirmation bottom sheet and signs transac
 **Purpose & Context:** Authorizes crypto transfers, smart contract interactions, and NFT purchases.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `WEB3_SIGN_TRANSACTION`
 - **Supported Aliases:** `web3SignTransaction`, `signTransaction`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ⚠️ **Active User Gesture Required** (User touch within &lt;10s)
+- **Security Constraint:** Warning: **Active User Gesture Required** (User touch within &lt;10s)
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |
@@ -206,14 +206,14 @@ Disconnects the active Web3 crypto wallet session.
 **Purpose & Context:** Cleans up wallet authorization on sign-out.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `WEB3_DISCONNECT`
 - **Supported Aliases:** `web3Disconnect`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 _No input parameters required (`{}`)._
@@ -276,14 +276,14 @@ Queries active connected wallet address and account state without triggering a p
 **Purpose & Context:** Checks if wallet is currently authorized.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `WEB3_GET_ACCOUNT`
 - **Supported Aliases:** `web3GetAccount`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 _No input parameters required (`{}`)._
@@ -351,14 +351,14 @@ Presents native checkout bottom sheet for paying an in-app order invoice (via cr
 **Purpose & Context:** Enables 1-click in-app purchasing and checkout in mini-apps.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `OPEN_INVOICE`
 - **Supported Aliases:** `openInvoice`, `requestPayment`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |
@@ -445,14 +445,14 @@ Queries in-app purchase (IAP) product catalog from Apple StoreKit 2 / Google Pla
 **Purpose & Context:** Renders in-app subscriptions and coin bundles with localized prices and currency symbols.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `GET_PURCHASE_PRODUCTS`
 - **Supported Aliases:** `getPurchaseProducts`, `getInAppProducts`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 _No input parameters required (`{}`)._
@@ -516,14 +516,14 @@ Restores previously purchased non-consumable products and active auto-renewing s
 **Purpose & Context:** Restores user subscriptions on a new device.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `RESTORE_PURCHASES`
 - **Supported Aliases:** `restorePurchases`, `buyInAppProduct`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 _No input parameters required (`{}`)._

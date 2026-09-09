@@ -7,7 +7,7 @@ description: Complete API reference for Networking, HTTP & WebSockets (10 action
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-# Domain 4: Networking, HTTP & WebSockets 🌐
+# Domain 4: Networking, HTTP & WebSockets
 
 Zero-trust networking stack with anti-SSRF protections, chunked streaming downloads/uploads, WebSocket bridge, and SSL pinning audits.
 
@@ -43,14 +43,14 @@ Dispatches an out-of-process HTTP/HTTPS request through native network stack wit
 **Purpose & Context:** Bypasses browser CORS restrictions while blocking SSRF access to loopback (127.0.0.1), RFC1918 private subnets, and Cloud Metadata IMDS (169.254.169.254).
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `API_REQUEST`
 - **Supported Aliases:** `apiRequest`, `request`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `android.permission.INTERNET`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |
@@ -140,14 +140,14 @@ Downloads a remote binary file in background and saves it into the sandboxed fil
 **Purpose & Context:** Fetches PDF invoices, media streams, and bundle assets with progress tracking.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `DOWNLOAD_FILE`
 - **Supported Aliases:** `downloadFile`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `android.permission.INTERNET`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |
@@ -225,14 +225,14 @@ Streams a local sandboxed file to a remote server using multipart/form-data POST
 **Purpose & Context:** Enables photo/video uploads, receipt submissions, and crash report uploads.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `UPLOAD_FILE`
 - **Supported Aliases:** `uploadFile`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `android.permission.INTERNET`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |
@@ -314,14 +314,14 @@ Queries active network connection status and radio carrier technology.
 **Purpose & Context:** Adapts video streaming resolution or prefetching strategy based on connection (Wi-Fi vs 2G/3G/4G/5G).
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `GET_NETWORK_TYPE`
 - **Supported Aliases:** `getNetworkType`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `android.permission.ACCESS_NETWORK_STATE`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 _No input parameters required (`{}`)._
@@ -387,14 +387,14 @@ Quick boolean probe checking if the host device has an active internet connectio
 **Purpose & Context:** Displays offline banner when connection drops.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `IS_CONNECTED`
 - **Supported Aliases:** `isConnected`, `onNetworkStatusChange`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `android.permission.ACCESS_NETWORK_STATE`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 _No input parameters required (`{}`)._
@@ -458,14 +458,14 @@ Establishes a native persistent WebSocket connection with automatic ping/pong he
 **Purpose & Context:** Enables real-time bi-directional streaming for chat apps, live game updates, and financial tickers.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `WEBSOCKET_CONNECT`
 - **Supported Aliases:** `connectSocket`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `android.permission.INTERNET`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |
@@ -543,14 +543,14 @@ Transmits a text or JSON frame over the active WebSocket bridge connection.
 **Purpose & Context:** Sends chat messages, order requests, or subscribe events over open socket.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `WEBSOCKET_SEND`
 - **Supported Aliases:** `sendSocketMessage`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |
@@ -621,14 +621,14 @@ Gracefully closes the active native WebSocket stream.
 **Purpose & Context:** Cleans up network resources when exiting live streaming screen.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `WEBSOCKET_CLOSE`
 - **Supported Aliases:** `closeSocket`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 _No input parameters required (`{}`)._
@@ -691,14 +691,14 @@ Verifies whether a remote server certificate matches the SHA-256 public key pin 
 **Purpose & Context:** Protects financial and healthcare mini-apps against Man-in-the-Middle (MITM) proxy interception.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `VERIFY_SSL_PIN`
 - **Supported Aliases:** `verifySslPin`, `auditSslPinning`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `android.permission.INTERNET`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |
@@ -777,14 +777,14 @@ Performs diagnostic inspection of SSL/TLS certificate chain, expiration, and iss
 **Purpose & Context:** Enables security health checks and automated certificate expiration warnings.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `AUDIT_NETWORK_CERTIFICATE`
 - **Supported Aliases:** `auditNetworkCertificate`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `android.permission.INTERNET`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |

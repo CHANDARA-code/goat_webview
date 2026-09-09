@@ -29,7 +29,7 @@ We will credit reporters in the release notes unless you ask us not to.
 
 ## Supported versions
 
-`1.0.0-alpha.1` is a **pre-release**. It has not been through an external security audit, and its
+`1.0.0-alpha.2` is a **pre-release**. It has not been through an external security audit, and its
 API may change before 1.0.0. Do not deploy it to production without your own review.
 
 ## Known limitations in the current release

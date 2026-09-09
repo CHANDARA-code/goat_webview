@@ -1,7 +1,16 @@
 # Project: SuperApp Multi-Ecosystem Showcase
 
 ## Architecture
-The SuperApp showcase architecture connects 4 production-grade mobile/desktop host applications (iOS SwiftUI, Android Jetpack Compose, Flutter, and React Native) to a rich, sandboxed web mini-app runtime (`miniapp-web`) hosting 4 domain mini-apps that exercise all 18 bridge domains (197 actions).
+The SuperApp showcase architecture connects 4 production-grade mobile/desktop host applications (iOS SwiftUI, Android Jetpack Compose, Flutter, and React Native) to a rich, sandboxed web mini-app runtime (`miniapp-web`) hosting 4 domain mini-apps that exercise all 18 bridge domains (210 actions).
+
+> **Beyond the showcase (`1.0.0-alpha.2`):** the repo also ships a Web3 / Passkey / Wallet-Passes
+> vertical (`android/feature-web3*`, `android/feature-wallet-passes`, `ios/Sources/GoatWebView/{Web3,Passkey,Passes}`,
+> `miniapp-web/src/injected/`), two drop-in migration adapters (`goat_webview_compat` for
+> `flutter_inappwebview`, `react-native-goat-webview-compat` for `react-native-webview`), the
+> portable mini-app DSL shims (`packages/adapter-dsl`), and a 2D/3D web-games embeddability suite
+> with its own 4-tier E2E harness (`tests/games/`). These are engine/adapter deliverables, not part
+> of the showcase host apps, and are gated by `scripts/verify-wallet-passkey-adapters.sh`,
+> `scripts/verify-rn.sh`, `scripts/verify-flutter.sh`, and `tests/games/e2e-verify.ts`.
 
 ```
 +-----------------------------------------------------------------------------------+

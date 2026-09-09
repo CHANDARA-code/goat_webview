@@ -71,7 +71,6 @@ final result = await GoatWebView.channel.invokeMethod<Map<String, dynamic>>('bio
       <div className={styles.cardHeader}>
         <div>
           <div className={styles.cardTitle}>
-            <span>🔐</span>
             <span>GoatBiometrics Component Playground</span>
           </div>
           <div className={styles.cardDesc}>
@@ -101,21 +100,21 @@ final result = await GoatWebView.channel.invokeMethod<Map<String, dynamic>>('bio
               className={`${styles.secondaryButton} ${hardware.biometrics.mockResult === 'success' ? styles.actionButton : ''}`}
               onClick={() => updateHardware('biometrics', { ...hardware.biometrics, mockResult: 'success' })}
             >
-              ✓ Pass (Success)
+              Pass (Success)
             </button>
             <button
               className={`${styles.secondaryButton} ${hardware.biometrics.mockResult === 'fail' ? styles.actionButton : ''}`}
               style={hardware.biometrics.mockResult === 'fail' ? { background: '#ef4444', borderColor: '#ef4444' } : {}}
               onClick={() => updateHardware('biometrics', { ...hardware.biometrics, mockResult: 'fail' })}
             >
-              ✕ Fail (Mismatch)
+              Fail (Mismatch)
             </button>
             <button
               className={`${styles.secondaryButton} ${hardware.biometrics.mockResult === 'locked' ? styles.actionButton : ''}`}
               style={hardware.biometrics.mockResult === 'locked' ? { background: '#f59e0b', borderColor: '#f59e0b' } : {}}
               onClick={() => updateHardware('biometrics', { ...hardware.biometrics, mockResult: 'locked' })}
             >
-              🔒 Lockout (5 Fails)
+              Lockout (5 Fails)
             </button>
           </div>
         </div>
@@ -123,7 +122,6 @@ final result = await GoatWebView.channel.invokeMethod<Map<String, dynamic>>('bio
 
       <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
         <button className={styles.actionButton} onClick={handleAuthenticate}>
-          <span>👤</span>
           <span>Trigger Biometric Scan Modal</span>
         </button>
         <button className={styles.secondaryButton} onClick={handleCheckSupport}>

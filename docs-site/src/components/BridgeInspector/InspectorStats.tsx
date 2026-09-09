@@ -1,6 +1,6 @@
 import React from 'react';
+import { Row, Col, Statistic, Card } from 'antd';
 import type { BridgeTrace } from '../../types/simulator';
-import styles from './BridgeInspector.module.css';
 
 interface InspectorStatsProps {
   traces: BridgeTrace[];
@@ -16,39 +16,47 @@ export const InspectorStats: React.FC<InspectorStatsProps> = ({ traces }) => {
   const avgLatency = total > 0 ? Math.round(totalLatency / total) : 0;
 
   return (
-    <div className={styles.statsBar} data-testid="inspector-stats-bar">
-      <div className={styles.statItem}>
-        <span>Total Calls:</span>
-        <span className={styles.statValue}>{total}</span>
-      </div>
-
-      <div className={styles.statItem}>
-        <span>Success:</span>
-        <span className={styles.statValue} style={{ color: '#34d399' }}>
-          {successCount} ({successRate}%)
-        </span>
-      </div>
-
-      <div className={styles.statItem}>
-        <span>Errors:</span>
-        <span className={styles.statValue} style={{ color: errorCount > 0 ? '#f87171' : '#94a3b8' }}>
-          {errorCount}
-        </span>
-      </div>
-
-      <div className={styles.statItem}>
-        <span>Avg Latency:</span>
-        <span className={styles.statValue} style={{ color: '#38bdf8' }}>
-          {avgLatency} ms
-        </span>
-      </div>
-
-      <div className={styles.statItem} style={{ marginLeft: 'auto' }}>
-        <span>Session:</span>
-        <span className={styles.statValue} style={{ fontFamily: 'monospace', fontSize: '10px' }}>
-          goat-dev-sess
-        </span>
-      </div>
+    <div data-testid="inspector-stats-bar" style={{ marginBottom: 16 }}>
+      <Row gutter={[12, 12]}>
+        <Col span={6}>
+          <Card size="small">
+            <Statistic
+              title={<span style={{ fontSize: 11 }}>Total Calls</span>}
+              value={total}
+              valueStyle={{ fontSize: 18 }}
+            />
+          </Card>
+        </Col>
+        <Col span={6}>
+          <Card size="small">
+            <Statistic
+              title={<span style={{ fontSize: 11 }}>Success Rate</span>}
+              value={successRate}
+              suffix={<span style={{ fontSize: 12, color: '#10b981' }}>% ({successCount})</span>}
+              valueStyle={{ color: '#10b981', fontSize: 18 }}
+            />
+          </Card>
+        </Col>
+        <Col span={6}>
+          <Card size="small">
+            <Statistic
+              title={<span style={{ fontSize: 11 }}>Errors</span>}
+              value={errorCount}
+              valueStyle={{ color: errorCount > 0 ? '#ef4444' : undefined, fontSize: 18 }}
+            />
+          </Card>
+        </Col>
+        <Col span={6}>
+          <Card size="small">
+            <Statistic
+              title={<span style={{ fontSize: 11 }}>Avg Latency</span>}
+              value={avgLatency}
+              suffix={<span style={{ fontSize: 12, color: '#38bdf8' }}>ms</span>}
+              valueStyle={{ color: '#38bdf8', fontSize: 18 }}
+            />
+          </Card>
+        </Col>
+      </Row>
     </div>
   );
 };

@@ -9,7 +9,7 @@ The **Goat Svelte 5 Template** is the ultra-lightweight, zero-overhead option fo
 
 ---
 
-## 🚀 Quick Scaffolding
+## Quick Scaffolding
 
 Scaffold a Svelte 5 mini-app with `@goat/cli`:
 
@@ -22,7 +22,7 @@ goat dev
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```text
 my-svelte-miniapp/
@@ -44,7 +44,7 @@ my-svelte-miniapp/
 
 ---
 
-## 🧩 Svelte 5 Runes & Native Bridge Integration
+## Svelte 5 Runes & Native Bridge Integration
 
 ### 1. Application Entry (`src/main.ts`)
 
@@ -175,7 +175,7 @@ export const safeArea = new InsetsTracker();
 </script>
 
 <div class="card">
-  <h3>📍 Hardware Geolocation</h3>
+  <h3> Hardware Geolocation</h3>
   <p class="coords-display">{statusText}</p>
 
   <button 
@@ -215,7 +215,7 @@ export const safeArea = new InsetsTracker();
 
 ---
 
-## ⚡ Svelte 5 Advantages in Goat Mini-Apps
+## Svelte 5 Advantages in Goat Mini-Apps
 
 1. **Sub-10 KB Baseline JS Bundle:**
    Because Svelte compiles templates directly to imperative DOM operations without a virtual DOM runtime, initial script evaluation takes `<5ms`.

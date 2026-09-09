@@ -1,7 +1,29 @@
 import React, { useState } from 'react';
+import {
+  Drawer,
+  Tag,
+  Table,
+  Button,
+  Input,
+  Typography,
+  Space,
+  Alert,
+  Card,
+} from 'antd';
+import {
+  LockOutlined,
+  ThunderboltOutlined,
+  ExclamationCircleOutlined,
+  PlayCircleOutlined,
+  AimOutlined,
+  BookOutlined,
+} from '@ant-design/icons';
 import { ApiAction } from '../../data/api-matrix';
+import { useSimulator } from '../../context/SimulatorContext';
 import { CodeSnippetTabs } from './CodeSnippetTabs';
 import styles from './styles.module.css';
+
+const { Text, Title, Paragraph } = Typography;
 
 interface ActionModalProps {
   action: ApiAction;
@@ -9,6 +31,7 @@ interface ActionModalProps {
 }
 
 export const ActionModal: React.FC<ActionModalProps> = ({ action, onClose }) => {
+  const { callBridge } = useSimulator();
   const [simulatorState, setSimulatorState] = useState<'idle' | 'executing' | 'success' | 'error'>('idle');
   const [simulatorResult, setSimulatorResult] = useState<any>(null);
   const [payloadInput, setPayloadInput] = useState<string>(
@@ -22,196 +45,199 @@ export const ActionModal: React.FC<ActionModalProps> = ({ action, onClose }) => 
       try {
         parsedPayload = JSON.parse(payloadInput);
       } catch (err) {
-        // fallback to default
         parsedPayload = action.defaultPayload || {};
       }
 
-      // Simulate native bridge response
-      await new Promise(r => setTimeout(r, 200));
+      const trace = await callBridge(action.action, parsedPayload, action.domain);
       setSimulatorResult({
-        id: `call_${Date.now()}`,
-        action: action.action,
-        status: 'SUCCESS',
-        latencyMs: 1.8,
-        payload: parsedPayload,
-        response: action.returns.schema,
+        id: trace.id,
+        action: trace.action,
+        status: trace.status === 'success' ? 'SUCCESS' : 'ERROR',
+        latencyMs: trace.latencyMs,
+        payload: trace.payload,
+        response: trace.response,
+        errorMessage: trace.errorMessage,
       });
-      setSimulatorState('success');
+      setSimulatorState(trace.status === 'success' ? 'success' : 'error');
     } catch (e: any) {
       setSimulatorResult({ error: e.message || 'Execution error' });
       setSimulatorState('error');
     }
   };
 
+  const paramColumns = [
+    { title: 'Parameter', dataIndex: 'name', key: 'name', render: (text: string) => <code>{text}</code> },
+    { title: 'Type', dataIndex: 'type', key: 'type', render: (text: string) => <code>{text}</code> },
+    {
+      title: 'Required',
+      dataIndex: 'required',
+      key: 'required',
+      render: (req: boolean) => (req ? <Tag color="red">Required</Tag> : <Tag color="default">Optional</Tag>),
+    },
+    { title: 'Default', dataIndex: 'defaultValue', key: 'defaultValue', render: (text?: string) => (text ? <code>{text}</code> : '-') },
+    { title: 'Description', dataIndex: 'description', key: 'description' },
+  ];
+
+  const errorColumns = [
+    { title: 'Error Code', dataIndex: 'code', key: 'code', render: (text: string) => <Tag color="error">{text}</Tag> },
+    { title: 'Meaning', dataIndex: 'meaning', key: 'meaning' },
+    { title: 'Troubleshooting', dataIndex: 'troubleshooting', key: 'troubleshooting' },
+  ];
+
   return (
-    <div className={styles.modalOverlay} onClick={onClose}>
-      <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
-        <div className={styles.modalHeader}>
-          <div className={styles.modalTitleGroup}>
-            <span className={styles.domainBadge}>{action.domain}</span>
-            <h2 className={styles.modalTitle}>{action.action}</h2>
-          </div>
-          <button className={styles.modalCloseBtn} onClick={onClose} aria-label="Close modal">
-            ✕
-          </button>
+    <Drawer
+      title={
+        <Space>
+          <Tag color="processing">{action.domain}</Tag>
+          <code>{action.action}</code>
+        </Space>
+      }
+      placement="right"
+      width={720}
+      open={!!action}
+      onClose={onClose}
+      extra={
+        <Button onClick={onClose} size="small">
+          Close
+        </Button>
+      }
+    >
+      <Space direction="vertical" size="large" style={{ width: '100%' }}>
+        <div>
+          <Paragraph style={{ fontSize: 14 }}>{action.description}</Paragraph>
+          <Alert
+            type="info"
+            showIcon
+            icon={<AimOutlined />}
+            message="Purpose"
+            description={action.purpose}
+          />
         </div>
 
-        <div className={styles.modalBody}>
-          <p className={styles.actionDesc}>{action.description}</p>
-          <div className={styles.purposeBox}>
-            <strong>🎯 Purpose:</strong> {action.purpose}
-          </div>
-
-          {/* Badges */}
-          <div className={styles.badgeRow}>
-            <div className={styles.badgeGroup}>
-              <strong>Permission:</strong>
-              <span className={action.permissions.scope === 'none' ? styles.badgeGreen : styles.badgeOrange}>
-                {action.permissions.scope}
-              </span>
-            </div>
-            {action.permissions.manifest.length > 0 && (
-              <div className={styles.badgeGroup}>
-                <strong>Manifest:</strong>
-                {action.permissions.manifest.map(m => (
-                  <span key={m} className={styles.badgeCode}>{m}</span>
-                ))}
-              </div>
+        {/* Badges */}
+        <div>
+          <Text type="secondary" style={{ display: 'block', marginBottom: 6 }}>
+            Permissions & Sandbox:
+          </Text>
+          <Space wrap>
+            {action.permissions.scope === 'none' ? (
+              <Tag color="success" icon={<ThunderboltOutlined />}>Zero-Permission Action</Tag>
+            ) : (
+              <Tag color="warning" icon={<LockOutlined />}>Requires Scope: {action.permissions.scope}</Tag>
             )}
+            {action.permissions.manifest.map((m) => (
+              <Tag key={m} color="gold">Manifest: {m}</Tag>
+            ))}
             {action.permissions.requiresGesture && (
-              <span className={styles.badgeWarning}>⚠️ Active User Gesture Required</span>
+              <Tag color="volcano" icon={<ExclamationCircleOutlined />}>Active User Gesture Required</Tag>
             )}
-          </div>
+          </Space>
+        </div>
 
-          {/* Platform support */}
-          <div className={styles.platformRow}>
-            <strong>Platforms:</strong>
-            <span className={action.platforms.android ? styles.platformOk : styles.platformNo}>Android</span>
-            <span className={action.platforms.ios ? styles.platformOk : styles.platformNo}>iOS</span>
-            <span className={action.platforms.reactNative ? styles.platformOk : styles.platformNo}>React Native</span>
-            <span className={action.platforms.flutter ? styles.platformOk : styles.platformNo}>Flutter</span>
-            <span className={action.platforms.web ? styles.platformOk : styles.platformNo}>Web Simulator</span>
-          </div>
+        {/* Platform Support */}
+        <div>
+          <Text type="secondary" style={{ display: 'block', marginBottom: 6 }}>
+            Platform Parity:
+          </Text>
+          <Space wrap>
+            <Tag color={action.platforms.android ? 'blue' : 'default'}>Android</Tag>
+            <Tag color={action.platforms.ios ? 'geekblue' : 'default'}>iOS</Tag>
+            <Tag color={action.platforms.reactNative ? 'cyan' : 'default'}>React Native</Tag>
+            <Tag color={action.platforms.flutter ? 'purple' : 'default'}>Flutter</Tag>
+            <Tag color={action.platforms.web ? 'green' : 'default'}>Web Simulator</Tag>
+          </Space>
+        </div>
 
-          {/* Parameters */}
-          <h4 className={styles.sectionHeader}>Input Parameters</h4>
+        {/* Parameters */}
+        <div>
+          <Title level={5}>Input Parameters</Title>
           {action.params.length === 0 ? (
-            <p className={styles.mutedText}>No parameters required (empty payload <code>{'{}'}</code>).</p>
+            <Text type="secondary">No parameters required (empty payload <code>{'{}'}</code>).</Text>
           ) : (
-            <div className={styles.tableWrapper}>
-              <table className={styles.paramTable}>
-                <thead>
-                  <tr>
-                    <th>Parameter</th>
-                    <th>Type</th>
-                    <th>Required</th>
-                    <th>Default</th>
-                    <th>Description</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {action.params.map(p => (
-                    <tr key={p.name}>
-                      <td><code>{p.name}</code></td>
-                      <td><code>{p.type}</code></td>
-                      <td>{p.required ? <span className={styles.reqBadge}>Required</span> : 'Optional'}</td>
-                      <td>{p.defaultValue ? <code>{p.defaultValue}</code> : '-'}</td>
-                      <td>{p.description}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <Table
+              dataSource={action.params.map((p) => ({ ...p, key: p.name }))}
+              columns={paramColumns}
+              pagination={false}
+              size="small"
+            />
           )}
+        </div>
 
-          {/* Return Value */}
-          <h4 className={styles.sectionHeader}>Return Schema</h4>
-          <p className={styles.mutedText}>
-            <strong>Type:</strong> <code>{action.returns.type}</code> — {action.returns.description}
-          </p>
+        {/* Return Schema */}
+        <div>
+          <Title level={5}>Return Schema</Title>
+          <Text type="secondary" style={{ display: 'block', marginBottom: 6 }}>
+            Type: <code>{action.returns.type}</code> — {action.returns.description}
+          </Text>
           <pre className={styles.schemaBlock}>
             <code>{JSON.stringify(action.returns.schema, null, 2)}</code>
           </pre>
+        </div>
 
-          {/* Error Codes */}
-          {action.errors.length > 0 && (
-            <>
-              <h4 className={styles.sectionHeader}>Error Taxonomy</h4>
-              <div className={styles.tableWrapper}>
-                <table className={styles.paramTable}>
-                  <thead>
-                    <tr>
-                      <th>Error Code</th>
-                      <th>Meaning</th>
-                      <th>Troubleshooting</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {action.errors.map(err => (
-                      <tr key={err.code}>
-                        <td><code className={styles.errorCode}>{err.code}</code></td>
-                        <td>{err.meaning}</td>
-                        <td>{err.troubleshooting}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </>
-          )}
+        {/* Error Taxonomy */}
+        {action.errors.length > 0 && (
+          <div>
+            <Title level={5}>Error Taxonomy</Title>
+            <Table
+              dataSource={action.errors.map((e) => ({ ...e, key: e.code }))}
+              columns={errorColumns}
+              pagination={false}
+              size="small"
+            />
+          </div>
+        )}
 
-          {/* Code Snippets */}
-          <h4 className={styles.sectionHeader}>Multi-Framework Implementation</h4>
+        {/* Implementation Snippets */}
+        <div>
+          <Title level={5}>Multi-Framework Implementation</Title>
           <CodeSnippetTabs snippets={action.snippets} />
+        </div>
 
-          {/* Try in Simulator */}
-          <h4 className={styles.sectionHeader}>Try in Simulator</h4>
-          <div className={styles.simulatorBox}>
-            <div className={styles.simInputGroup}>
-              <label className={styles.simLabel}>Simulation Payload (JSON):</label>
-              <textarea
-                className={styles.simTextarea}
-                rows={3}
-                value={payloadInput}
-                onChange={e => setPayloadInput(e.target.value)}
-              />
-            </div>
-            <div className={styles.simBtnRow}>
-              <button
-                className={styles.simulateBtn}
-                onClick={handleSimulate}
-                disabled={simulatorState === 'executing'}
-              >
-                {simulatorState === 'executing' ? '⚡ Executing in Mock Bridge...' : '▶️ Execute Action in Simulator'}
-              </button>
-            </div>
+        {/* Try in Simulator */}
+        <div>
+          <Title level={5}>Try in Simulator</Title>
+          <Card size="small">
+            <Text type="secondary" style={{ fontSize: 12, display: 'block', marginBottom: 6 }}>
+              Simulation Payload (JSON):
+            </Text>
+            <Input.TextArea
+              rows={3}
+              value={payloadInput}
+              onChange={(e) => setPayloadInput(e.target.value)}
+              style={{ fontFamily: 'monospace', marginBottom: 8 }}
+            />
+            <Button
+              type="primary"
+              icon={<PlayCircleOutlined />}
+              loading={simulatorState === 'executing'}
+              onClick={handleSimulate}
+            >
+              Execute Action in Simulator
+            </Button>
 
             {simulatorResult && (
-              <div className={styles.simResultBox}>
-                <div className={styles.simResultHeader}>
-                  <span>Telemetry Result:</span>
-                  <span className={styles.simLatency}>⚡ 1.8ms (Mock IPC)</span>
-                </div>
+              <div style={{ marginTop: 12 }}>
+                <Text style={{ fontSize: 12, color: '#10b981', display: 'block', marginBottom: 4 }}>
+                  Telemetry Result ({simulatorResult.latencyMs ?? '?'}ms Mock IPC):
+                </Text>
                 <pre className={styles.simJsonBlock}>
                   <code>{JSON.stringify(simulatorResult, null, 2)}</code>
                 </pre>
               </div>
             )}
-          </div>
+          </Card>
         </div>
 
-        <div className={styles.modalFooter}>
-          <a
+        <div>
+          <Button
+            type="link"
+            icon={<BookOutlined />}
             href={`/docs/api/${action.domainSlug}#${action.action.toLowerCase().replace(/_/g, '-')}`}
-            className={styles.fullDocLink}
           >
-            📖 View Full Domain Article →
-          </a>
-          <button className={styles.closeBtnFooter} onClick={onClose}>
-            Close
-          </button>
+            View Full Domain Article
+          </Button>
         </div>
-      </div>
-    </div>
+      </Space>
+    </Drawer>
   );
 };

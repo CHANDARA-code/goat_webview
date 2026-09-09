@@ -64,7 +64,6 @@ await GoatWebView.channel.invokeMethod('openExternalLink', {
       <div className={styles.cardHeader}>
         <div>
           <div className={styles.cardTitle}>
-            <span>🛡️</span>
             <span>GoatExternalLinkWarningDialog Component Playground</span>
           </div>
           <div className={styles.cardDesc}>
@@ -146,7 +145,7 @@ await GoatWebView.channel.invokeMethod('openExternalLink', {
                     fontFamily: 'monospace',
                   }}
                 >
-                  ✓ {host}
+                  Verified: {host}
                 </span>
               ))
             )}

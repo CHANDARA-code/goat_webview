@@ -9,7 +9,7 @@ The **Goat Payment Gateway Proxy** lets mini-apps execute real-money checkouts �
 
 ---
 
-## 🛑 Threat Model
+## Threat Model
 
 A mini-app is untrusted code running in a sandboxed web context. Left unconstrained, it could:
 1. Call `REQUEST_PAYMENT` with no genuine user tap, moving money silently in the background.
@@ -22,7 +22,7 @@ None of these are mitigated by trusting the web context — they are mitigated s
 
 ---
 
-## 🏛️ Trust Zones
+## Trust Zones
 
 ```
 Zone 0  Mini-App Web Context (UNTRUSTED)          — holds only opaque intentId, amount, currency, signedPayload
@@ -38,7 +38,7 @@ The mini-app backend (Zone 5) creates an intent via the proxy, signs its canonic
 
 ---
 
-## 🔐 The Payment Security Gate — Layer by Layer
+## The Payment Security Gate — Layer by Layer
 
 | Layer | Responsibility | Hard-fails with |
 | :--- | :--- | :--- |
@@ -52,7 +52,7 @@ A payment with no registered adapter fails `PROVIDER_NOT_REGISTERED` after L1-L5
 
 ---
 
-## 🔄 Bridge Contract
+## Bridge Contract
 
 ```json
 // REQUEST_PAYMENT
@@ -71,10 +71,10 @@ Success/dismissal resolve as bridge data (`status: "SUCCEEDED" | "DISMISSED"`); 
 
 ---
 
-## 🧾 Intent State Machine
+## Intent State Machine
 
 ```
-CREATED → CLAIMED → PROCESSING → SUCCEEDED / FAILED / CANCELLED / EXPIRED
+CREATED -> CLAIMED -> PROCESSING -> SUCCEEDED / FAILED / CANCELLED / EXPIRED
                         │
                         └──► DISMISSED (non-terminal — intent stays CLAIMED, retryable)
 ```
@@ -83,7 +83,7 @@ CREATED → CLAIMED → PROCESSING → SUCCEEDED / FAILED / CANCELLED / EXPIRED
 
 ---
 
-## ⚙️ Component Responsibilities
+## Component Responsibilities
 
 - **`GoatPaymentGatewayManager`** (Android `object`-style manager / iOS `final class`) — owns the adapter registry, the per-`intentId` lock map, the L1-L5 gate, a 45s in-flight watchdog that auto-releases orphaned locks, and a background 1s/3s Bakong KHQR poller that runs independently of any single bridge call's watchdog window. `handleReturnUrl` is the host-facing entry point for app2app return navigation — call it from the host's Universal Link / App Link handler (`application(_:continue:restorationHandler:)` on iOS, `onNewIntent` on Android), mirroring `GoatOAuthSessionManager.handleRedirectUri`.
 - **`GoatPaymentAdapter`** SPI — `processPayment` / `queryStatus` / `cancelPayment`. Built-in adapters live behind zero-bloat feature modules (`android/feature-payments-{stripe,alipay,paypay,bakong}`, flat Swift files on iOS); custom adapters register only via host application startup code — never from mini-app JS.
@@ -91,7 +91,7 @@ CREATED → CLAIMED → PROCESSING → SUCCEEDED / FAILED / CANCELLED / EXPIRED
 
 ---
 
-## 🌐 Cross-Platform Parity
+## Cross-Platform Parity
 
 | Platform | Gate + manager | Adapter SPI |
 | :--- | :--- | :--- |
@@ -104,7 +104,7 @@ The web/JS layers on every platform never implement gate logic — they only mar
 
 ---
 
-## 🧪 Test Strategy
+## Test Strategy
 
 - **Native unit tests** (`GoatPaymentGatewayManagerTest.kt`, `GoatPaymentGatewayManagerTests.swift`, plus one test file per built-in adapter): layer isolation, mutex/watchdog behavior, DISMISSED non-terminal handling, KHQR background polling, monotonic state.
 - **Server tests** (`payments.spec.ts`, `payments-security-adversarial.spec.ts`): REST contract, claim races, webhook dedupe, monotonic transitions, KHQR EMV-QR builder correctness.

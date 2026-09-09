@@ -11,7 +11,7 @@ Whether you are authoring **Mini-Apps** (using modern frontend frameworks like R
 
 ---
 
-## 🧭 Developer Tracks
+## Developer Tracks
 
 Choose your development path:
 
@@ -35,7 +35,7 @@ Choose your development path:
 
 ---
 
-## 📱 Track A: Mini-App Developer Quickstart
+## Track A: Mini-App Developer Quickstart
 
 Mini-apps are single-page web applications packaged into secure, sandboxed bundles with zero-overhead access to native device hardware (biometrics, secure storage, camera, sensors, haptics, and payments) via `@goat/sdk`.
 
@@ -86,7 +86,7 @@ goat run ios --simulator
 
 ---
 
-## 🏢 Track B: Host-App Developer Quickstart
+## Track B: Host-App Developer Quickstart
 
 Host applications embed the Goat WebView native engine to render mini-apps with 120 FPS gesture physics, multi-tenant sandboxing, and background RAM trimming.
 
@@ -255,7 +255,7 @@ class MiniAppPage extends StatelessWidget {
 
 ---
 
-## 🎮 Live Interactive Device Simulator & Component Matrix
+## Live Interactive Device Simulator & Component Matrix
 
 Experience the Goat WebView native widgets and hardware controls directly in your browser. Toggle between iPhone 16 Pro and Pixel 9 Pro frames, adjust battery and network states, and inspect real-time JSON-RPC telemetry:
 
@@ -271,7 +271,7 @@ import EmbeddedPlayground from '@site/src/components/EmbeddedPlayground';
 
 ---
 
-## 📚 Next Steps
+## Next Steps
 
 - Explore the complete **[Goat CLI Toolchain Guide](./cli-toolchain)** for advanced build and deployment configurations.
 - Review framework-specific guides: **[React 19](./template-react)**, **[Vue 3.5](./template-vue)**, or **[Svelte 5](./template-svelte)**.

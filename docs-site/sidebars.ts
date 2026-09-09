@@ -89,6 +89,7 @@ const sidebars: SidebarsConfig = {
       items: [
         'security/owasp-masvs-compliance',
         'security/anti-abuse-guardrails',
+        'security/wallet-passkey-vault',
       ],
     },
     {

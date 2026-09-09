@@ -1,10 +1,38 @@
 import React from 'react';
+import {
+  Segmented,
+  Select,
+  InputNumber,
+  Slider,
+  Switch,
+  Typography,
+  Button,
+} from 'antd';
+import {
+  MobileOutlined,
+  EnvironmentOutlined,
+  ThunderboltOutlined,
+  WifiOutlined,
+  LockOutlined,
+  MoonOutlined,
+  BulbOutlined,
+} from '@ant-design/icons';
 import { useSimulator, GPS_PRESETS } from '../../context/SimulatorContext';
-import type { PlatformType, ThemeType, NetworkType, BiometricType, BiometricMockResult } from '../../types/simulator';
+import type { NetworkType, BiometricType } from '../../types/simulator';
 import styles from './DeviceSimulator.module.css';
 
+const { Text } = Typography;
+
 export const MockHardwareControls: React.FC = () => {
-  const { hardware, updateHardware, frameScale, setFrameScale, triggerBiometrics, triggerHaptic, callBridge } = useSimulator();
+  const {
+    hardware,
+    updateHardware,
+    frameScale,
+    setFrameScale,
+    triggerBiometrics,
+    triggerHaptic,
+    callBridge,
+  } = useSimulator();
 
   const handlePresetGpsChange = (presetKey: string) => {
     if (presetKey === 'custom') return;
@@ -20,76 +48,57 @@ export const MockHardwareControls: React.FC = () => {
       {/* 1. PLATFORM & DEVICE ERGONOMICS */}
       <div className={styles.controlSection}>
         <div className={styles.sectionHeader}>
-          <span>📱</span>
-          <span>Device Platform & Display</span>
+          <Text strong style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <MobileOutlined /> Device Platform & Display
+          </Text>
         </div>
 
-        <div className={styles.row}>
-          <div className={styles.buttonGroup}>
-            <button
-              className={`${styles.toggleBtn} ${hardware.platform === 'ios' ? styles.active : ''}`}
-              onClick={() => {
-                updateHardware('platform', 'ios');
-                callBridge('GET_DEVICE_INFO', { platform: 'ios' }, 'Hardware');
-              }}
-              data-testid="platform-ios-toggle"
-            >
-              iPhone 16 Pro
-            </button>
-            <button
-              className={`${styles.toggleBtn} ${hardware.platform === 'android' ? styles.active : ''}`}
-              onClick={() => {
-                updateHardware('platform', 'android');
-                callBridge('GET_DEVICE_INFO', { platform: 'android' }, 'Hardware');
-              }}
-              data-testid="platform-android-toggle"
-            >
-              Pixel 9 Pro
-            </button>
-          </div>
+        <div className={styles.row} style={{ marginBottom: 8 }}>
+          <Segmented
+            block
+            value={hardware.platform}
+            onChange={(val) => {
+              const platform = val as 'ios' | 'android';
+              updateHardware('platform', platform);
+              callBridge('GET_DEVICE_INFO', { platform }, 'Hardware');
+            }}
+            options={[
+              { label: 'iPhone 16 Pro', value: 'ios' },
+              { label: 'Pixel 9 Pro', value: 'android' },
+            ]}
+          />
         </div>
 
-        <div className={styles.row}>
+        <div className={styles.row} style={{ gap: 8 }}>
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: '11px', color: '#94a3b8', marginBottom: '4px' }}>Theme</div>
-            <div className={styles.buttonGroup}>
-              <button
-                className={`${styles.toggleBtn} ${hardware.theme === 'dark' ? styles.active : ''}`}
-                onClick={() => updateHardware('theme', 'dark')}
-              >
-                🌙 Dark
-              </button>
-              <button
-                className={`${styles.toggleBtn} ${hardware.theme === 'light' ? styles.active : ''}`}
-                onClick={() => updateHardware('theme', 'light')}
-              >
-                ☀️ Light
-              </button>
-            </div>
+            <Text type="secondary" style={{ fontSize: 11, display: 'block', marginBottom: 4 }}>
+              Theme
+            </Text>
+            <Segmented
+              block
+              value={hardware.theme}
+              onChange={(val) => updateHardware('theme', val as 'dark' | 'light')}
+              options={[
+                { label: 'Dark', value: 'dark', icon: <MoonOutlined /> },
+                { label: 'Light', value: 'light', icon: <BulbOutlined /> },
+              ]}
+            />
           </div>
 
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: '11px', color: '#94a3b8', marginBottom: '4px' }}>Frame Size</div>
-            <div className={styles.buttonGroup}>
-              <button
-                className={`${styles.toggleBtn} ${frameScale === 'compact' ? styles.active : ''}`}
-                onClick={() => setFrameScale('compact')}
-              >
-                Small
-              </button>
-              <button
-                className={`${styles.toggleBtn} ${frameScale === 'normal' ? styles.active : ''}`}
-                onClick={() => setFrameScale('normal')}
-              >
-                Med
-              </button>
-              <button
-                className={`${styles.toggleBtn} ${frameScale === 'large' ? styles.active : ''}`}
-                onClick={() => setFrameScale('large')}
-              >
-                Large
-              </button>
-            </div>
+            <Text type="secondary" style={{ fontSize: 11, display: 'block', marginBottom: 4 }}>
+              Frame Size
+            </Text>
+            <Segmented
+              block
+              value={frameScale}
+              onChange={(val) => setFrameScale(val as 'compact' | 'normal' | 'large')}
+              options={[
+                { label: 'Small', value: 'compact' },
+                { label: 'Med', value: 'normal' },
+                { label: 'Large', value: 'large' },
+              ]}
+            />
           </div>
         </div>
       </div>
@@ -97,91 +106,69 @@ export const MockHardwareControls: React.FC = () => {
       {/* 2. GPS COORDINATE SIMULATOR */}
       <div className={styles.controlSection}>
         <div className={styles.sectionHeader}>
-          <span>📍</span>
-          <span>GPS Geolocation Spoofer</span>
+          <Text strong style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <EnvironmentOutlined /> GPS Geolocation Spoofer
+          </Text>
         </div>
 
-        <div className={styles.row}>
-          <select
-            className={styles.selectInput}
-            onChange={(e) => handlePresetGpsChange(e.target.value)}
+        <div className={styles.row} style={{ marginBottom: 8 }}>
+          <Select
+            style={{ width: '100%' }}
             defaultValue="sf"
-          >
-            <option value="sf">San Francisco (37.7749, -122.4194)</option>
-            <option value="tokyo">Tokyo (35.6762, 139.6503)</option>
-            <option value="london">London (51.5074, -0.1278)</option>
-            <option value="paris">Paris (48.8566, 2.3522)</option>
-            <option value="custom">-- Custom Coordinates --</option>
-          </select>
+            onChange={handlePresetGpsChange}
+            options={[
+              { value: 'sf', label: 'San Francisco (37.7749, -122.4194)' },
+              { value: 'tokyo', label: 'Tokyo (35.6762, 139.6503)' },
+              { value: 'london', label: 'London (51.5074, -0.1278)' },
+              { value: 'paris', label: 'Paris (48.8566, 2.3522)' },
+              { value: 'custom', label: '-- Custom Coordinates --' },
+            ]}
+          />
         </div>
 
-        <div className={styles.row}>
+        <div className={styles.row} style={{ gap: 8 }}>
           <div style={{ flex: 1 }}>
-            <label style={{ fontSize: '10px', color: '#94a3b8', display: 'block', marginBottom: '2px' }}>Latitude</label>
-            <input
-              type="number"
-              step="0.0001"
+            <Text type="secondary" style={{ fontSize: 10, display: 'block', marginBottom: 2 }}>
+              Latitude
+            </Text>
+            <InputNumber
+              style={{ width: '100%' }}
+              step={0.0001}
               value={hardware.gps.lat}
-              onChange={(e) => {
-                const lat = parseFloat(e.target.value) || 0;
+              onChange={(val) => {
+                const lat = val ?? 0;
                 updateHardware('gps', { ...hardware.gps, lat, name: 'Custom' });
               }}
-              style={{
-                width: '100%',
-                padding: '5px 8px',
-                borderRadius: '4px',
-                border: '1px solid #475569',
-                backgroundColor: '#0f172a',
-                color: '#ffffff',
-                fontSize: '11px',
-                boxSizing: 'border-box',
-              }}
             />
           </div>
 
           <div style={{ flex: 1 }}>
-            <label style={{ fontSize: '10px', color: '#94a3b8', display: 'block', marginBottom: '2px' }}>Longitude</label>
-            <input
-              type="number"
-              step="0.0001"
+            <Text type="secondary" style={{ fontSize: 10, display: 'block', marginBottom: 2 }}>
+              Longitude
+            </Text>
+            <InputNumber
+              style={{ width: '100%' }}
+              step={0.0001}
               value={hardware.gps.lng}
-              onChange={(e) => {
-                const lng = parseFloat(e.target.value) || 0;
+              onChange={(val) => {
+                const lng = val ?? 0;
                 updateHardware('gps', { ...hardware.gps, lng, name: 'Custom' });
-              }}
-              style={{
-                width: '100%',
-                padding: '5px 8px',
-                borderRadius: '4px',
-                border: '1px solid #475569',
-                backgroundColor: '#0f172a',
-                color: '#ffffff',
-                fontSize: '11px',
-                boxSizing: 'border-box',
               }}
             />
           </div>
 
-          <div style={{ width: '70px' }}>
-            <label style={{ fontSize: '10px', color: '#94a3b8', display: 'block', marginBottom: '2px' }}>Accuracy</label>
-            <input
-              type="number"
+          <div style={{ width: 80 }}>
+            <Text type="secondary" style={{ fontSize: 10, display: 'block', marginBottom: 2 }}>
+              Accuracy
+            </Text>
+            <InputNumber
+              style={{ width: '100%' }}
               min={1}
               max={100}
               value={hardware.gps.accuracy}
-              onChange={(e) => {
-                const accuracy = parseInt(e.target.value, 10) || 5;
+              onChange={(val) => {
+                const accuracy = val ?? 5;
                 updateHardware('gps', { ...hardware.gps, accuracy });
-              }}
-              style={{
-                width: '100%',
-                padding: '5px 8px',
-                borderRadius: '4px',
-                border: '1px solid #475569',
-                backgroundColor: '#0f172a',
-                color: '#ffffff',
-                fontSize: '11px',
-                boxSizing: 'border-box',
               }}
             />
           </div>
@@ -191,20 +178,24 @@ export const MockHardwareControls: React.FC = () => {
       {/* 3. BATTERY & CHARGING */}
       <div className={styles.controlSection}>
         <div className={styles.sectionHeader}>
-          <span>🔋</span>
-          <span>Battery & Power State</span>
+          <Text strong style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <ThunderboltOutlined /> Battery & Power State
+          </Text>
         </div>
 
-        <div className={styles.row}>
-          <div className={styles.sliderContainer}>
-            <input
-              type="range"
+        <div className={styles.row} style={{ marginBottom: 8 }}>
+          <div style={{ width: '100%' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, marginBottom: 2 }}>
+              <Text type="secondary">Battery Level</Text>
+              <Text style={{ color: '#10b981', fontWeight: 600 }}>{hardware.battery.level}%</Text>
+            </div>
+            <Slider
               min={0}
               max={100}
               step={1}
               value={hardware.battery.level}
-              onChange={(e) => {
-                const level = parseInt(e.target.value, 10);
+              tooltip={{ formatter: (val) => `${val}%` }}
+              onChange={(level) => {
                 updateHardware('battery', {
                   ...hardware.battery,
                   level,
@@ -212,77 +203,74 @@ export const MockHardwareControls: React.FC = () => {
                 });
                 callBridge('GET_DEVICE_INFO', { batteryLevel: level }, 'Hardware');
               }}
-              className={styles.rangeInput}
             />
-            <span className={styles.valueBadge}>{hardware.battery.level}%</span>
           </div>
         </div>
 
         <div className={styles.row}>
-          <button
-            className={`${styles.toggleBtn} ${hardware.battery.charging ? styles.active : ''}`}
-            onClick={() => {
-              const newCharging = !hardware.battery.charging;
-              updateHardware('battery', { ...hardware.battery, charging: newCharging });
-              callBridge('BATTERY_CHARGING_CHANGED', { charging: newCharging }, 'Hardware');
-            }}
-            style={{
-              background: hardware.battery.charging ? '#10b981' : '#334155',
-              color: '#ffffff',
-              padding: '6px',
-            }}
-          >
-            {hardware.battery.charging ? '⚡ Charging Cable Plugged In' : '🔋 Running on Battery'}
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Switch
+              checked={hardware.battery.charging}
+              checkedChildren={<ThunderboltOutlined />}
+              unCheckedChildren={<ThunderboltOutlined />}
+              onChange={(newCharging) => {
+                updateHardware('battery', { ...hardware.battery, charging: newCharging });
+                callBridge('BATTERY_CHARGING_CHANGED', { charging: newCharging }, 'Hardware');
+              }}
+            />
+            <Text style={{ fontSize: 12 }}>
+              {hardware.battery.charging ? 'Charging Cable Plugged In' : 'Running on Battery'}
+            </Text>
+          </div>
         </div>
       </div>
 
       {/* 4. NETWORK & SYNTHETIC LATENCY */}
       <div className={styles.controlSection}>
         <div className={styles.sectionHeader}>
-          <span>📶</span>
-          <span>Network & Latency Simulator</span>
+          <Text strong style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <WifiOutlined /> Network & Latency Simulator
+          </Text>
         </div>
 
-        <div className={styles.row}>
-          <div className={styles.buttonGroup}>
-            {(['wifi', '5g', '4g', '3g', 'offline'] as NetworkType[]).map((net) => (
-              <button
-                key={net}
-                className={`${styles.toggleBtn} ${hardware.network.type === net ? styles.active : ''}`}
-                onClick={() => {
-                  updateHardware('network', { ...hardware.network, type: net });
-                  callBridge('NETWORK_TYPE_CHANGED', { networkType: net }, 'Network');
-                }}
-              >
-                {net.toUpperCase()}
-              </button>
-            ))}
-          </div>
+        <div className={styles.row} style={{ marginBottom: 8 }}>
+          <Segmented
+            block
+            value={hardware.network.type}
+            onChange={(val) => {
+              const net = val as NetworkType;
+              updateHardware('network', { ...hardware.network, type: net });
+              callBridge('NETWORK_TYPE_CHANGED', { networkType: net }, 'Network');
+            }}
+            options={[
+              { label: 'WIFI', value: 'wifi' },
+              { label: '5G', value: '5g' },
+              { label: '4G', value: '4g' },
+              { label: '3G', value: '3g' },
+              { label: 'OFFLINE', value: 'offline' },
+            ]}
+          />
         </div>
 
         <div className={styles.row}>
           <div style={{ width: '100%' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#94a3b8', marginBottom: '2px' }}>
-              <span>Synthetic Thread Latency</span>
-              <span>{hardware.network.latencyMs} ms</span>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, marginBottom: 2 }}>
+              <Text type="secondary">Synthetic Thread Latency</Text>
+              <Text>{hardware.network.latencyMs} ms</Text>
             </div>
-            <div className={styles.sliderContainer}>
-              <input
-                type="range"
-                min={0}
-                max={500}
-                step={10}
-                value={hardware.network.latencyMs}
-                onChange={(e) => {
-                  updateHardware('network', {
-                    ...hardware.network,
-                    latencyMs: parseInt(e.target.value, 10),
-                  });
-                }}
-                className={styles.rangeInput}
-              />
-            </div>
+            <Slider
+              min={0}
+              max={500}
+              step={10}
+              value={hardware.network.latencyMs}
+              tooltip={{ formatter: (val) => `${val} ms` }}
+              onChange={(latencyMs) => {
+                updateHardware('network', {
+                  ...hardware.network,
+                  latencyMs,
+                });
+              }}
+            />
           </div>
         </div>
       </div>
@@ -290,89 +278,68 @@ export const MockHardwareControls: React.FC = () => {
       {/* 5. BIOMETRICS SIMULATION TOGGLE */}
       <div className={styles.controlSection}>
         <div className={styles.sectionHeader}>
-          <span>🔐</span>
-          <span>Biometric Sensor Mocking</span>
+          <Text strong style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <LockOutlined /> Biometric Sensor Mocking
+          </Text>
         </div>
 
-        <div className={styles.row}>
+        <div className={styles.row} style={{ gap: 8, marginBottom: 8 }}>
           <div style={{ flex: 1 }}>
-            <label style={{ fontSize: '10px', color: '#94a3b8', display: 'block', marginBottom: '2px' }}>Biometry Type</label>
-            <select
-              className={styles.selectInput}
+            <Text type="secondary" style={{ fontSize: 10, display: 'block', marginBottom: 2 }}>
+              Biometry Type
+            </Text>
+            <Select
+              style={{ width: '100%' }}
               value={hardware.biometrics.biometryType}
-              onChange={(e) => {
+              onChange={(val) => {
                 updateHardware('biometrics', {
                   ...hardware.biometrics,
-                  biometryType: e.target.value as BiometricType,
+                  biometryType: val as BiometricType,
                 });
               }}
-            >
-              <option value="face">Face ID (iOS / Android)</option>
-              <option value="touch">Touch ID / Fingerprint</option>
-              <option value="biometric_prompt">BiometricPrompt (Class 3)</option>
-              <option value="none">Disabled / Not Supported</option>
-            </select>
+              options={[
+                { value: 'face', label: 'Face ID (iOS / Android)' },
+                { value: 'touch', label: 'Touch ID / Fingerprint' },
+                { value: 'biometric_prompt', label: 'BiometricPrompt (Class 3)' },
+                { value: 'none', label: 'Disabled / Not Supported' },
+              ]}
+            />
           </div>
 
           <div style={{ flex: 1 }}>
-            <label style={{ fontSize: '10px', color: '#94a3b8', display: 'block', marginBottom: '2px' }}>Mock Outcome</label>
-            <div className={styles.buttonGroup}>
-              <button
-                className={`${styles.toggleBtn} ${hardware.biometrics.mockResult === 'success' ? styles.active : ''}`}
-                onClick={() =>
-                  updateHardware('biometrics', { ...hardware.biometrics, mockResult: 'success' })
-                }
-                style={hardware.biometrics.mockResult === 'success' ? { background: '#10b981' } : {}}
-              >
-                Pass
-              </button>
-              <button
-                className={`${styles.toggleBtn} ${hardware.biometrics.mockResult === 'fail' ? styles.active : ''}`}
-                onClick={() =>
-                  updateHardware('biometrics', { ...hardware.biometrics, mockResult: 'fail' })
-                }
-                style={hardware.biometrics.mockResult === 'fail' ? { background: '#ef4444' } : {}}
-              >
-                Fail
-              </button>
-              <button
-                className={`${styles.toggleBtn} ${hardware.biometrics.mockResult === 'locked' ? styles.active : ''}`}
-                onClick={() =>
-                  updateHardware('biometrics', { ...hardware.biometrics, mockResult: 'locked' })
-                }
-                style={hardware.biometrics.mockResult === 'locked' ? { background: '#f59e0b' } : {}}
-              >
-                Lock
-              </button>
-            </div>
+            <Text type="secondary" style={{ fontSize: 10, display: 'block', marginBottom: 2 }}>
+              Mock Outcome
+            </Text>
+            <Segmented
+              block
+              value={hardware.biometrics.mockResult}
+              onChange={(val) =>
+                updateHardware('biometrics', {
+                  ...hardware.biometrics,
+                  mockResult: val as 'success' | 'fail' | 'locked',
+                })
+              }
+              options={[
+                { label: 'Pass', value: 'success' },
+                { label: 'Fail', value: 'fail' },
+                { label: 'Lock', value: 'locked' },
+              ]}
+            />
           </div>
         </div>
 
-        <div className={styles.row} style={{ marginTop: '8px' }}>
-          <button
+        <div className={styles.row} style={{ marginTop: 8 }}>
+          <Button
+            type="primary"
+            block
+            icon={<ThunderboltOutlined />}
             onClick={() => {
               triggerHaptic('medium');
               triggerBiometrics('Verify transaction authorization of $199.00');
             }}
-            style={{
-              width: '100%',
-              padding: '7px 12px',
-              borderRadius: '6px',
-              border: 'none',
-              backgroundColor: '#6366f1',
-              color: '#ffffff',
-              fontSize: '11px',
-              fontWeight: 700,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '6px',
-            }}
           >
-            <span>✨</span>
-            <span>Trigger Mock Biometric Verification</span>
-          </button>
+            Trigger Mock Biometric Verification
+          </Button>
         </div>
       </div>
     </div>

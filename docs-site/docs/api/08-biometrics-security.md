@@ -7,7 +7,7 @@ description: Complete API reference for Biometrics & Permissions (8 actions).
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-# Domain 8: Biometrics & Permissions 🛡️
+# Domain 8: Biometrics & Permissions
 
 Hardware biometric authentication (FaceID, TouchID, BiometricPrompt), two-stage permission priming dialogs, and COOP/COEP sandbox auditing.
 
@@ -41,14 +41,14 @@ Probes host device hardware for biometric enrollment and supported sensor modali
 **Purpose & Context:** Allows mini-apps to conditionally show "Log in with Face ID" or "Biometric Checkout" buttons.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `CHECK_BIOMETRIC_SUPPORT`
 - **Supported Aliases:** `checkBiometricSupport`, `checkBiometricsSupport`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `android.permission.USE_BIOMETRIC`, `NSFaceIDUsageDescription`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 _No input parameters required (`{}`)._
@@ -116,14 +116,14 @@ Displays the native system biometric authentication prompt (TouchID, FaceID, And
 **Purpose & Context:** Authorizes high-security transactions, funds transfers, and confidential record access.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `BIOMETRIC_AUTH`
 - **Supported Aliases:** `biometricAuth`, `authenticateWithBiometrics`
 - **Permission Scope:** `scope.biometrics`
 - **Required Manifest Permissions:** `android.permission.USE_BIOMETRIC`, `NSFaceIDUsageDescription`
-- **Security Constraint:** ⚠️ **Active User Gesture Required** (User touch within &lt;10s)
+- **Security Constraint:** Warning: **Active User Gesture Required** (User touch within &lt;10s)
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |
@@ -217,14 +217,14 @@ Checks authorization status for a specific permission scope (e.g., "scope.camera
 **Purpose & Context:** Determines whether permission priming or direct request is required before invoking hardware features.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `CHECK_PERMISSION`
 - **Supported Aliases:** `checkPermission`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |
@@ -297,14 +297,14 @@ Triggers a two-stage permission priming dialog explaining rationale before showi
 **Purpose & Context:** Significantly improves permission opt-in rates by providing context before OS dialog.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `REQUEST_PERMISSION`
 - **Supported Aliases:** `requestPermission`, `requestPermissionWithPriming`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |
@@ -381,14 +381,14 @@ Queries the complete dictionary of user authorization settings and granted permi
 **Purpose & Context:** Renders the mini-app permission settings summary page.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `GET_SETTING`
 - **Supported Aliases:** `getSetting`, `getAppAuthorizeSetting`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 _No input parameters required (`{}`)._
@@ -452,14 +452,14 @@ Deep-links the user directly into the native OS application permissions settings
 **Purpose & Context:** Allows users to re-enable permissions previously rejected with "Don't ask again".
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `OPEN_SETTING`
 - **Supported Aliases:** `openSetting`, `openAppPermissionSettings`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 _No input parameters required (`{}`)._
@@ -524,14 +524,14 @@ Explicitly requests pre-authorization for a scope without immediately invoking t
 **Purpose & Context:** Pre-authorizes location or camera in onboarding steps.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `AUTHORIZE`
 - **Supported Aliases:** `authorize`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |
@@ -601,14 +601,14 @@ Audits COOP (Cross-Origin-Opener-Policy) and COEP (Cross-Origin-Embedder-Policy)
 **Purpose & Context:** Verifies the mini-app runtime meets OWASP MASVS requirements for cross-origin isolation and SharedArrayBuffer availability.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `AUDIT_SANDBOX_HEADERS`
 - **Supported Aliases:** `auditSandboxHeaders`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 _No input parameters required (`{}`)._

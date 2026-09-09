@@ -1,20 +1,71 @@
 import React from 'react';
+import { AndroidMockup, IPhoneMockup } from 'react-device-mockup';
 import { useSimulator } from '../../context/SimulatorContext';
 import { DeviceScreenContent } from './DeviceScreenContent';
 import styles from './DeviceSimulator.module.css';
 
-export const DeviceFrame: React.FC = () => {
-  const { hardware, isHapticRippling, frameScale, biometricsModal, navBar } = useSimulator();
-  const isIos = hardware.platform === 'ios';
-  const isDynamicIslandExpanded = biometricsModal.isOpen || navBar.progress.visible;
+// react-device-mockup's `screenWidth` is the screen area only (bezel is added on top of
+// it), so these are smaller than the old hand-rolled chassis widths (290/340/380) which
+// included the bezel border. Chosen to preserve the same relative compact/normal/large
+// proportions.
+const SCREEN_WIDTH_BY_SCALE: Record<'compact' | 'normal' | 'large', number> = {
+  compact: 270,
+  normal: 315,
+  large: 350,
+};
 
-  // Scale class mapping
-  const scaleClass =
-    frameScale === 'compact'
-      ? styles.scaleCompact
-      : frameScale === 'large'
-      ? styles.scaleLarge
-      : styles.scaleNormal;
+const FRAME_COLOR = '#232733';
+
+export const DeviceFrame: React.FC = () => {
+  const { hardware, isHapticRippling, frameScale } = useSimulator();
+  const isIos = hardware.platform === 'ios';
+  const screenWidth = SCREEN_WIDTH_BY_SCALE[frameScale];
+
+  // The real device notch/Dynamic Island/punch-hole cutout is now drawn by the mockup
+  // library itself (via `screenType` / the Android camera cutout) instead of our old
+  // hand-drawn `.dynamicIsland`/`.punchHole` divs. `hideStatusBar` folds that top strip
+  // into the screen area so our own time/network/battery row can render there instead of
+  // a blank placeholder bar — it deliberately leaves the center empty (`space-between`)
+  // since that's where the real cutout sits.
+  const screenContent = (
+    <div
+      className={`${styles.screen} ${hardware.theme === 'dark' ? styles.darkTheme : styles.lightTheme}`}
+      style={{ width: '100%', height: '100%' }}
+    >
+      <div className={styles.statusBar}>
+        <span className={styles.statusTime}>9:41</span>
+        <div className={styles.statusIcons}>
+          <span>{hardware.network.type.toUpperCase()}</span>
+          <span>
+            {hardware.battery.charging ? '[C] ' : ''}
+            {hardware.battery.level}%
+          </span>
+          <div
+            style={{
+              width: '20px',
+              height: '10px',
+              border: `1px solid ${hardware.theme === 'dark' ? 'rgba(255,255,255,0.7)' : 'rgba(15,23,42,0.6)'}`,
+              borderRadius: '3px',
+              padding: '1px',
+              display: 'flex',
+              alignItems: 'center',
+            }}
+          >
+            <div
+              style={{
+                height: '100%',
+                width: `${hardware.battery.level}%`,
+                backgroundColor: hardware.battery.level > 20 ? '#10b981' : '#ef4444',
+                borderRadius: '1px',
+              }}
+            />
+          </div>
+        </div>
+      </div>
+
+      <DeviceScreenContent />
+    </div>
+  );
 
   return (
     <div
@@ -25,88 +76,15 @@ export const DeviceFrame: React.FC = () => {
       {/* Visual Ripple Rings on Haptic Feedback */}
       {isHapticRippling && <div className={styles.rippleRing} />}
 
-      {/* Physical Hardware Frame Chassis */}
-      <div className={`${styles.chassis} ${scaleClass}`}>
-        {/* Chassis Hardware Buttons (Left & Right) */}
-        <div className={styles.hwButtonLeftAction} title="Action Button" />
-        <div className={styles.hwButtonLeftVolUp} title="Volume Up" />
-        <div className={styles.hwButtonLeftVolDown} title="Volume Down" />
-        <div className={styles.hwButtonRightPower} title="Power / Lock Button" />
-
-        {/* 1. TOP STATUS BAR */}
-        <div className={styles.statusBar}>
-          {/* Time */}
-          <span className={styles.statusTime}>9:41</span>
-
-          {/* iPhone 16 Pro Dynamic Island */}
-          {isIos ? (
-            <div
-              className={`${styles.dynamicIsland} ${
-                isDynamicIslandExpanded ? styles.dynamicIslandExpanded : ''
-              }`}
-              data-testid="dynamic-island"
-            >
-              <div className={styles.sensorDot} />
-              {isDynamicIslandExpanded ? (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '10px', color: '#38bdf8' }}>
-                  <span>{biometricsModal.isOpen ? '🔐 FaceID' : '⚡ Goat Sync'}</span>
-                </div>
-              ) : null}
-              <div className={styles.cameraLens} />
-            </div>
-          ) : (
-            /* Pixel 9 Pro Punch Hole Camera */
-            <div className={styles.punchHole} data-testid="punch-hole" />
-          )}
-
-          {/* Status Icons: Cellular, WiFi, Battery */}
-          <div className={styles.statusIcons}>
-            <span>{hardware.network.type === 'wifi' ? '📶' : hardware.network.type === '5g' ? '5G' : '4G'}</span>
-            <span>{hardware.battery.charging ? '⚡' : ''}{hardware.battery.level}%</span>
-            <div
-              style={{
-                width: '20px',
-                height: '10px',
-                border: '1px solid rgba(255,255,255,0.7)',
-                borderRadius: '3px',
-                padding: '1px',
-                display: 'flex',
-                alignItems: 'center',
-              }}
-            >
-              <div
-                style={{
-                  height: '100%',
-                  width: `${hardware.battery.level}%`,
-                  backgroundColor:
-                    hardware.battery.level > 20
-                      ? '#10b981'
-                      : '#ef4444',
-                  borderRadius: '1px',
-                }}
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* 2. SCREEN VIEWPORT (MINI-APP CONTENT) */}
-        <div className={`${styles.screen} ${hardware.theme === 'dark' ? styles.darkTheme : styles.lightTheme}`}>
-          <DeviceScreenContent />
-        </div>
-
-        {/* 3. BOTTOM HOME BAR / NAVIGATION */}
-        <div className={styles.bottomNav}>
-          {isIos ? (
-            <div className={styles.homeIndicatorIos} />
-          ) : (
-            <div className={styles.androidNavButtons}>
-              <span className={styles.androidNavIcon}>◀</span>
-              <span className={styles.androidNavIcon}>●</span>
-              <span className={styles.androidNavIcon}>■</span>
-            </div>
-          )}
-        </div>
-      </div>
+      {isIos ? (
+        <IPhoneMockup screenWidth={screenWidth} screenType="island" hideStatusBar frameColor={FRAME_COLOR}>
+          {screenContent}
+        </IPhoneMockup>
+      ) : (
+        <AndroidMockup screenWidth={screenWidth} navBar="swipe" hideStatusBar frameColor={FRAME_COLOR}>
+          {screenContent}
+        </AndroidMockup>
+      )}
     </div>
   );
 };

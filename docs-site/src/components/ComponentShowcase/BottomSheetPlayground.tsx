@@ -78,7 +78,6 @@ await GoatWebView.channel.invokeMethod('openBottomSheet', {
       <div className={styles.cardHeader}>
         <div>
           <div className={styles.cardTitle}>
-            <span>📦</span>
             <span>GoatBottomSheet Component Playground</span>
           </div>
           <div className={styles.cardDesc}>

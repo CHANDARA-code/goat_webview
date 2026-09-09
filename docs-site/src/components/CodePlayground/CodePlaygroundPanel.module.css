@@ -1,0 +1,166 @@
+.panel {
+  background: var(--ifm-background-surface-color, #1e293b);
+  border-radius: 14px;
+  /* Shadow-as-border: a 1px ring + soft ambient lift instead of a flat solid border —
+     reads as depth rather than a hard edge, and adapts to any surface underneath it. */
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.07),
+    0 8px 24px rgba(0, 0, 0, 0.18);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.header {
+  /* Structural divider, not decorative — kept as a border rather than a shadow. */
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--ifm-color-emphasis-200, #334155);
+}
+
+.title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ifm-heading-color, #ffffff);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.desc {
+  font-size: 13px;
+  color: var(--ifm-color-emphasis-600, #94a3b8);
+  margin-top: 4px;
+  line-height: 1.45;
+  text-wrap: pretty;
+}
+
+.desc code {
+  background: rgba(99, 102, 241, 0.15);
+  color: #a5b4fc;
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+.templateRow {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.templateChip {
+  padding: 7px 12px;
+  min-height: 34px;
+  border-radius: 8px;
+  border: none;
+  background: rgba(148, 163, 184, 0.08);
+  color: var(--ifm-color-emphasis-700, #94a3b8);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition-property: background-color, color, transform;
+  transition-duration: 150ms;
+  transition-timing-function: ease-out;
+}
+
+.templateChip:hover {
+  background: rgba(148, 163, 184, 0.16);
+  /* `--ifm-color-emphasis-900` is Docusaurus's "strongest text" token — it resolves to
+     near-black in light mode and near-white in dark mode, unlike a hardcoded #ffffff which
+     went invisible against this chip's pale hover background in light mode. */
+  color: var(--ifm-color-emphasis-900, #ffffff);
+}
+
+.templateChip:active {
+  transform: scale(0.96);
+}
+
+.templateChip:focus-visible {
+  outline: 2px solid var(--ifm-color-primary, #6366f1);
+  outline-offset: 2px;
+}
+
+.templateChip.activeTemplate {
+  background: var(--ifm-color-primary, #6366f1);
+  color: #ffffff;
+}
+
+.editorWrapper {
+  border-radius: 10px;
+  overflow: hidden;
+  /* Structural boundary of an editable region (functionally an input) — a legitimate
+     use of a real border, not a stand-in for elevation. */
+  border: 1px solid var(--ifm-color-emphasis-300, #334155);
+  font-size: 13px;
+}
+
+.actionsRow {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.runButton {
+  padding: 10px 20px;
+  min-height: 40px;
+  border-radius: 8px;
+  border: none;
+  background: #10b981;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition-property: background-color, transform;
+  transition-duration: 150ms;
+  transition-timing-function: ease-out;
+}
+
+.runButton:hover {
+  background: #0ea472;
+}
+
+.runButton:active {
+  transform: scale(0.96);
+}
+
+.runButton:focus-visible {
+  outline: 2px solid #10b981;
+  outline-offset: 2px;
+}
+
+.copyLinkButton {
+  padding: 10px 16px;
+  min-height: 40px;
+  border-radius: 8px;
+  border: 1px solid var(--ifm-color-emphasis-400, #475569);
+  background: transparent;
+  color: var(--ifm-color-emphasis-800, #cbd5e1);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition-property: background-color, transform;
+  transition-duration: 150ms;
+  transition-timing-function: ease-out;
+}
+
+.copyLinkButton:hover {
+  background: var(--ifm-color-emphasis-200, #334155);
+}
+
+.copyLinkButton:active {
+  transform: scale(0.96);
+}
+
+.copyLinkButton:focus-visible {
+  outline: 2px solid var(--ifm-color-emphasis-400, #475569);
+  outline-offset: 2px;
+}
+
+.limitsNote {
+  font-size: 11px;
+  color: var(--ifm-color-emphasis-500, #64748b);
+  line-height: 1.4;
+}

@@ -9,7 +9,7 @@ The **Goat Flutter Plugin** (`goat_webview`) embeds the Goat WebView Engine into
 
 ---
 
-## 📦 Installation
+## Installation
 
 Add `goat_webview` to your Flutter app's `pubspec.yaml`:
 
@@ -24,7 +24,7 @@ Run `flutter pub get` to fetch the package.
 
 ---
 
-## 🚀 Engine Pre-Warming & Startup
+## Engine Pre-Warming & Startup
 
 To achieve instant **sub-15ms cold boot times**, pre-warm the Chromium/WebKit instance in your app's `main()` entrypoint before rendering the UI:
 
@@ -56,7 +56,7 @@ class MyApp extends StatelessWidget {
 
 ---
 
-## 🧩 Embedding `GoatWebView` in Flutter
+## Embedding `GoatWebView` in Flutter
 
 ```dart
 import 'package:flutter/material.dart';
@@ -124,7 +124,7 @@ class _MiniAppScreenState extends State<MiniAppScreen> {
 
 ---
 
-## ⚙️ Core Technical Implementation
+## Core Technical Implementation
 
 ### 1. Android Hybrid Composition (`PlatformViewLink`)
 
@@ -139,6 +139,6 @@ On iOS, `GoatWebView` embeds `UiKitView`:
 - Direct UIKit view hierarchy insertion ensuring 120 FPS ProMotion scrolling.
 - Forwards gesture recognizers (`gestureRecognizers`) seamlessly between Flutter touch listeners and WebKit DOM elements.
 
-### 3. MethodChannel Type-Safe Bridge Protocol
+### 3. MethodChannel & Pigeon Type-Safe Bridge Protocol
 
-All MethodChannel calls and native event streams are validated by typed models (`GoatBridgeMessage`, `GoatBridgeResponse`, `GoatCapabilityPlugin`) with automatic Map (de)serialization.
+All MethodChannel and Pigeon calls and native event streams are validated by typed models (`GoatBridgeMessage`, `GoatBridgeResponse`, `GoatCapabilityPlugin`) with automatic Map (de)serialization.

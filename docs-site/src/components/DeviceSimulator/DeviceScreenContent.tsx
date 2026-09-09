@@ -1,5 +1,20 @@
 import React, { useState } from 'react';
+import {
+  InboxOutlined,
+  LockOutlined,
+  CameraOutlined,
+  EnvironmentOutlined,
+  BellOutlined,
+  SafetyCertificateOutlined,
+  WifiOutlined,
+  ThunderboltOutlined,
+  UserOutlined,
+  CheckCircleOutlined,
+  CloseCircleOutlined,
+  ExclamationCircleOutlined,
+} from '@ant-design/icons';
 import { useSimulator } from '../../context/SimulatorContext';
+import { PreviewFrame } from '../CodePlayground';
 import styles from './DeviceSimulator.module.css';
 
 export const DeviceScreenContent: React.FC = () => {
@@ -24,7 +39,11 @@ export const DeviceScreenContent: React.FC = () => {
     requestPermissionFlow,
     openExternalLinkFlow,
     callBridge,
+    playgroundCode,
+    playgroundRunKey,
   } = useSimulator();
+
+  const isPlayground = activeWidgetTab === 'playground';
 
   const isIos = hardware.platform === 'ios';
   const isDark = hardware.theme === 'dark';
@@ -158,23 +177,28 @@ export const DeviceScreenContent: React.FC = () => {
       <div
         style={{
           flex: 1,
-          overflowY: 'auto',
-          padding: '12px',
+          minHeight: 0,
+          overflowY: isPlayground ? 'hidden' : 'auto',
+          padding: isPlayground ? 0 : '12px',
           display: 'flex',
           flexDirection: 'column',
           gap: '12px',
         }}
       >
-        {/* Offline Banner if Simulated Offline */}
+        {isPlayground ? (
+          <PreviewFrame key={playgroundRunKey} code={playgroundCode} />
+        ) : (
+          <>
+        {/* Offline Banner */}
         {hardware.network.type === 'offline' && (
           <div
             style={{
-              backgroundColor: '#ef4444',
+              padding: '6px 12px',
+              background: '#ef4444',
               color: '#ffffff',
-              padding: '6px 10px',
-              borderRadius: '6px',
               fontSize: '11px',
-              fontWeight: 600,
+              fontWeight: 700,
+              textAlign: 'center',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -182,7 +206,7 @@ export const DeviceScreenContent: React.FC = () => {
               animation: 'pulse 1.5s infinite',
             }}
           >
-            <span>⚠️ Device is Offline</span>
+            <span><WifiOutlined /> Device is Offline</span>
           </div>
         )}
 
@@ -214,7 +238,7 @@ export const DeviceScreenContent: React.FC = () => {
                 gap: '4px',
               }}
             >
-              <span style={{ fontSize: '16px' }}>📦</span>
+              <span style={{ fontSize: '16px' }}><InboxOutlined /></span>
               <span>Bottom Sheet</span>
               <span style={{ fontSize: '9px', color: '#94a3b8', fontWeight: 400 }}>Interactive modal sheet</span>
             </button>
@@ -239,7 +263,7 @@ export const DeviceScreenContent: React.FC = () => {
                 gap: '4px',
               }}
             >
-              <span style={{ fontSize: '16px' }}>🔐</span>
+              <span style={{ fontSize: '16px' }}><LockOutlined /></span>
               <span>Biometrics</span>
               <span style={{ fontSize: '9px', color: '#94a3b8', fontWeight: 400 }}>FaceID / BiometricPrompt</span>
             </button>
@@ -264,7 +288,7 @@ export const DeviceScreenContent: React.FC = () => {
                 gap: '4px',
               }}
             >
-              <span style={{ fontSize: '16px' }}>📷</span>
+              <span style={{ fontSize: '16px' }}><CameraOutlined /></span>
               <span>Permissions</span>
               <span style={{ fontSize: '9px', color: '#94a3b8', fontWeight: 400 }}>2-Stage rationale priming</span>
             </button>
@@ -289,7 +313,7 @@ export const DeviceScreenContent: React.FC = () => {
                 gap: '4px',
               }}
             >
-              <span style={{ fontSize: '16px' }}>🛡️</span>
+              <span style={{ fontSize: '16px' }}><SafetyCertificateOutlined /></span>
               <span>External Link</span>
               <span style={{ fontSize: '9px', color: '#94a3b8', fontWeight: 400 }}>Anti-phishing verification</span>
             </button>
@@ -307,14 +331,14 @@ export const DeviceScreenContent: React.FC = () => {
           }}
         >
           <div style={{ fontWeight: 700, marginBottom: '6px', color: '#38bdf8', display: 'flex', justifyContent: 'space-between' }}>
-            <span>📡 Telemetry Sensor Data</span>
+            <span>Telemetry Sensor Data</span>
             <span style={{ fontSize: '10px', color: '#94a3b8' }}>{isIos ? 'iOS 18.2' : 'Android 15'}</span>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', fontSize: '10px' }}>
-            <div>📍 GPS: <strong style={{ color: '#10b981' }}>{hardware.gps.name?.split(',')[0] || 'Custom'}</strong></div>
-            <div>⚡ Net: <strong style={{ color: '#6366f1' }}>{hardware.network.type.toUpperCase()} ({hardware.network.latencyMs}ms)</strong></div>
-            <div>🔋 Battery: <strong>{hardware.battery.level}% {hardware.battery.charging ? '⚡' : ''}</strong></div>
-            <div>🔐 Bio: <strong style={{ color: hardware.biometrics.mockResult === 'success' ? '#10b981' : '#ef4444' }}>{hardware.biometrics.mockResult.toUpperCase()}</strong></div>
+            <div>GPS: <strong style={{ color: '#10b981' }}>{hardware.gps.name?.split(',')[0] || 'Custom'}</strong></div>
+            <div>Net: <strong style={{ color: '#6366f1' }}>{hardware.network.type.toUpperCase()} ({hardware.network.latencyMs}ms)</strong></div>
+            <div>Battery: <strong>{hardware.battery.level}% {hardware.battery.charging ? '[C]' : ''}</strong></div>
+            <div>Bio: <strong style={{ color: hardware.biometrics.mockResult === 'success' ? '#10b981' : '#ef4444' }}>{hardware.biometrics.mockResult.toUpperCase()}</strong></div>
           </div>
         </div>
 
@@ -327,7 +351,7 @@ export const DeviceScreenContent: React.FC = () => {
             border: isDark ? '1px solid #334155' : '1px solid #e2e8f0',
           }}
         >
-          <div style={{ fontSize: '11px', fontWeight: 700, marginBottom: '6px' }}>📳 Haptic Feedback Triggers</div>
+          <div style={{ fontSize: '11px', fontWeight: 700, marginBottom: '6px' }}>Haptic Feedback Triggers</div>
           <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
             {(['light', 'medium', 'heavy', 'success', 'warning', 'error'] as const).map((type) => (
               <button
@@ -350,6 +374,8 @@ export const DeviceScreenContent: React.FC = () => {
             ))}
           </div>
         </div>
+          </>
+        )}
       </div>
 
       {/* 3. INTERACTIVE NATIVE BOTTOM SHEET */}
@@ -416,7 +442,7 @@ export const DeviceScreenContent: React.FC = () => {
                   cursor: 'pointer',
                 }}
               >
-                ✕
+                Close
               </button>
             </div>
 
@@ -540,7 +566,7 @@ export const DeviceScreenContent: React.FC = () => {
             }}
           >
             <div style={{ fontSize: '32px', marginBottom: '8px' }}>
-              {permissionDialog.activePermission === 'camera' ? '📷' : permissionDialog.activePermission === 'location' ? '📍' : '🔔'}
+              {permissionDialog.activePermission === 'camera' ? <CameraOutlined /> : permissionDialog.activePermission === 'location' ? <EnvironmentOutlined /> : <BellOutlined />}
             </div>
             <div style={{ fontSize: '13px', fontWeight: 700, marginBottom: '6px' }}>
               Stage 1: Rationale Priming
@@ -691,7 +717,7 @@ export const DeviceScreenContent: React.FC = () => {
               border: '1px solid #ef4444',
             }}
           >
-            <div style={{ fontSize: '28px', marginBottom: '6px' }}>🛡️</div>
+            <div style={{ fontSize: '28px', marginBottom: '6px' }}><SafetyCertificateOutlined /></div>
             <div style={{ fontSize: '13px', fontWeight: 700, color: '#ef4444', marginBottom: '4px' }}>
               External Domain Warning
             </div>
@@ -821,14 +847,14 @@ export const DeviceScreenContent: React.FC = () => {
               }}
             >
               {biometricsModal.state === 'matched'
-                ? '✓'
+                ? <CheckCircleOutlined />
                 : biometricsModal.state === 'failed'
-                ? '✕'
+                ? <CloseCircleOutlined />
                 : biometricsModal.state === 'locked'
-                ? '🔒'
+                ? <LockOutlined />
                 : isIos
-                ? '👤'
-                : '👆'}
+                ? <UserOutlined />
+                : <LockOutlined />}
             </div>
 
             <div style={{ fontSize: '13px', fontWeight: 700, marginBottom: '4px' }}>

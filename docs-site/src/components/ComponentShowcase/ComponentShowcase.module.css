@@ -19,7 +19,8 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 14px;
+  padding: 9px 14px;
+  min-height: 36px;
   border-radius: 8px;
   border: 1px solid var(--ifm-color-emphasis-300, #475569);
   background: var(--ifm-color-emphasis-100, #1e293b);
@@ -28,12 +29,23 @@
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
-  transition: all 0.2s ease;
+  transition-property: background-color, color, border-color, transform;
+  transition-duration: 150ms;
+  transition-timing-function: ease-out;
 }
 
 .tabItem:hover {
   background: var(--ifm-color-emphasis-200, #334155);
   color: #ffffff;
+}
+
+.tabItem:active {
+  transform: scale(0.96);
+}
+
+.tabItem:focus-visible {
+  outline: 2px solid var(--ifm-color-primary, #6366f1);
+  outline-offset: 2px;
 }
 
 .tabItem.activeTab {
@@ -102,7 +114,10 @@
   border-radius: 6px;
   border: 1px solid var(--ifm-color-emphasis-300, #475569);
   background: var(--ifm-color-emphasis-100, #0f172a);
-  color: #ffffff;
+  /* `--ifm-color-emphasis-100` flips to a near-white background in light mode; a hardcoded
+     #ffffff text color went invisible on it. `--ifm-color-emphasis-900` tracks the active
+     theme instead (near-black in light mode, near-white in dark mode). */
+  color: var(--ifm-color-emphasis-900, #ffffff);
   font-size: 13px;
   outline: none;
 }

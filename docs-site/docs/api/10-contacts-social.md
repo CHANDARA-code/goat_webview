@@ -7,7 +7,7 @@ description: Complete API reference for Contacts & Social Sharing (5 actions).
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-# Domain 10: Contacts & Social Sharing 👥
+# Domain 10: Contacts & Social Sharing
 
 Address book picker with privacy guardrails, contacts counter, system share sheet, and Instagram/Snapchat Story sharing.
 
@@ -38,14 +38,14 @@ Launches native contact picker allowing user to select a single contact without 
 **Purpose & Context:** Enables contact selection for money transfers, airtime top-ups, and gift sending while preserving user privacy.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `CHOOSE_CONTACT`
 - **Supported Aliases:** `chooseContact`, `pickContacts`
 - **Permission Scope:** `scope.address`
 - **Required Manifest Permissions:** `android.permission.READ_CONTACTS (optional)`, `NSContactsUsageDescription`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 _No input parameters required (`{}`)._
@@ -113,14 +113,14 @@ Alias for CHOOSE_CONTACT.
 **Purpose & Context:** Standard alias for address book contact selection.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `PICK_CONTACTS`
 - **Supported Aliases:** `pickContacts`
 - **Permission Scope:** `scope.address`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 _No input parameters required (`{}`)._
@@ -185,14 +185,14 @@ Returns the total number of contacts available in the device address book.
 **Purpose & Context:** Checks if address book is populated before suggesting contact import.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `GET_CONTACTS_COUNT`
 - **Supported Aliases:** `getContactsCount`
 - **Permission Scope:** `scope.address`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 _No input parameters required (`{}`)._
@@ -257,14 +257,14 @@ Displays the native system share sheet (UIActivityViewController on iOS, Intent.
 **Purpose & Context:** Enables sharing referral links, product cards, or photos to WhatsApp, Telegram, iMessage, and Twitter.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `SHARE_SHEET`
 - **Supported Aliases:** `shareSheet`, `share`, `shareAppMessage`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |
@@ -345,14 +345,14 @@ Directly shares media sticker and background assets into Instagram Stories or Sn
 **Purpose & Context:** Enables high-conversion viral social story sharing with interactive attribution link.
 
 #### Platform Support Matrix
-`Android: ✅` `iOS: ✅` `React Native: ✅` `Flutter: ✅` `Web Mock: ✅`
+`Android: [Supported]` `iOS: [Supported]` `React Native: [Supported]` `Flutter: [Supported]` `Web Mock: [Supported]`
 
 #### Aliases & Method Signatures
 - **Canonical Action String:** `SHARE_TO_STORY`
 - **Supported Aliases:** `shareToStory`, `shareToTimeline`
 - **Permission Scope:** `none`
 - **Required Manifest Permissions:** `None (Zero-Permission)`
-- **Security Constraint:** ✅ **No Gesture Required**
+- **Security Constraint:** [Supported] **No Gesture Required**
 
 #### Input Parameters
 | Parameter | Type | Required | Default | Description |

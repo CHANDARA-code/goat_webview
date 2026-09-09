@@ -1,4 +1,6 @@
 import React from 'react';
+import { Tag, Button } from 'antd';
+import { LockOutlined, ThunderboltOutlined, ArrowRightOutlined } from '@ant-design/icons';
 import { ApiAction } from '../../data/api-matrix';
 import styles from './styles.module.css';
 
@@ -11,11 +13,15 @@ export const ActionCard: React.FC<ActionCardProps> = ({ action, onSelect }) => {
   return (
     <div className={styles.actionCard} onClick={() => onSelect(action)}>
       <div className={styles.cardHeader}>
-        <span className={styles.domainTag}>{action.domain}</span>
+        <Tag color="processing">{action.domain}</Tag>
         {action.permissions.scope !== 'none' ? (
-          <span className={styles.permissionTag}>🔒 {action.permissions.scope}</span>
+          <Tag color="warning" icon={<LockOutlined />}>
+            {action.permissions.scope}
+          </Tag>
         ) : (
-          <span className={styles.zeroPermTag}>⚡ Zero-Perm</span>
+          <Tag color="success" icon={<ThunderboltOutlined />}>
+            Zero-Perm
+          </Tag>
         )}
       </div>
 
@@ -26,24 +32,26 @@ export const ActionCard: React.FC<ActionCardProps> = ({ action, onSelect }) => {
       <p className={styles.cardDesc}>{action.description}</p>
 
       <div className={styles.cardFooter}>
-        <div className={styles.platformIcons}>
-          <span title="Android" className={action.platforms.android ? styles.platActive : styles.platDim}>🤖</span>
-          <span title="iOS" className={action.platforms.ios ? styles.platActive : styles.platDim}>🍎</span>
-          <span title="React Native" className={action.platforms.reactNative ? styles.platActive : styles.platDim}>⚛️</span>
-          <span title="Flutter" className={action.platforms.flutter ? styles.platActive : styles.platDim}>🐦</span>
-          <span title="Web Simulator" className={action.platforms.web ? styles.platActive : styles.platDim}>🌐</span>
+        <div className={styles.platformIcons} style={{ display: 'flex', gap: 4 }}>
+          <Tag color={action.platforms.android ? 'blue' : 'default'}>Android</Tag>
+          <Tag color={action.platforms.ios ? 'geekblue' : 'default'}>iOS</Tag>
+          <Tag color={action.platforms.reactNative ? 'cyan' : 'default'}>RN</Tag>
+          <Tag color={action.platforms.flutter ? 'purple' : 'default'}>Flutter</Tag>
+          <Tag color={action.platforms.web ? 'green' : 'default'}>Web</Tag>
         </div>
 
         <div className={styles.actionButtons}>
-          <button
-            className={styles.cardTryBtn}
+          <Button
+            type="primary"
+            size="small"
+            icon={<ArrowRightOutlined />}
             onClick={(e) => {
               e.stopPropagation();
               onSelect(action);
             }}
           >
-            Details & Simulator →
-          </button>
+            Details
+          </Button>
         </div>
       </div>
     </div>

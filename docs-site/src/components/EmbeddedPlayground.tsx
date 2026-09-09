@@ -56,7 +56,7 @@ const EmbeddedPlaygroundInner: React.FC<EmbeddedPlaygroundProps> = ({
           <div>
             {title && (
               <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--ifm-color-primary, #38bdf8)' }}>
-                🎮 {title}
+                {title}
               </div>
             )}
             {description && (
