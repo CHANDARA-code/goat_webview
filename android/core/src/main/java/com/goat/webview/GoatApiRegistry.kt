@@ -77,7 +77,8 @@ class GoatApiRegistry {
                         action.contains("_BLE_") || action.contains("_NFC_") -> "HARDWARE"
                 action.startsWith("START_ACCELEROMETER") || action.startsWith("STOP_ACCELEROMETER") ||
                         action.startsWith("START_GYROSCOPE") || action.startsWith("STOP_GYROSCOPE") ||
-                        action.startsWith("START_COMPASS") || action.startsWith("START_DEVICE_MOTION") ||
+                        action.startsWith("START_COMPASS") || action.startsWith("STOP_COMPASS") ||
+                        action.startsWith("START_DEVICE_MOTION") ||
                         action.startsWith("STOP_DEVICE_MOTION") || action.startsWith("GET_LATEST_") -> "HARDWARE"
                 action.startsWith("MAKE_PHONE_CALL") || action.startsWith("SEND_SMS") -> "TELEPHONY"
                 action.startsWith("CHOOSE_CONTACT") || action.startsWith("PICK_CONTACTS") ||

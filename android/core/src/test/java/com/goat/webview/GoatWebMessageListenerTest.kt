@@ -44,7 +44,7 @@ class GoatWebMessageListenerTest {
             put("key", "theme_mode")
         }
 
-        val responseJson = GoatWebMessageListener.buildResponse(requestId, Result.success(dataResult))
+        val responseJson = GoatWebMessageListener.buildResponse(requestId, dataResult, null)
         val serialized = responseJson.toString()
         val parsed = Json.parseToJsonElement(serialized).jsonObject
 
@@ -62,10 +62,7 @@ class GoatWebMessageListenerTest {
         val requestId = "req_1718900000_error99"
         val errorMessage = "Unsupported native action: UNKNOWN_ACTION"
 
-        val responseJson = GoatWebMessageListener.buildResponse(
-            requestId,
-            Result.failure(IllegalArgumentException(errorMessage))
-        )
+        val responseJson = GoatWebMessageListener.buildResponse(requestId, null, errorMessage)
         val serialized = responseJson.toString()
         val parsed = Json.parseToJsonElement(serialized).jsonObject
 

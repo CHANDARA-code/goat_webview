@@ -57,4 +57,16 @@ class GoatBackNavigationCoordinatorTest {
         val res4 = coordinator.handleBackPress()
         assertEquals("ACTIVITY_FINISH", res4.action)
     }
+
+    @Test
+    fun `test zero back-press gesture stalls on rapid back presses`() = runTest {
+        coordinator.pushState("/1")
+        coordinator.pushState("/2")
+        val res1 = coordinator.handleBackPress()
+        val res2 = coordinator.handleBackPress()
+        val res3 = coordinator.handleBackPress()
+        assertEquals("WEB_HISTORY_POP", res1.action)
+        assertEquals("WEB_HISTORY_POP", res2.action)
+        assertEquals("ACTIVITY_FINISH", res3.action)
+    }
 }

@@ -2,9 +2,11 @@ package com.goat.webview.startup
 
 import android.content.Context
 import android.util.Log
+import android.app.Application
 import androidx.startup.Initializer
 import com.goat.webview.GoatAssetManager
 import com.goat.webview.GoatConfig
+import com.goat.webview.GoatFastPool
 import com.goat.webview.GoatWarmupManager
 import com.goat.webview.network.GoatNetworkPrewarmer
 import kotlinx.coroutines.CoroutineScope
@@ -57,6 +59,18 @@ class GoatAppInitializer : Initializer<Unit> {
                 Log.w(TAG, "Early engine warmup encountered non-fatal error: ${e.message}", e)
             }
 
+            // 1b. Register the memory-trim callbacks so the standby WebView pool is released the
+            // moment the app is backgrounded. Without this, the pooled instances (each with an
+            // out-of-process renderer) keep the process fat and the low-memory killer reaps it,
+            // forcing a full cold start on the user's next return instead of a hot resume.
+            try {
+                (context.applicationContext as? Application)?.let {
+                    GoatFastPool.registerMemoryCallbacks(it)
+                }
+            } catch (e: Exception) {
+                Log.w(TAG, "Could not register memory-trim callbacks: ${e.message}", e)
+            }
+
             // 2. Prewarm DNS + socket connections for hosts the host app declares
             try {
                 GoatNetworkPrewarmer.prewarm(GoatConfig.preconnectHosts)
@@ -70,6 +84,10 @@ class GoatAppInitializer : Initializer<Unit> {
                     val assetManager = GoatAssetManager(context.applicationContext)
                     assetManager.ensureAssetsReady()
                     Log.i(TAG, "Default mini-app assets verified and ready in background.")
+                } catch (e: java.io.FileNotFoundException) {
+                    // No packaged default bundle (URL-hosted mini-app, or a custom bundle name) —
+                    // nothing to pre-extract. Not an error.
+                    Log.d(TAG, "No default mini-app bundle to pre-extract (${e.message}).")
                 } catch (e: Exception) {
                     Log.e(TAG, "Background asset preparation error: ${e.message}", e)
                 }

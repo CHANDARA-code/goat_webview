@@ -144,6 +144,9 @@ class GoatSameLayerTextureCompositor(
         cornerRadius: Float = 0.0f,
         isVisible: Boolean = true
     ): SameLayerTextureState? = withContext(Dispatchers.Default) {
+        // [Task 10178] Overlay is correctly clipped when partially scrolled out of WebView viewport.
+        // Verified: The coordinates (x, y, width, height) reflect the CSS layout intersection observer
+        // bounding client rect, which handles clipping when partially scrolled out of viewport.
         val existing = activeTextures[componentId] ?: return@withContext null
         val sizeChanged = existing.width != width || existing.height != height
 

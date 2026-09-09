@@ -55,8 +55,8 @@ class GoatBridgeActionHandler(
     private val onNavigateBack: (() -> Unit)? = null,
     private val onThemeChange: ((isDark: Boolean) -> Unit)? = null,
     private val onCloseWindow: (() -> Unit)? = null,
-    private val storageManager: GoatStorageManager = GoatStorageManager(context),
-    private val secureStorageManager: GoatSecureStorageManager = GoatSecureStorageManager(context),
+    storageManager: GoatStorageManager? = null,
+    secureStorageManager: GoatSecureStorageManager? = null,
     private val onShowToast: ((title: String, icon: String, duration: Int, mask: Boolean) -> Unit)? = null,
     private val onHideToast: (() -> Unit)? = null,
     private val onShowModal: (suspend (title: String, content: String, showCancel: Boolean, cancelText: String, confirmText: String) -> Pair<Boolean, Boolean>)? = null,
@@ -70,38 +70,33 @@ class GoatBridgeActionHandler(
     private val onSendSms: ((phoneNumber: String, body: String) -> Unit)? = null,
     private val onShareSheet: (suspend (title: String, text: String, url: String, mediaPath: String) -> Unit)? = null,
     private val onShareToStory: (suspend (mediaPath: String) -> Unit)? = null,
-    private val apmCollector: GoatApmCollector = GoatApmCollector(),
-    private val pushManager: GoatPushNotificationManager = GoatPushNotificationManager(context),
-    private val sensorManager: GoatSensorManager = GoatSensorManager(context),
-    private val contactsGeofenceManager: GoatContactsGeofenceManager = GoatContactsGeofenceManager(context),
-    private val web3WalletManager: GoatWeb3WalletManager = GoatWeb3WalletManager(context),
+    apmCollector: GoatApmCollector? = null,
+    pushManager: GoatPushNotificationManager? = null,
+    contactsGeofenceManager: GoatContactsGeofenceManager? = null,
     // Provide a real backend-issued HMAC secret key via environment variable or fallback to deterministic device-bound key.
-    private val iapPurchaseManager: GoatIapPurchaseManager = GoatIapPurchaseManager(
-        context = context,
-        hmacSecretKey = System.getenv("GOAT_IAP_HMAC_SECRET")
-    ),
-    private val binaryChannelManager: GoatBinaryChannelManager = GoatBinaryChannelManager(),
-    private val sslPinningManager: GoatSslPinningManager = GoatSslPinningManager(),
-    private val permissionManager: GoatPermissionManager = GoatPermissionManager(context),
-    private val manifestDomainAllowlist: Set<String>? = null,
-    private val keyboardManager: GoatKeyboardManager = GoatKeyboardManager(context),
-    private val predictiveBackCoordinator: GoatPredictiveBackCoordinator = GoatPredictiveBackCoordinator(),
-    private val wasmWorkerManager: GoatWasmWorkerManager = GoatWasmWorkerManager(),
-    private val bytecodePrecompiler: GoatBytecodePrecompiler = GoatBytecodePrecompiler(context),
-    private val fileChooserManager: GoatFileChooserManager = GoatFileChooserManager(),
-    private val backNavigationCoordinator: GoatBackNavigationCoordinator = GoatBackNavigationCoordinator(),
-    private val visualRenderer: GoatVisualRenderer = GoatVisualRenderer(),
-    private val gestureScrollCoordinator: GoatGestureScrollCoordinator = GoatGestureScrollCoordinator(),
+    iapPurchaseManager: GoatIapPurchaseManager? = null,
+    binaryChannelManager: GoatBinaryChannelManager? = null,
+    sslPinningManager: GoatSslPinningManager? = null,
+    permissionManager: GoatPermissionManager? = null,
+    manifestDomainAllowlist: Set<String>? = null,
+    keyboardManager: GoatKeyboardManager? = null,
+    predictiveBackCoordinator: GoatPredictiveBackCoordinator? = null,
+    wasmWorkerManager: GoatWasmWorkerManager? = null,
+    bytecodePrecompiler: GoatBytecodePrecompiler? = null,
+    fileChooserManager: GoatFileChooserManager? = null,
+    backNavigationCoordinator: GoatBackNavigationCoordinator? = null,
+    visualRenderer: GoatVisualRenderer? = null,
+    gestureScrollCoordinator: GoatGestureScrollCoordinator? = null,
     private val onSetAdaptiveRefreshRate: ((elevate: Boolean) -> Boolean)? = null,
-    private val pageStackManager: GoatPageStackManager = GoatPageStackManager(),
-    private val subpackageLoader: GoatSubpackageLoader = GoatSubpackageLoader(context),
-    private val sameLayerRenderer: GoatSameLayerRenderer = GoatSameLayerRenderer(),
-    private val apiRegistry: GoatApiRegistry = GoatApiRegistry(),
-    private val processService: GoatMiniAppProcessService = GoatMiniAppProcessService(),
-    private val startupBenchmark: GoatStartupBenchmark = GoatStartupBenchmark(),
-    private val tracer: GoatOpenTelemetryTracer = GoatOpenTelemetryTracer(),
-    private val safeAreaManager: GoatSafeAreaManager = GoatSafeAreaManager(context),
-    private val hapticFeedback: com.goat.webview.ui.GoatHapticFeedback = com.goat.webview.ui.GoatHapticFeedback(context),
+    pageStackManager: GoatPageStackManager? = null,
+    subpackageLoader: GoatSubpackageLoader? = null,
+    sameLayerRenderer: GoatSameLayerRenderer? = null,
+    apiRegistry: GoatApiRegistry? = null,
+    processService: GoatMiniAppProcessService? = null,
+    startupBenchmark: GoatStartupBenchmark? = null,
+    tracer: GoatOpenTelemetryTracer? = null,
+    safeAreaManager: GoatSafeAreaManager? = null,
+    hapticFeedback: com.goat.webview.ui.GoatHapticFeedback? = null,
     private val onSetNavBarTitle: ((title: String, subtitle: String?) -> Unit)? = null,
     private val onSetNavBarColor: ((backgroundColor: String, textColor: String, isDark: Boolean) -> Unit)? = null,
     private val onSetNavBarButtons: ((left: String?, right: List<String>) -> Unit)? = null,
@@ -109,11 +104,11 @@ class GoatBridgeActionHandler(
     private val onExpandBottomSheet: (() -> JsonObject)? = null,
     private val onCollapseBottomSheet: (() -> JsonObject)? = null,
     private val onSetSheetSnapPoints: ((snapPoints: List<Float>, initialSnap: Float?, isDismissible: Boolean) -> JsonObject)? = null,
-    private val abuseGuardManager: com.goat.webview.security.GoatAbuseGuardManager = com.goat.webview.security.GoatAbuseGuardManager(),
-    private val oAuthSessionManager: com.goat.webview.auth.GoatOAuthSessionManager = com.goat.webview.auth.GoatOAuthSessionManager(context),
-    private val httpAuthManager: com.goat.webview.auth.GoatHttpAuthManager = com.goat.webview.auth.GoatHttpAuthManager(context, secureStorageManager),
-    private val eventCoalescer: com.goat.webview.ipc.GoatEventCoalescer = com.goat.webview.ipc.GoatEventCoalescer(),
-    private var paymentGatewayManager: com.goat.webview.payments.GoatPaymentGatewayManager? = null,
+    abuseGuardManager: com.goat.webview.security.GoatAbuseGuardManager? = null,
+    oAuthSessionManager: com.goat.webview.auth.GoatOAuthSessionManager? = null,
+    httpAuthManager: com.goat.webview.auth.GoatHttpAuthManager? = null,
+    eventCoalescer: com.goat.webview.ipc.GoatEventCoalescer? = null,
+    paymentGatewayManager: com.goat.webview.payments.GoatPaymentGatewayManager? = null,
     private val onOpenMiniApp: (suspend (targetAppId: String, presentation: String, params: JsonObject?, windowConfig: JsonObject?, jsApiAlias: Map<String, String>?) -> JsonObject)? = null,
     private val onCloseMiniApp: (suspend (instanceId: String?, result: JsonObject?) -> JsonObject)? = null,
     private val onMiniAppClosed: ((instanceId: String, targetAppId: String, dismissedByUser: Boolean, result: JsonObject?) -> Unit)? = null,
@@ -144,7 +139,12 @@ class GoatBridgeActionHandler(
         }
     }
 ) {
-    private val activeWindowedInstances = ConcurrentHashMap<String, com.goat.webview.ui.GoatWindowedContainer>()
+    private var activeWindowedInstances: ConcurrentHashMap<String, com.goat.webview.ui.GoatWindowedContainer>? = null
+    private fun getOrCreateWindowedInstances(): ConcurrentHashMap<String, com.goat.webview.ui.GoatWindowedContainer> {
+        return activeWindowedInstances ?: synchronized(this) {
+            activeWindowedInstances ?: ConcurrentHashMap<String, com.goat.webview.ui.GoatWindowedContainer>().also { activeWindowedInstances = it }
+        }
+    }
     /**
      * Asserts that the calling mini-app has been granted the required permission scope.
      * Throws [SecurityException] if permission is missing.
@@ -160,10 +160,39 @@ class GoatBridgeActionHandler(
     val oAuthSession: com.goat.webview.auth.GoatOAuthSessionManager get() = oAuthSessionManager
     val httpAuth: com.goat.webview.auth.GoatHttpAuthManager get() = httpAuthManager
     val coalescer: com.goat.webview.ipc.GoatEventCoalescer get() = eventCoalescer
+
+    @Volatile private var pendingUserGestureTimestamp: Long = 0L
+
+    /**
+     * Records a user gesture timestamp without forcing eager instantiation of [abuseGuardManager].
+     */
+    fun recordUserGesture(timestampMs: Long = System.currentTimeMillis()) {
+        pendingUserGestureTimestamp = timestampMs
+        if (abuseGuardManagerLazy.isInitialized() || injAbuseGuardManager != null) {
+            abuseGuardManager.recordUserGesture(timestampMs)
+        }
+    }
+
+    /**
+     * Cancels in-flight coalesced events on teardown, but only if a coalescer was ever actually
+     * built. Reading [coalescer] here instead would construct one purely to tear it down —
+     * defeating its laziness on the mount/destroy path, which is exactly the hot path.
+     */
+    fun cancelCoalescedEventsIfActive() {
+        if (eventCoalescerLazy.isInitialized()) eventCoalescer.cancelAll()
+    }
     val paymentGateway: com.goat.webview.payments.GoatPaymentGatewayManager? get() = paymentGatewayManager
     companion object {
         private const val TAG = "GoatBridgeActionHandler"
         private const val MAX_API_REDIRECTS = 5
+
+        @Volatile private var pluginRegistryChecked = false
+        @Volatile private var pluginRegistryInstance: Any? = null
+        @Volatile private var pluginRegistryMethod: java.lang.reflect.Method? = null
+
+        @Volatile private var paymentRegistryChecked = false
+        @Volatile private var paymentRegistryInstance: Any? = null
+        @Volatile private var paymentRegistryMethod: java.lang.reflect.Method? = null
 
         val SUPPORTED_ACTIONS = setOf(
             // 1. Core & System Lifecycle
@@ -173,6 +202,10 @@ class GoatBridgeActionHandler(
             "SET_SCREEN_BRIGHTNESS",
             "GET_SCREEN_BRIGHTNESS",
             "SET_KEEP_SCREEN_ON",
+            "SET_ORIENTATION_LOCK",
+            "GET_ORIENTATION_LOCK",
+            "SETUP_CLOSING_BEHAVIOR",
+            "SETUP_SWIPE_BEHAVIOR",
             "CLIPBOARD_SET",
             "CLIPBOARD_GET",
             "NAVIGATE_BACK",
@@ -259,16 +292,7 @@ class GoatBridgeActionHandler(
             "APP_SERVICE_TERMINATE",
 
             // 6. Hardware Sensors & Telephony
-            "START_ACCELEROMETER",
-            "STOP_ACCELEROMETER",
-            "GET_LATEST_ACCELEROMETER",
-            "START_COMPASS",
-            "START_GYROSCOPE",
-            "STOP_GYROSCOPE",
-            "GET_LATEST_GYROSCOPE",
-            "START_DEVICE_MOTION",
-            "STOP_DEVICE_MOTION",
-            "GET_LATEST_DEVICE_MOTION",
+            // Sensor actions moved to the :feature-sensors module (GoatSensorsPlugin).
             "MAKE_PHONE_CALL",
             "SEND_SMS",
 
@@ -305,10 +329,6 @@ class GoatBridgeActionHandler(
             "CLEAR_NOTIFICATIONS",
 
             // 11. Web3 & Payments
-            "WEB3_CONNECT_WALLET",
-            "WEB3_SIGN_TRANSACTION",
-            "WEB3_DISCONNECT",
-            "WEB3_GET_ACCOUNT",
             "OPEN_INVOICE",
             "GET_PURCHASE_PRODUCTS",
             "RESTORE_PURCHASES",
@@ -411,39 +431,211 @@ class GoatBridgeActionHandler(
             "NFC_STOP_SESSION"      to GoatPermissionManager.SCOPE_BLUETOOTH,
             "NFC_READ_TAG"          to GoatPermissionManager.SCOPE_BLUETOOTH,
             "NFC_WRITE_TAG"         to GoatPermissionManager.SCOPE_BLUETOOTH,
-            // Microphone
             "AUDIO_RECORD_START"    to GoatPermissionManager.SCOPE_RECORD,
             "AUDIO_RECORD_STOP"     to GoatPermissionManager.SCOPE_RECORD,
+            "RECORD_AUDIO_START"    to GoatPermissionManager.SCOPE_RECORD,
+            "RECORD_AUDIO_STOP"     to GoatPermissionManager.SCOPE_RECORD,
         )
     }
 
     private val customHandlers = ConcurrentHashMap<String, suspend (JsonObject) -> Result<JsonObject>>()
     private val registeredPlugins = ConcurrentHashMap<String, GoatBridgePlugin>()
-    private val adaptiveRefreshRateManager = com.goat.webview.rendering.GoatAdaptiveRefreshRateManager()
-
-    init {
-        plugins.forEach { registerPlugin(it) }
-        if (autoRegisterPlugins) {
-            tryAutoRegisterBundledPlugins()
-        }
-        if (autoRegisterPayments && paymentGatewayManager == null) {
-            paymentGatewayManager = tryAutoRegisterPaymentGateway()
-        }
-        adaptiveRefreshRateManager.onElevateRefreshRate = onSetAdaptiveRefreshRate
-        gestureScrollCoordinator.onFlingStateChanged = { active ->
-            if (active) adaptiveRefreshRateManager.onGestureActive()
-            else adaptiveRefreshRateManager.onGestureSettled()
+    private val actionToPluginMap = ConcurrentHashMap<String, GoatBridgePlugin>()
+    private val adaptiveRefreshRateManager by lazy {
+        com.goat.webview.rendering.GoatAdaptiveRefreshRateManager().also {
+            it.onElevateRefreshRate = onSetAdaptiveRefreshRate
         }
     }
 
-    private fun tryAutoRegisterPaymentGateway(): com.goat.webview.payments.GoatPaymentGatewayManager? {
-        return try {
-            val registryClass = Class.forName("com.goat.webview.features.GoatPaymentPluginRegistry")
-            val registryInstance = registryClass.getField("INSTANCE").get(null)
-            val createMethod = registryClass.getMethod("createGatewayManager", Context::class.java, String::class.java)
-            createMethod.invoke(registryInstance, context, appId) as? com.goat.webview.payments.GoatPaymentGatewayManager
-        } catch (_: ClassNotFoundException) {
+    // --- Lazy feature managers -------------------------------------------------------------
+    // These were previously eager default constructor arguments, which meant every GoatView
+    // paid to construct (and, more expensively, to class-load + ART-verify) all ~30 of them
+    // even for a mini-app that never touches a sensor, a wallet or a WASM worker. Each is now
+    // built on first real use. The `inj*` field captures a caller/test-supplied override
+    // (the constructor parameter keeps its original name so named-argument call sites are
+    // unchanged); the lazy property below is what the action handlers actually read.
+    private val injStorageManager = storageManager
+    private val storageManager: GoatStorageManager by lazy { injStorageManager ?: GoatStorageManager(context) }
+
+    private val injSecureStorageManager = secureStorageManager
+    private val secureStorageManager: GoatSecureStorageManager by lazy { injSecureStorageManager ?: GoatSecureStorageManager(context) }
+
+    private val injApmCollector = apmCollector
+    private val apmCollector: GoatApmCollector by lazy { injApmCollector ?: GoatApmCollector() }
+
+    private val injPushManager = pushManager
+    private val pushManager: GoatPushNotificationManager by lazy { injPushManager ?: GoatPushNotificationManager(context) }
+
+    private val injContactsGeofenceManager = contactsGeofenceManager
+    private val contactsGeofenceManager: GoatContactsGeofenceManager by lazy { injContactsGeofenceManager ?: GoatContactsGeofenceManager(context) }
+
+    private val injIapPurchaseManager = iapPurchaseManager
+    private val iapPurchaseManager: GoatIapPurchaseManager by lazy { injIapPurchaseManager ?: GoatIapPurchaseManager(
+            context = context,
+            hmacSecretKey = System.getenv("GOAT_IAP_HMAC_SECRET")
+        ) }
+
+    private val injBinaryChannelManager = binaryChannelManager
+    private val binaryChannelManager: GoatBinaryChannelManager by lazy { injBinaryChannelManager ?: GoatBinaryChannelManager() }
+
+    private val injSslPinningManager = sslPinningManager
+    private val sslPinningManager: GoatSslPinningManager by lazy { injSslPinningManager ?: GoatSslPinningManager() }
+
+    private val injPermissionManager = permissionManager
+    private val permissionManager: GoatPermissionManager by lazy { injPermissionManager ?: GoatPermissionManager(context) }
+
+    private val injKeyboardManager = keyboardManager
+    private val keyboardManager: GoatKeyboardManager by lazy { injKeyboardManager ?: GoatKeyboardManager(context) }
+
+    private val injPredictiveBackCoordinator = predictiveBackCoordinator
+    private val predictiveBackCoordinator: GoatPredictiveBackCoordinator by lazy { injPredictiveBackCoordinator ?: GoatPredictiveBackCoordinator() }
+
+    private val injWasmWorkerManager = wasmWorkerManager
+    private val wasmWorkerManager: GoatWasmWorkerManager by lazy { injWasmWorkerManager ?: GoatWasmWorkerManager() }
+
+    private val injBytecodePrecompiler = bytecodePrecompiler
+    private val bytecodePrecompiler: GoatBytecodePrecompiler by lazy { injBytecodePrecompiler ?: GoatBytecodePrecompiler(context) }
+
+    private val injFileChooserManager = fileChooserManager
+    private val fileChooserManager: GoatFileChooserManager by lazy { injFileChooserManager ?: GoatFileChooserManager() }
+
+    private val injBackNavigationCoordinator = backNavigationCoordinator
+    private val backNavigationCoordinator: GoatBackNavigationCoordinator by lazy { injBackNavigationCoordinator ?: GoatBackNavigationCoordinator() }
+
+    private val injVisualRenderer = visualRenderer
+    private val visualRenderer: GoatVisualRenderer by lazy { injVisualRenderer ?: GoatVisualRenderer() }
+
+    private val injPageStackManager = pageStackManager
+    private val pageStackManager: GoatPageStackManager by lazy { injPageStackManager ?: GoatPageStackManager() }
+
+    private val injSubpackageLoader = subpackageLoader
+    private val subpackageLoader: GoatSubpackageLoader by lazy { injSubpackageLoader ?: GoatSubpackageLoader(context) }
+
+    private val injSameLayerRenderer = sameLayerRenderer
+    private val sameLayerRenderer: GoatSameLayerRenderer by lazy { injSameLayerRenderer ?: GoatSameLayerRenderer() }
+
+    private val injApiRegistry = apiRegistry
+    private val apiRegistryLazy = lazy {
+        (injApiRegistry ?: GoatApiRegistry()).also { registry ->
+            syncCapabilitiesToRegistry(registry)
+        }
+    }
+    private val apiRegistry: GoatApiRegistry by apiRegistryLazy
+
+    private val injProcessService = processService
+    private val processService: GoatMiniAppProcessService by lazy { injProcessService ?: GoatMiniAppProcessService() }
+
+    private val injStartupBenchmark = startupBenchmark
+    private val startupBenchmark: GoatStartupBenchmark by lazy { injStartupBenchmark ?: GoatStartupBenchmark() }
+
+    private val injTracer = tracer
+    private val tracer: GoatOpenTelemetryTracer by lazy { injTracer ?: GoatOpenTelemetryTracer() }
+
+    private val injSafeAreaManager = safeAreaManager
+    private val safeAreaManager: GoatSafeAreaManager by lazy { injSafeAreaManager ?: GoatSafeAreaManager(context) }
+
+    private val injHapticFeedback = hapticFeedback
+    private val hapticFeedback: com.goat.webview.ui.GoatHapticFeedback by lazy { injHapticFeedback ?: com.goat.webview.ui.GoatHapticFeedback(context) }
+
+    private val injAbuseGuardManager = abuseGuardManager
+    private val abuseGuardManagerLazy = lazy {
+        (injAbuseGuardManager ?: com.goat.webview.security.GoatAbuseGuardManager()).also { manager ->
+            val pending = pendingUserGestureTimestamp
+            if (pending > 0L) {
+                manager.recordUserGesture(pending)
+            }
+        }
+    }
+    private val abuseGuardManager: com.goat.webview.security.GoatAbuseGuardManager by abuseGuardManagerLazy
+
+    private val injOAuthSessionManager = oAuthSessionManager
+    private val oAuthSessionManager: com.goat.webview.auth.GoatOAuthSessionManager by lazy { injOAuthSessionManager ?: com.goat.webview.auth.GoatOAuthSessionManager(context) }
+
+    private val injHttpAuthManager = httpAuthManager
+    // `secureStorageManager` is qualified so it binds to the lazy property below, not to the
+    // (nullable) constructor parameter of the same name, which would otherwise shadow it here.
+    private val httpAuthManager: com.goat.webview.auth.GoatHttpAuthManager by lazy {
+        injHttpAuthManager
+            ?: com.goat.webview.auth.GoatHttpAuthManager(
+                context,
+                this@GoatBridgeActionHandler.secureStorageManager
+            )
+    }
+
+    private val injGestureScrollCoordinator = gestureScrollCoordinator
+    private val gestureScrollCoordinator: GoatGestureScrollCoordinator by lazy {
+        (injGestureScrollCoordinator ?: GoatGestureScrollCoordinator()).also { coordinator ->
+            // Wiring moved out of `init {}` so constructing the handler no longer forces this
+            // coordinator into existence; it is attached the first time anything reads it,
+            // which is still strictly before any fling callback can fire.
+            coordinator.onFlingStateChanged = { active ->
+                if (active) adaptiveRefreshRateManager.onGestureActive()
+                else adaptiveRefreshRateManager.onGestureSettled()
+            }
+        }
+    }
+
+    private val injEventCoalescer = eventCoalescer
+    private val eventCoalescerLazy = lazy { injEventCoalescer ?: com.goat.webview.ipc.GoatEventCoalescer() }
+    private val eventCoalescer: com.goat.webview.ipc.GoatEventCoalescer by eventCoalescerLazy
+
+
+    private val injPaymentGatewayManager = paymentGatewayManager
+    private val paymentGatewayManagerLazy = lazy {
+        if (injPaymentGatewayManager != null) {
+            injPaymentGatewayManager
+        } else if (autoRegisterPayments) {
+            tryAutoRegisterPaymentGateway()
+        } else {
             null
+        }
+    }
+    private val paymentGatewayManager: com.goat.webview.payments.GoatPaymentGatewayManager? by paymentGatewayManagerLazy
+
+    @Volatile private var pluginsAutoRegistered = false
+
+    private fun ensurePluginsRegistered() {
+        if (autoRegisterPlugins && !pluginsAutoRegistered) {
+            synchronized(this) {
+                if (!pluginsAutoRegistered) {
+                    tryAutoRegisterBundledPlugins()
+                    pluginsAutoRegistered = true
+                }
+            }
+        }
+    }
+
+    private fun syncCapabilitiesToRegistry(registry: GoatApiRegistry) {
+        for (plugin in registeredPlugins.values) {
+            for (action in plugin.supportedActions) {
+                val category = GoatApiRegistry.resolveCategory(action)
+                registry.registerCapability(ApiCapability(actionName = action, category = category, isSupported = true))
+            }
+        }
+    }
+
+    init {
+        plugins.forEach { registerPlugin(it) }
+    }
+
+    private fun tryAutoRegisterPaymentGateway(): com.goat.webview.payments.GoatPaymentGatewayManager? {
+        if (paymentRegistryChecked && paymentRegistryMethod == null) return null
+        return try {
+            if (!paymentRegistryChecked) {
+                try {
+                    val registryClass = Class.forName("com.goat.webview.features.GoatPaymentPluginRegistry")
+                    paymentRegistryInstance = registryClass.getField("INSTANCE").get(null)
+                    paymentRegistryMethod = registryClass.getMethod("createGatewayManager", Context::class.java, String::class.java)
+                } catch (_: ClassNotFoundException) {
+                    paymentRegistryInstance = null
+                    paymentRegistryMethod = null
+                } finally {
+                    paymentRegistryChecked = true
+                }
+            }
+            val method = paymentRegistryMethod ?: return null
+            val instance = paymentRegistryInstance
+            method.invoke(instance, context, appId) as? com.goat.webview.payments.GoatPaymentGatewayManager
         } catch (e: Throwable) {
             Log.w(TAG, "Payment gateway auto-registration failed; REQUEST_PAYMENT will report PAYMENT_GATEWAY_NOT_CONFIGURED", e)
             null
@@ -451,15 +643,25 @@ class GoatBridgeActionHandler(
     }
 
     private fun tryAutoRegisterBundledPlugins() {
+        if (pluginRegistryChecked && pluginRegistryMethod == null) return
         try {
-            val registryClass = Class.forName("com.goat.webview.features.GoatPluginRegistry")
-            val registryInstance = registryClass.getField("INSTANCE").get(null)
-            val createMethod = registryClass.getMethod("createAllPlugins", Context::class.java)
+            if (!pluginRegistryChecked) {
+                try {
+                    val registryClass = Class.forName("com.goat.webview.features.GoatPluginRegistry")
+                    pluginRegistryInstance = registryClass.getField("INSTANCE").get(null)
+                    pluginRegistryMethod = registryClass.getMethod("createAllPlugins", Context::class.java)
+                } catch (_: ClassNotFoundException) {
+                    pluginRegistryInstance = null
+                    pluginRegistryMethod = null
+                } finally {
+                    pluginRegistryChecked = true
+                }
+            }
+            val method = pluginRegistryMethod ?: return
+            val instance = pluginRegistryInstance
             @Suppress("UNCHECKED_CAST")
-            val loadedPlugins = createMethod.invoke(registryInstance, context) as? List<GoatBridgePlugin>
+            val loadedPlugins = method.invoke(instance, context) as? List<GoatBridgePlugin>
             loadedPlugins?.forEach { registerPlugin(it) }
-        } catch (_: ClassNotFoundException) {
-            // features-all-in not on classpath, running in standalone core mode
         } catch (e: Throwable) {
             Log.w(TAG, "Bundled plugin auto-registration failed; feature actions will be unavailable", e)
         }
@@ -485,8 +687,11 @@ class GoatBridgeActionHandler(
     fun registerPlugin(plugin: GoatBridgePlugin) {
         registeredPlugins[plugin.pluginId] = plugin
         for (action in plugin.supportedActions) {
-            val category = GoatApiRegistry.resolveCategory(action)
-            apiRegistry.registerCapability(ApiCapability(actionName = action, category = category, isSupported = true))
+            actionToPluginMap[action] = plugin
+            if (apiRegistryLazy.isInitialized()) {
+                val category = GoatApiRegistry.resolveCategory(action)
+                apiRegistry.registerCapability(ApiCapability(actionName = action, category = category, isSupported = true))
+            }
         }
     }
 
@@ -497,8 +702,11 @@ class GoatBridgeActionHandler(
         val removed = registeredPlugins.remove(pluginId)
         if (removed != null) {
             for (action in removed.supportedActions) {
-                val category = GoatApiRegistry.resolveCategory(action)
-                apiRegistry.registerCapability(ApiCapability(actionName = action, category = category, isSupported = false))
+                actionToPluginMap.remove(action)
+                if (apiRegistryLazy.isInitialized()) {
+                    val category = GoatApiRegistry.resolveCategory(action)
+                    apiRegistry.registerCapability(ApiCapability(actionName = action, category = category, isSupported = false))
+                }
             }
         }
     }
@@ -506,14 +714,32 @@ class GoatBridgeActionHandler(
     /**
      * Returns an immutable list of currently registered modular plugins.
      */
-    fun getRegisteredPlugins(): List<GoatBridgePlugin> = registeredPlugins.values.toList()
+    fun getRegisteredPlugins(): List<GoatBridgePlugin> {
+        ensurePluginsRegistered()
+        return registeredPlugins.values.toList()
+    }
 
     /**
      * Returns the full set of currently supported actions (built-in + custom handlers + plugins).
      */
     fun getSupportedActions(): Set<String> {
-        val pluginActions = registeredPlugins.values.flatMap { it.supportedActions }
+        ensurePluginsRegistered()
+        val pluginActions = actionToPluginMap.keys
         return SUPPORTED_ACTIONS + customHandlers.keys + pluginActions
+    }
+
+    /**
+     * O(1) check whether an action is supported without multi-set flatMap allocations.
+     */
+    fun isActionSupported(action: String): Boolean {
+        if (SUPPORTED_ACTIONS.contains(action) || customHandlers.containsKey(action) || actionToPluginMap.containsKey(action)) {
+            return true
+        }
+        if (autoRegisterPlugins && !pluginsAutoRegistered) {
+            ensurePluginsRegistered()
+            return actionToPluginMap.containsKey(action)
+        }
+        return false
     }
 
     private val vibrator: Vibrator? by lazy {
@@ -558,6 +784,13 @@ class GoatBridgeActionHandler(
      */
     suspend fun executeAction(action: String, payload: JsonObject): Result<JsonObject> = withContext(Dispatchers.Default) {
         try {
+            // Zero-cost bridge latency probe: echoes the payload straight back with no dispatch,
+            // no manager access and no permission/abuse checks. Used by SDKs to measure the raw
+            // JS<->native round-trip. Must stay the first branch.
+            if (action == "BRIDGE_PING") {
+                return@withContext Result.success(payload)
+            }
+
             // Anti-Abuse: User Gesture Freshness Gate (Task 10199)
             if (com.goat.webview.security.GoatAbuseGuardManager.PRIVILEGED_ACTIONS.contains(action)) {
                 if (!abuseGuardManager.isGestureFresh()) {
@@ -577,15 +810,21 @@ class GoatBridgeActionHandler(
             }
 
             // 1. Check if there is a registered custom action handler
-            val customHandler = customHandlers[action]
-            if (customHandler != null) {
-                return@withContext customHandler(payload)
+            if (customHandlers.isNotEmpty()) {
+                val customHandler = customHandlers[action]
+                if (customHandler != null) {
+                    return@withContext customHandler(payload)
+                }
             }
 
-            // 2. Check if a registered modular GoatBridgePlugin can handle this action.
+            // 2. Check if a registered modular GoatBridgePlugin can handle this action via O(1) map lookup.
             // Enforce permission gate BEFORE dispatching to plugin — sensitive actions must
             // have the required scope granted regardless of which plugin handles them.
-            val pluginCandidate = registeredPlugins.values.firstOrNull { it.canHandle(action) }
+            var pluginCandidate = actionToPluginMap[action]
+            if (pluginCandidate == null && autoRegisterPlugins && !pluginsAutoRegistered && !SUPPORTED_ACTIONS.contains(action)) {
+                ensurePluginsRegistered()
+                pluginCandidate = actionToPluginMap[action]
+            }
             if (pluginCandidate != null) {
                 val requiredScope = PERMISSION_REQUIRED_ACTIONS[action]
                 if (requiredScope != null) {
@@ -602,6 +841,10 @@ class GoatBridgeActionHandler(
                 "SET_SCREEN_BRIGHTNESS" -> Result.success(handleSetScreenBrightness(payload))
                 "GET_SCREEN_BRIGHTNESS" -> Result.success(handleGetScreenBrightness())
                 "SET_KEEP_SCREEN_ON" -> Result.success(handleSetKeepScreenOn(payload))
+                "SET_ORIENTATION_LOCK" -> Result.success(handleSetOrientationLock(payload))
+                "GET_ORIENTATION_LOCK" -> Result.success(handleGetOrientationLock())
+                "SETUP_CLOSING_BEHAVIOR" -> Result.success(handleSetupClosingBehavior(payload))
+                "SETUP_SWIPE_BEHAVIOR" -> Result.success(handleSetupSwipeBehavior(payload))
                 "CLIPBOARD_SET" -> Result.success(handleSetClipboard(payload))
                 "CLIPBOARD_GET" -> Result.success(handleGetClipboard())
                 "NAVIGATE_BACK" -> Result.success(handleNavigateBack())
@@ -685,16 +928,8 @@ class GoatBridgeActionHandler(
                 "ON_APP_SERVICE_TERMINATE", "APP_SERVICE_TERMINATE" -> Result.success(handleAppServiceTerminate(payload))
 
                 // 6. Hardware Sensors & Telephony
-                "START_ACCELEROMETER" -> Result.success(handleStartAccelerometer(payload))
-                "STOP_ACCELEROMETER" -> Result.success(handleStopAccelerometer())
-                "GET_LATEST_ACCELEROMETER" -> Result.success(handleGetLatestAccelerometer())
-                "START_COMPASS" -> Result.success(handleStartCompass(payload))
-                "START_GYROSCOPE" -> Result.success(handleStartGyroscope(payload))
-                "STOP_GYROSCOPE" -> Result.success(handleStopGyroscope())
-                "GET_LATEST_GYROSCOPE" -> Result.success(handleGetLatestGyroscope())
-                "START_DEVICE_MOTION" -> Result.success(handleStartDeviceMotion(payload))
-                "STOP_DEVICE_MOTION" -> Result.success(handleStopDeviceMotion())
-                "GET_LATEST_DEVICE_MOTION" -> Result.success(handleGetLatestDeviceMotion())
+                // Sensor actions are served by :feature-sensors (GoatSensorsPlugin), registered
+                // through GoatPluginRegistry — see the plugin dispatch above this `when`.
                 "MAKE_PHONE_CALL" -> Result.success(handleMakePhoneCall(payload))
                 "SEND_SMS" -> Result.success(handleSendSms(payload))
 
@@ -729,10 +964,7 @@ class GoatBridgeActionHandler(
                 "CLEAR_NOTIFICATIONS" -> Result.success(handleClearNotifications(payload))
 
                 // 13. Web3 & Payments
-                "WEB3_CONNECT_WALLET" -> Result.success(handleWeb3ConnectWallet(payload))
-                "WEB3_SIGN_TRANSACTION" -> Result.success(handleWeb3SignTransaction(payload))
-                "WEB3_DISCONNECT" -> Result.success(handleWeb3Disconnect())
-                "WEB3_GET_ACCOUNT" -> Result.success(handleWeb3GetAccount())
+                // Web3 actions are served by :feature-web3 (GoatWeb3Plugin).
                 "OPEN_INVOICE" -> Result.success(handleOpenInvoice(payload))
                 "GET_PURCHASE_PRODUCTS" -> Result.success(handleGetPurchaseProducts(payload))
                 "RESTORE_PURCHASES" -> Result.success(handleRestorePurchases())
@@ -796,6 +1028,14 @@ class GoatBridgeActionHandler(
                 "STOP_TRACE" -> Result.success(handleStopTrace(payload))
                 "GET_TRACES" -> Result.success(handleGetTraces())
                 "GET_MEMORY_METRICS" -> Result.success(handleGetMemoryMetrics())
+
+                // Compat-adapter passthrough: the bridge already forwards every action (known or
+                // not) to the embedder before dispatch runs, so an adapter's addJavaScriptHandler
+                // emulation works with no registration at all. This case exists only so it
+                // resolves cleanly here too, instead of logging as a failed "unsupported action"
+                // in telemetry on every compat call.
+                "__COMPAT_CALL__" -> Result.success(buildJsonObject { put("routed", true) })
+
                 else -> Result.failure(IllegalArgumentException("Unsupported native action: $action"))
             }
         } catch (e: Exception) {
@@ -972,6 +1212,17 @@ class GoatBridgeActionHandler(
      * @return Validated [URL] instance.
      * @throws SecurityException If URL violates HTTPS, domain allowlist, or points to private/loopback/metadata addresses.
      */
+    /**
+     * Domains this mini-app may reach through API_REQUEST, from the bundle manifest's
+     * `security.allowedDomains`. Null or empty means unfiltered, which is the behaviour every
+     * mini-app has had until now -- only an app that declares the field opts into the restriction.
+     *
+     * Settable rather than constructor-only because GoatView builds the handler before it knows
+     * which bundle is being loaded.
+     */
+    @Volatile
+    var manifestDomainAllowlist: Set<String>? = manifestDomainAllowlist
+
     fun validateAndFilterUrl(urlStr: String, domainAllowlist: Set<String>? = this.manifestDomainAllowlist): URL {
         val cleanUrl = urlStr.trim()
 
@@ -1530,7 +1781,7 @@ class GoatBridgeActionHandler(
             ?: payload["actionName"]?.jsonPrimitive?.content
             ?: payload["schema"]?.jsonPrimitive?.content
             ?: throw IllegalArgumentException("Missing 'action', 'actionName', or 'schema' parameter for CAN_I_USE")
-        val isSupported = apiRegistry.canIUse(action) || getSupportedActions().contains(action)
+        val isSupported = isActionSupported(action) || (injApiRegistry != null && apiRegistry.canIUse(action))
 
         return buildJsonObject {
             put("supported", isSupported)
@@ -1592,6 +1843,50 @@ class GoatBridgeActionHandler(
      * @param payload JSON containing 'keepScreenOn' boolean.
      * @return [JsonObject] confirming status.
      */
+    fun handleSetupClosingBehavior(payload: JsonObject): JsonObject {
+        val needConfirmation = payload["needConfirmation"]?.jsonPrimitive?.booleanOrNull ?: false
+        com.goat.webview.ui.GoatClosingBehaviorController.setNeedConfirmation(needConfirmation)
+        return buildJsonObject {
+            put("success", true)
+            put("needConfirmation", needConfirmation)
+        }
+    }
+
+    fun handleSetupSwipeBehavior(payload: JsonObject): JsonObject {
+        val allowVerticalSwipe = payload["allowVerticalSwipe"]?.jsonPrimitive?.booleanOrNull ?: false
+        com.goat.webview.ui.GoatClosingBehaviorController.setAllowVerticalSwipe(allowVerticalSwipe)
+        return buildJsonObject {
+            put("success", true)
+            put("allowVerticalSwipe", allowVerticalSwipe)
+        }
+    }
+
+    suspend fun handleSetOrientationLock(payload: JsonObject): JsonObject {
+        val requested = payload["orientation"]?.jsonPrimitive?.contentOrNull
+        if (com.goat.webview.ui.GoatOrientationController.parseOrientation(requested) == null) {
+            return buildJsonObject {
+                put("success", false)
+                put("error", "INVALID_ORIENTATION")
+                put("orientation", com.goat.webview.ui.GoatOrientationController.currentLock)
+            }
+        }
+        val applied = withContext(Dispatchers.Main) {
+            com.goat.webview.ui.GoatOrientationController.setLock(context as? android.app.Activity, requested)
+        }
+        return buildJsonObject {
+            put("success", applied)
+            put("orientation", com.goat.webview.ui.GoatOrientationController.currentLock)
+        }
+    }
+
+    fun handleGetOrientationLock(): JsonObject = buildJsonObject {
+        put("success", true)
+        // null means "no runtime lock" -- the manifest default is in effect, which is not the same
+        // as the mini-app having asked for "auto".
+        put("orientation", com.goat.webview.ui.GoatOrientationController.currentLock)
+        put("locked", com.goat.webview.ui.GoatOrientationController.currentLock != null)
+    }
+
     suspend fun handleSetKeepScreenOn(payload: JsonObject): JsonObject {
         val keepScreenOn = payload["keepScreenOn"]?.jsonPrimitive?.booleanOrNull ?: true
 
@@ -1685,44 +1980,6 @@ class GoatBridgeActionHandler(
         return buildJsonObject {
             put("handled", true)
             put("phoneNumber", phoneNumber)
-        }
-    }
-
-    /**
-     * Handles subscribing to hardware accelerometer readings with 20Hz throttling (START_ACCELEROMETER).
-     */
-    fun handleStartAccelerometer(payload: JsonObject): JsonObject {
-        val interval = payload["interval"]?.jsonPrimitive?.content ?: "normal"
-        return buildJsonObject {
-            put("started", true)
-            put("interval", interval)
-        }
-    }
-
-    /**
-     * Handles unsubscribing from hardware accelerometer stream (STOP_ACCELEROMETER).
-     */
-    fun handleStopAccelerometer(): JsonObject {
-        return buildJsonObject {
-            put("stopped", true)
-        }
-    }
-
-    /**
-     * Handles subscribing to hardware compass sensor stream (START_COMPASS).
-     */
-    fun handleStartCompass(payload: JsonObject): JsonObject {
-        return buildJsonObject {
-            put("started", true)
-        }
-    }
-
-    /**
-     * Handles subscribing to hardware gyroscope sensor stream (START_GYROSCOPE).
-     */
-    fun handleStartGyroscope(payload: JsonObject): JsonObject {
-        return buildJsonObject {
-            put("started", true)
         }
     }
 
@@ -1945,68 +2202,6 @@ class GoatBridgeActionHandler(
         }
     }
 
-    /**
-     * Connects to a Web3 wallet via TON Connect or EVM (WEB3_CONNECT_WALLET / Task 10120).
-     */
-    suspend fun handleWeb3ConnectWallet(payload: JsonObject): JsonObject = withContext(Dispatchers.IO) {
-        val network = payload["network"]?.jsonPrimitive?.content ?: "ton-mainnet"
-        val manifestUrl = payload["manifestUrl"]?.jsonPrimitive?.content
-        val account = web3WalletManager.connectWallet(network, manifestUrl)
-        buildJsonObject {
-            put("address", account.address)
-            put("publicKey", account.publicKey)
-            put("wallet", account.wallet)
-            put("network", account.network)
-            put("chainId", account.chainId)
-        }
-    }
-
-    /**
-     * Signs a Web3 transaction (WEB3_SIGN_TRANSACTION / Task 10120).
-     */
-    suspend fun handleWeb3SignTransaction(payload: JsonObject): JsonObject = withContext(Dispatchers.IO) {
-        val to = payload["to"]?.jsonPrimitive?.content ?: throw IllegalArgumentException("Missing 'to'")
-        val amount = payload["amount"]?.jsonPrimitive?.content ?: "0"
-        val txPayload = payload["payload"]?.jsonPrimitive?.content
-        val result = web3WalletManager.signTransaction(to, amount, txPayload)
-        buildJsonObject {
-            put("signature", result.signature)
-            put("txHash", result.txHash)
-            put("network", result.network)
-            put("from", result.from)
-        }
-    }
-
-    /**
-     * Disconnects active Web3 wallet session (WEB3_DISCONNECT / Task 10120).
-     */
-    suspend fun handleWeb3Disconnect(): JsonObject = withContext(Dispatchers.IO) {
-        val disconnected = web3WalletManager.disconnectWallet()
-        buildJsonObject {
-            put("disconnected", disconnected)
-        }
-    }
-
-    /**
-     * Retrieves active Web3 account session (WEB3_GET_ACCOUNT / Task 10120).
-     */
-    fun handleWeb3GetAccount(): JsonObject {
-        val account = web3WalletManager.getAccount()
-        return if (account != null) {
-            buildJsonObject {
-                put("connected", true)
-                put("address", account.address)
-                put("publicKey", account.publicKey)
-                put("wallet", account.wallet)
-                put("network", account.network)
-                put("chainId", account.chainId)
-            }
-        } else {
-            buildJsonObject {
-                put("connected", false)
-            }
-        }
-    }
 
     /**
      * Opens an in-app checkout invoice sheet (OPEN_INVOICE / Task 10121).
@@ -2420,7 +2615,7 @@ class GoatBridgeActionHandler(
                 jsApiAlias = jsApiAliasMap
             )
             instance.onClose = { result, dismissedByUser ->
-                activeWindowedInstances.remove(instance.instanceId)
+                activeWindowedInstances?.remove(instance.instanceId)
                 onMiniAppClosed?.invoke(instance.instanceId, targetAppId, dismissedByUser, result)
                 eventCoalescer.emit(
                     "ON_MINI_APP_CLOSED",
@@ -2440,7 +2635,7 @@ class GoatBridgeActionHandler(
                     instance.showIn(rootView)
                 }
             }
-            activeWindowedInstances[instance.instanceId] = instance
+            getOrCreateWindowedInstances()[instance.instanceId] = instance
 
             buildJsonObject {
                 put("instanceId", instance.instanceId)
@@ -2468,7 +2663,10 @@ class GoatBridgeActionHandler(
         }
 
         try {
-            val instance = if (instanceId != null) activeWindowedInstances[instanceId] else activeWindowedInstances.values.firstOrNull()
+            val map = activeWindowedInstances
+            val instance = if (map != null) {
+                if (instanceId != null) map[instanceId] else map.values.firstOrNull()
+            } else null
             if (instance != null) {
                 val activity = context as? android.app.Activity
                 activity?.runOnUiThread {
@@ -2476,7 +2674,7 @@ class GoatBridgeActionHandler(
                 } ?: run {
                     instance.dismiss(result = result, dismissedByUser = false)
                 }
-                activeWindowedInstances.remove(instance.instanceId)
+                map?.remove(instance.instanceId)
             }
         } catch (_: Throwable) {}
 
@@ -2853,6 +3051,28 @@ class GoatBridgeActionHandler(
      */
     suspend fun handleBackPress(): JsonObject = withContext(Dispatchers.IO) {
         val res = backNavigationCoordinator.handleBackPress()
+
+        // Only a dismissal is gated. Popping web history stays inside the mini-app, and asking
+        // "discard changes?" on every in-app back press would be wrong (Task 10173, rule 1).
+        //
+        // Safe to check after the call because the ACTIVITY_FINISH branch of handleBackPress does
+        // not mutate the history stack -- a cancelled confirmation therefore leaves navigation
+        // state exactly as it was.
+        if (res.action == BackPressAction.ACTIVITY_FINISH.name &&
+            com.goat.webview.ui.GoatClosingBehaviorController.shouldConfirmClose()
+        ) {
+            val confirmed = confirmMiniAppClose()
+            if (!confirmed) {
+                return@withContext buildJsonObject {
+                    put("action", "DISMISS_CANCELLED")
+                    put("canGoBack", res.canGoBack)
+                    put("currentHistoryIndex", res.currentHistoryIndex)
+                    put("totalHistoryCount", res.totalHistoryCount)
+                    put("confirmationRequired", true)
+                }
+            }
+        }
+
         buildJsonObject {
             put("action", res.action)
             put("canGoBack", res.canGoBack)
@@ -2860,6 +3080,24 @@ class GoatBridgeActionHandler(
             put("totalHistoryCount", res.totalHistoryCount)
             if (res.routePopped != null) put("routePopped", res.routePopped)
         }
+    }
+
+    /**
+     * Presents the native "discard changes?" prompt for a gated dismissal (Task 10173).
+     *
+     * @return true when the user confirmed, or when no host modal presenter is wired -- a mini-app
+     *         must never become impossible to close because the host did not supply a dialog.
+     */
+    internal suspend fun confirmMiniAppClose(): Boolean {
+        val presenter = onShowModal ?: return true
+        val (confirm, _) = presenter.invoke(
+            "Discard changes?",
+            "You have unsaved changes. Close anyway?",
+            true,
+            "Cancel",
+            "Discard"
+        )
+        return confirm
     }
 
     /**
@@ -3343,76 +3581,6 @@ class GoatBridgeActionHandler(
         enforcePermission(GoatPermissionManager.SCOPE_CONTACT)
         buildJsonObject {
             put("count", 1)
-        }
-    }
-
-    /**
-     * Handles retrieving the latest accelerometer vector sample (GET_LATEST_ACCELEROMETER / Task 10122).
-     */
-    fun handleGetLatestAccelerometer(): JsonObject {
-        return buildJsonObject {
-            put("x", 0.0)
-            put("y", 9.81)
-            put("z", 0.0)
-            put("timestamp", System.currentTimeMillis())
-        }
-    }
-
-    /**
-     * Handles stopping hardware gyroscope stream (STOP_GYROSCOPE / Task 10122).
-     */
-    fun handleStopGyroscope(): JsonObject {
-        return buildJsonObject {
-            put("stopped", true)
-        }
-    }
-
-    /**
-     * Handles retrieving latest gyroscope angular velocity sample (GET_LATEST_GYROSCOPE / Task 10122).
-     */
-    fun handleGetLatestGyroscope(): JsonObject {
-        return buildJsonObject {
-            put("x", 0.0)
-            put("y", 0.0)
-            put("z", 0.0)
-            put("timestamp", System.currentTimeMillis())
-        }
-    }
-
-    /**
-     * Handles starting high-frequency device motion sensor stream (START_DEVICE_MOTION / Task 10122).
-     */
-    suspend fun handleStartDeviceMotion(payload: JsonObject): JsonObject = withContext(Dispatchers.IO) {
-        val interval = payload.getOptionalString("interval") ?: "normal"
-        val started = sensorManager.startMotionStream(interval)
-        buildJsonObject {
-            put("started", started)
-            put("interval", interval)
-        }
-    }
-
-    /**
-     * Handles stopping high-frequency device motion stream (STOP_DEVICE_MOTION / Task 10122).
-     */
-    suspend fun handleStopDeviceMotion(): JsonObject = withContext(Dispatchers.IO) {
-        val stopped = sensorManager.stopMotionStream()
-        buildJsonObject {
-            put("stopped", stopped)
-        }
-    }
-
-    /**
-     * Handles retrieving latest motion sample from the windowed batch (GET_LATEST_DEVICE_MOTION / Task 10122).
-     */
-    suspend fun handleGetLatestDeviceMotion(): JsonObject = withContext(Dispatchers.IO) {
-        val samples = sensorManager.flushBatch()
-        val latest = samples.lastOrNull()
-        buildJsonObject {
-            put("isStreaming", sensorManager.isStreamActive())
-            put("x", latest?.x ?: 0.0f)
-            put("y", latest?.y ?: 9.81f)
-            put("z", latest?.z ?: 0.0f)
-            put("timestampMs", latest?.timestampMs ?: System.currentTimeMillis())
         }
     }
 

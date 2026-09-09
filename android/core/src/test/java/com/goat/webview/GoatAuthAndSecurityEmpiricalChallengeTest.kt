@@ -402,7 +402,7 @@ class GoatAuthAndSecurityEmpiricalChallengeTest {
     }
 
     @Test
-    fun `challenge ALL 12 PRIVILEGED_ACTIONS fail with GESTURE_REQUIRED on stale gesture`() = runTest {
+    fun `challenge ALL 13 PRIVILEGED_ACTIONS fail with GESTURE_REQUIRED on stale gesture`() = runTest {
         val staleGuard = GoatAbuseGuardManager()
         staleGuard.reset() // Sets last touch to 0 -> stale
 
@@ -416,9 +416,11 @@ class GoatAuthAndSecurityEmpiricalChallengeTest {
             oAuthSessionManager = oAuthManager
         )
 
-        // Verify the exact set of 12 privileged actions (Task 10206 adds CANCEL_PAYMENT)
+        // Task 10206 adds CANCEL_PAYMENT; the wallet SPI adds WEB3_SIGN_MESSAGE, which carries the
+        // EIP-712 / Permit2 drainer vector and so needs the same gesture gate as WEB3_SIGN_TRANSACTION.
         val privilegedActions = GoatAbuseGuardManager.PRIVILEGED_ACTIONS
-        assertEquals("Must contain exactly 12 privileged actions", 12, privilegedActions.size)
+        assertEquals("Must contain exactly 13 privileged actions", 13, privilegedActions.size)
+        assertTrue("WEB3_SIGN_MESSAGE must be gesture-gated", privilegedActions.contains("WEB3_SIGN_MESSAGE"))
 
         for (action in privilegedActions) {
             val payload = buildJsonObject {

@@ -6,6 +6,8 @@ import android.content.Context
 import android.content.MutableContextWrapper
 import android.content.res.Configuration
 import android.graphics.Color
+import android.app.Activity
+import android.os.Bundle
 import android.util.Log
 import android.webkit.CookieManager
 import android.webkit.WebStorage
@@ -14,6 +16,8 @@ import android.webkit.WebViewClient
 import android.webkit.WebViewDatabase
 import androidx.webkit.WebViewCompat
 import androidx.webkit.WebViewFeature
+import kotlinx.serialization.json.JsonObject
+import java.util.WeakHashMap
 
 /**
  * Lean 2-Instance Recycler Pool for Goat WebView (Pillar 2 of Native-Kill Blueprint).
@@ -30,11 +34,133 @@ object GoatFastPool {
     private const val TAG = "GoatFastPool"
     private const val BRIDGE_NAME = "nativeBridge"
 
-    /** Maximum allowed warm WebView instances in the standby pool to cap RAM below 45MB. */
+    /** Hard cap on standby (cold) WebView instances (~15–25 MB resident each). */
     const val MAX_POOL_SIZE = 2
 
+    /**
+     * Max instances kept in the *hot* pool — fully warm WebViews (JS context, DOM, bridge and the
+     * mini-app page still live) parked by tenant + entry-URL key. Re-acquiring one is a view
+     * re-attach, not a navigation, so a same-tenant remount ("warm pool swap") completes in a few
+     * milliseconds instead of ~80–140 ms. Held at 2 so a host that ping-pongs between two mini-apps
+     * keeps both warm; each parked instance costs ~15–25 MB and is evicted on memory pressure.
+     */
+    const val MAX_HOT_SIZE = 2
+
     private val pool = ArrayDeque<WebView>(MAX_POOL_SIZE)
+    private val hotPool = LinkedHashMap<String, HotEntry>()
     private var isCallbacksRegistered = false
+    @Volatile private var startedActivities = 0
+
+    /** Pooled/parked instances whose renderer the OS reclaimed under memory pressure (their
+     *  priority is waived-when-not-visible — see [applyLowMemoryRendererPolicy]). Such a WebView
+     *  can no longer render; [acquire]/[acquireHot] must drop it and hand back a fresh one. */
+    private val deadRenderers = java.util.Collections.newSetFromMap(WeakHashMap<WebView, Boolean>())
+
+    /**
+     * Marks a WebView's renderer as reclaimable: `RENDERER_PRIORITY_WAIVED` while it is not
+     * visible (i.e. while it sits in the pool or is parked, detached from any window), restored to
+     * the app's own priority the moment it is attached and shown. On a constrained device this
+     * lets the OS kill an idle standby/parked renderer (~30–40 MB) instead of an important
+     * foreground process. A minimal [WebViewClient] whose `onRenderProcessGone` returns `true` is
+     * attached first so a reclaimed renderer never takes the app process down with it — the
+     * instance is simply flagged dead and skipped on re-acquire.
+     */
+    private fun applyLowMemoryRendererPolicy(webView: WebView) {
+        try {
+            if (webView.webViewClient !is DeadRendererGuard) {
+                webView.webViewClient = DeadRendererGuard
+            }
+        } catch (_: Throwable) {
+            try { webView.webViewClient = DeadRendererGuard } catch (_: Throwable) {}
+        }
+        try {
+            webView.setRendererPriorityPolicy(WebView.RENDERER_PRIORITY_WAIVED, true)
+        } catch (_: Throwable) {
+            // headless / mock
+        }
+    }
+
+    private object DeadRendererGuard : WebViewClient() {
+        override fun onRenderProcessGone(
+            view: WebView?,
+            detail: android.webkit.RenderProcessGoneDetail?
+        ): Boolean {
+            view?.let {
+                synchronized(deadRenderers) { deadRenderers.add(it) }
+                try { pool.remove(it) } catch (_: Throwable) {}
+                Log.i(TAG, "Idle pooled renderer reclaimed by the OS; instance flagged dead")
+            }
+            return true
+        }
+    }
+
+    /** A parked warm WebView plus an opaque payload (the tenant's bridge handler) the embedder
+     *  hands back on re-acquire so a same-tenant remount rebuilds nothing. */
+    class HotEntry(val webView: WebView, val payload: Any?)
+
+    /** Dispatch target for a WebView's `WebMessageListener`. The listener is registered exactly
+     *  once per WebView (on cold init); on a warm re-attach only this route is re-bound, so the
+     *  injected `window.nativeBridge` stays valid (androidx only re-injects on a page load). */
+    fun interface BridgeRouter {
+        suspend fun route(action: String, payload: JsonObject): Result<JsonObject>
+    }
+
+    private val routers = WeakHashMap<WebView, BridgeRouter>()
+
+    fun bindRouter(webView: WebView, router: BridgeRouter) {
+        synchronized(routers) { routers[webView] = router }
+    }
+
+    suspend fun routeBridge(webView: WebView, action: String, payload: JsonObject): Result<JsonObject> {
+        val r = synchronized(routers) { routers[webView] }
+            ?: return Result.failure(IllegalStateException("No bridge route bound for this WebView"))
+        return r.route(action, payload)
+    }
+
+    /**
+     * Re-acquires a fully-warm WebView parked for [hotKey] (tenant|entryUrl), or `null` if none is
+     * parked. The returned instance still has the mini-app page loaded and its JS context live — the
+     * caller only needs to re-attach it and re-bind its client delegates, not navigate.
+     */
+    @Synchronized
+    fun acquireHot(hotKey: String, context: Context): HotEntry? {
+        val hot = hotPool.remove(hotKey) ?: return null
+        (hot.webView.context as? MutableContextWrapper)?.baseContext = context
+        Log.d(TAG, "HOT hit for '$hotKey' (hot left=${hotPool.size})")
+        return hot
+    }
+
+    /**
+     * Parks a still-warm WebView under [hotKey] without any sanitization — the page, DOM and JS
+     * heap are kept intact for a fast same-tenant remount. baseContext is rebound to the
+     * application context so the Activity is not leaked. Returns `false` (and leaves the instance
+     * for the normal [recycle] path) if the hot pool is full.
+     */
+    @JvmOverloads
+    @Synchronized
+    fun parkHot(webView: WebView, hotKey: String, payload: Any? = null): Boolean {
+        if (hotPool.containsKey(hotKey)) {
+            hotPool.remove(hotKey)?.let { destroySafely(it.webView) }
+        }
+        // One parked instance on low-end hardware instead of two. The second exists so a host
+        // ping-ponging between two mini-apps keeps both warm; on a constrained device that second
+        // parked DOM + JS heap is a worse trade than re-mounting the less-recent one.
+        if (hotPool.size >= effectiveMaxHotSize(webView.context)) {
+            val oldestKey = hotPool.keys.firstOrNull() ?: return false
+            hotPool.remove(oldestKey)?.let { recycle(it.webView) }
+        }
+        try {
+            val ctx = webView.context
+            val appContext = ctx?.applicationContext ?: ctx
+            if (appContext != null && ctx is MutableContextWrapper) ctx.baseContext = appContext
+            webView.onPause()
+        } catch (e: Exception) {
+            // headless / mock context
+        }
+        hotPool[hotKey] = HotEntry(webView, payload)
+        Log.d(TAG, "Parked HOT '$hotKey' (hot size=${hotPool.size})")
+        return true
+    }
 
     /**
      * Registers automatic memory trimming callbacks with the host [Application].
@@ -57,8 +183,36 @@ object GoatFastPool {
                 trimMemory()
             }
         })
+        // TRIM_MEMORY_UI_HIDDEN is no longer dispatched on API 34+, so also watch the activity
+        // count directly: the instant the last activity stops, drop the standby pool. Each pooled
+        // WebView owns an out-of-process renderer; carrying them into the background makes this
+        // process the fattest thing the low-memory killer sees, so it gets reaped and the user's
+        // next return is a full cold start instead of a hot resume.
+        application.registerActivityLifecycleCallbacks(object : Application.ActivityLifecycleCallbacks {
+            override fun onActivityStarted(activity: Activity) { startedActivities++ }
+            override fun onActivityStopped(activity: Activity) {
+                if (--startedActivities <= 0) {
+                    startedActivities = 0
+                    releaseStandby("app backgrounded")
+                }
+            }
+            override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {}
+            override fun onActivityResumed(activity: Activity) {}
+            override fun onActivityPaused(activity: Activity) {}
+            override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {}
+            override fun onActivityDestroyed(activity: Activity) {}
+        })
         isCallbacksRegistered = true
-        Log.i(TAG, "Registered ComponentCallbacks2 memory trimming hooks for GoatFastPool")
+        Log.i(TAG, "Registered memory-trim + activity-lifecycle hooks for GoatFastPool")
+    }
+
+    /** Destroys only the standby (cold) instances; the hot pool is left intact. */
+    @Synchronized
+    fun releaseStandby(reason: String) {
+        if (pool.isEmpty()) return
+        val n = pool.size
+        while (pool.isNotEmpty()) pool.removeFirstOrNull()?.let { destroySafely(it) }
+        Log.i(TAG, "Released $n standby WebView(s) ($reason)")
     }
 
     /**
@@ -70,14 +224,21 @@ object GoatFastPool {
      */
     @Synchronized
     fun acquire(context: Context): WebView {
-        val pooled = pool.removeFirstOrNull()
-        if (pooled != null) {
+        while (true) {
+            val pooled = pool.removeFirstOrNull() ?: break
+            if (synchronized(deadRenderers) { deadRenderers.remove(pooled) }) {
+                destroySafely(pooled); continue          // renderer was reclaimed while idle
+            }
             (pooled.context as? MutableContextWrapper)?.baseContext = context
+            try { pooled.setRendererPriorityPolicy(WebView.RENDERER_PRIORITY_IMPORTANT, false) } catch (_: Throwable) {}
             Log.d(TAG, "Acquired pre-warmed WebView from pool (remaining=${pool.size})")
             return pooled
         }
         Log.d(TAG, "Pool empty; creating fresh warm WebView")
-        val fresh = createWarmWebView(context)
+        // Immediate-use path: the caller navigates to the real entry URL right after this returns,
+        // so skip the about:blank priming navigation a standby instance would want.
+        val fresh = createWarmWebView(context, warmNavigate = false)
+        try { fresh.setRendererPriorityPolicy(WebView.RENDERER_PRIORITY_IMPORTANT, false) } catch (_: Throwable) {}
         (fresh.context as? MutableContextWrapper)?.baseContext = context
         return fresh
     }
@@ -90,8 +251,11 @@ object GoatFastPool {
      * @param webView The [WebView] instance to recycle.
      * @return `true` if recycled into pool, `false` if destroyed due to saturation.
      */
+    @JvmOverloads
     @Synchronized
-    fun recycle(webView: WebView): Boolean {
+    fun recycle(webView: WebView, hotKey: String? = null, hotPayload: Any? = null): Boolean {
+        // Fast path: keep this instance fully warm for a same-tenant remount.
+        if (hotKey != null && parkHot(webView, hotKey, hotPayload)) return true
         // Immediately restore baseContext to Application Context to prevent Activity leaks
         try {
             val ctx = webView.context
@@ -236,12 +400,19 @@ object GoatFastPool {
      */
     @Synchronized
     fun handleTrimMemory(level: Int) {
+        // App just went to background: standby WebViews are pure waste there and each one carries an
+        // out-of-process renderer, which bloats this app's process group and makes it the first
+        // thing the low-memory killer reaps — turning the next foreground into a full cold start.
+        // Drop the standby pool immediately; keep the hot pool (it is what makes a fast return).
+        if (level == ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN) {
+            releaseStandby("UI hidden")   // pre-API-34 path; API 34+ uses ProcessLifecycle ON_STOP
+            return
+        }
+        // Real memory pressure (running low, or backgrounded and being squeezed): drop everything.
         val isCritical = level >= ComponentCallbacks2.TRIM_MEMORY_RUNNING_LOW ||
-            level == ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN ||
             level >= ComponentCallbacks2.TRIM_MEMORY_BACKGROUND
-
-        if (isCritical && pool.isNotEmpty()) {
-            Log.w(TAG, "Memory trim alert (level=$level); purging ${pool.size} standby instances from GoatFastPool")
+        if (isCritical && (pool.isNotEmpty() || hotPool.isNotEmpty())) {
+            Log.w(TAG, "Memory trim alert (level=$level); purging ${pool.size} standby + ${hotPool.size} hot instances")
             trimMemory()
         }
     }
@@ -251,15 +422,14 @@ object GoatFastPool {
      */
     @Synchronized
     fun trimMemory() {
-        val count = pool.size
+        val count = pool.size + hotPool.size
         while (pool.isNotEmpty()) {
-            val instance = pool.removeFirstOrNull()
-            if (instance != null) {
-                destroySafely(instance)
-            }
+            pool.removeFirstOrNull()?.let { destroySafely(it) }
         }
+        hotPool.values.toList().forEach { destroySafely(it.webView) }
+        hotPool.clear()
         if (count > 0) {
-            Log.i(TAG, "Trimmed $count pooled WebView instances from memory")
+            Log.i(TAG, "Trimmed $count pooled/hot WebView instances from memory")
         }
     }
 
@@ -277,15 +447,41 @@ object GoatFastPool {
     val poolSize: Int
         @Synchronized get() = pool.size
 
+    @Volatile
+    private var anyInstanceCreated = false
+
+    /**
+     * True once *any* WebView has been constructed in this process — meaning Chromium's native
+     * library and V8 are already loaded.
+     *
+     * This is deliberately not the same question as "is the pool non-empty". A cold first mount
+     * that beats the deferred warm-up takes its instance straight out of [acquire]'s
+     * pool-empty branch, so it never touches [poolSize] — leaving the warm-up unable to tell that
+     * the very cost it exists to hide has already been paid. See [GoatWarmupManager].
+     */
+    val isChromiumInitialized: Boolean
+        get() = anyInstanceCreated
+
     /**
      * Creates a warm WebView instance wrapped in MutableContextWrapper with baseline configuration.
      *
      * @param context The Android context.
      * @return A newly created warm [WebView].
      */
-    fun createWarmWebView(context: Context): WebView {
+    /**
+     * @param warmNavigate whether to prime the renderer with an `about:blank` navigation.
+     *   Correct for a *standby* instance that will sit in the pool: it spawns the renderer
+     *   process ahead of the mount that eventually claims it. Wrong for an instance being built
+     *   for immediate use, where the caller navigates to the real entry URL milliseconds later —
+     *   there the blank load is a whole extra navigation on the cold-start critical path, and it
+     *   is what makes a cold mount emit two `onPageFinished` callbacks (an `about:blank` commit
+     *   followed by the real document) rather than one.
+     */
+    @JvmOverloads
+    fun createWarmWebView(context: Context, warmNavigate: Boolean = true): WebView {
         val appContext = context.applicationContext ?: context
         val mutableContext = MutableContextWrapper(appContext)
+        anyInstanceCreated = true
         return WebView(mutableContext).apply {
             setBackgroundColor(Color.TRANSPARENT)
             try {
@@ -300,22 +496,33 @@ object GoatFastPool {
             } catch (e: Exception) {
                 // Handled for headless/mock environments
             }
-            try {
-                loadUrl("about:blank")
-            } catch (e: Exception) {
-                // Handled for headless/mock environments
+            if (warmNavigate) {
+                try {
+                    loadUrl("about:blank")
+                } catch (e: Exception) {
+                    // Handled for headless/mock environments
+                }
             }
+            // Idle standby: let the OS reclaim this renderer under memory pressure.
+            applyLowMemoryRendererPolicy(this)
         }
     }
 
     /**
-     * Pre-populates the pool up to [MAX_POOL_SIZE] during application idle time.
+     * Pre-populates the pool up to [upTo] (default [MAX_POOL_SIZE]) during application idle time.
+     * The automatic startup warm-up passes `upTo = 1`: one standby covers the first mount, and a
+     * second idle WebView (~15–25 MB, plus its own renderer process) is pure resident cost on a
+     * device that only ever opens one mini-app at a time. [MAX_POOL_SIZE] remains the hard cap that
+     * [recycle] fills toward.
      *
      * @param context The Android context.
      */
+    @JvmOverloads
     @Synchronized
-    fun prewarmPool(context: Context) {
-        while (pool.size < MAX_POOL_SIZE) {
+    fun prewarmPool(context: Context, upTo: Int = MAX_POOL_SIZE) {
+        // If a mini-app is already parked hot, a cold standby is dead RAM — skip it.
+        val target = if (hotPool.isNotEmpty()) 0 else upTo.coerceIn(0, MAX_POOL_SIZE)
+        while (pool.size < target) {
             try {
                 pool.addLast(createWarmWebView(context))
             } catch (e: Exception) {
@@ -323,7 +530,13 @@ object GoatFastPool {
                 break
             }
         }
-        Log.d(TAG, "Prewarmed GoatFastPool (currentSize=${pool.size})")
+        Log.d(TAG, "Prewarmed GoatFastPool (pool=${pool.size}, hot=${hotPool.size})")
+    }
+
+    /** Hot-pool cap for this device: [MAX_HOT_SIZE] normally, 1 on low-end hardware. */
+    internal fun effectiveMaxHotSize(context: android.content.Context?): Int {
+        if (context == null) return MAX_HOT_SIZE
+        return if (GoatDeviceTier.isLowEnd(context)) 1 else MAX_HOT_SIZE
     }
 
     private fun destroySafely(webView: WebView) {

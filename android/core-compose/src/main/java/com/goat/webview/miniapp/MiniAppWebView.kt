@@ -33,18 +33,4 @@ fun MiniAppWebView(
     )
 }
 
-/**
- * Utility helper to apply strict 4-flag file-access hardening to any WebView instance (Task 10193).
- */
-fun WebView.hardenFileAccessFlags() {
-    try {
-        settings.apply {
-            allowFileAccess = false
-            allowContentAccess = false
-            allowFileAccessFromFileURLs = false
-            allowUniversalAccessFromFileURLs = false
-        }
-    } catch (e: Exception) {
-        // Handled for headless/mock unit test environments
-    }
-}
+// hardenFileAccessFlags() now lives in :core (Compose-free) — it is a security control, not UI.

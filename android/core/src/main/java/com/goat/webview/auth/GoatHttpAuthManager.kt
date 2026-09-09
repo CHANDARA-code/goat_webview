@@ -37,6 +37,9 @@ class GoatHttpAuthManager(
     )
 
     private val json = Json { ignoreUnknownKeys = true }
+    
+    // [Task 10204] Credentials are cached per origin for the session lifecycle, verified by test.
+    // memoryCache uses a composite key "$appId:$host:$realm" to cache credentials in-memory per session.
     private val memoryCache = ConcurrentHashMap<String, HttpCredential>()
 
     private fun buildKey(appId: String, host: String, realm: String): String {

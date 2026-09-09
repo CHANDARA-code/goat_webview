@@ -244,4 +244,45 @@ class GoatSecureStorageManagerTest {
         val result = secureStorageManager.getSecureValue(appId, "missing_key")
         assertNull(result)
     }
+
+    /**
+     * The software key fallback must be reachable ONLY when there is no AndroidKeyStore provider
+     * (a plain JVM unit test). On a device the provider exists, and a KeyStore failure there used
+     * to fall through to a process-local random key: hardware-backed encryption silently became
+     * software encryption, and anything written under that key stopped decrypting after restart.
+     *
+     * Registering a stand-in provider under the AndroidKeyStore name puts this JVM on the
+     * production branch, so the refusal is actually exercised rather than assumed.
+     */
+    @Test
+    fun `secure storage refuses to downgrade to a software key when a keystore provider exists`() {
+        val fake = object : java.security.Provider("AndroidKeyStore", 1.0, "test stand-in") {}
+        java.security.Security.addProvider(fake)
+        try {
+            val manager = GoatSecureStorageManager(fakeContext)
+            val error = try {
+                manager.getOrCreateSecretKey("tenant_fail_closed")
+                null
+            } catch (e: Throwable) {
+                e
+            }
+            assertNotNull("must fail closed instead of returning a software key", error)
+            assertTrue(
+                "expected a GoatBridgeException, got ${error!!::class.java.simpleName}",
+                error is GoatBridgeException
+            )
+            assertEquals("SECURE_STORAGE_KEYSTORE_UNAVAILABLE", (error as GoatBridgeException).code)
+        } finally {
+            java.security.Security.removeProvider("AndroidKeyStore")
+        }
+    }
+
+    /** Without a provider (the normal unit-test case) the software fallback stays available. */
+    @Test
+    fun `secure storage still uses the software fallback in a plain JVM test`() {
+        assertNull(java.security.Security.getProvider("AndroidKeyStore"))
+        val manager = GoatSecureStorageManager(fakeContext)
+        assertNotNull(manager.getOrCreateSecretKey("tenant_jvm_fallback"))
+    }
+
 }

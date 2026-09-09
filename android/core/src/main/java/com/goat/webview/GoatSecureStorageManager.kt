@@ -102,7 +102,27 @@ class GoatSecureStorageManager(
             keyGenerator.init(keyGenSpec)
             return keyGenerator.generateKey()
         } catch (e: Exception) {
-            // Software fallback for JVM Unit Test environments
+            // The software fallback is for JVM unit tests ONLY, and that is now enforced rather
+            // than merely stated in a comment.
+            //
+            // This catch used to be unconditional, so on a real device any KeyStore failure --
+            // an OEM ProviderException, StrongBox unavailable, keys invalidated by a lock-screen
+            // change -- silently swapped hardware-backed encryption for a process-local random
+            // key. Two consequences, neither observable to the caller: the MASVS-STORAGE-02
+            // guarantee this class advertises quietly stopped holding, and because the fallback
+            // key is regenerated per process, anything written under it became undecryptable
+            // after restart while previously-persisted ciphertext failed to open.
+            //
+            // The AndroidKeyStore provider is registered on any real device and absent in a plain
+            // JVM unit test, which is what separates the two cases. On a device we fail closed.
+            if (java.security.Security.getProvider(ANDROID_KEYSTORE) != null) {
+                throw GoatBridgeException(
+                    "SECURE_STORAGE_KEYSTORE_UNAVAILABLE",
+                    "Hardware KeyStore is present but unusable for appId '$appId'; refusing to " +
+                        "downgrade to a software key. Secure storage is unavailable.",
+                    e
+                )
+            }
             return fallbackKeyStore.computeIfAbsent(alias) {
                 val rawBytes = ByteArray(32)
                 secureRandom.nextBytes(rawBytes)

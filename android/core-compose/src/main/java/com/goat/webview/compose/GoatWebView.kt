@@ -160,9 +160,9 @@ fun GoatWebView(
             .fillMaxSize()
             .windowInsetsPadding(WindowInsets.ime)
     ) {
-        val clientDomain = GoatWebViewClient.resolveDomain(appId)
-        val allowedOrigins = setOf("https://$clientDomain", "https://appassets.androidplatform.net")
-        val entryUrl = "https://$clientDomain/assets/index.html"
+        val clientDomain = remember(appId) { GoatWebViewClient.resolveDomain(appId) }
+        val allowedOrigins = remember(clientDomain) { setOf("https://$clientDomain", "https://appassets.androidplatform.net") }
+        val entryUrl = remember(clientDomain) { "https://$clientDomain/assets/index.html" }
 
         AndroidView(
             modifier = Modifier.fillMaxSize(),

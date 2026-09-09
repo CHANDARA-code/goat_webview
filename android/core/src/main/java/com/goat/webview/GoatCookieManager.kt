@@ -38,9 +38,15 @@ data class GoatCookie(
 object GoatCookieManager {
     private const val TAG = "GoatCookieManager"
 
+    private val gmtTimeZone = TimeZone.getTimeZone("GMT")
+    private val rfc1123ThreadLocal = ThreadLocal.withInitial {
+        SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z", Locale.US).apply {
+            timeZone = gmtTimeZone
+        }
+    }
     private val rfc1123DateFormat: SimpleDateFormat
-        get() = SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z", Locale.US).apply {
-            timeZone = TimeZone.getTimeZone("GMT")
+        get() = rfc1123ThreadLocal.get() ?: SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z", Locale.US).apply {
+            timeZone = gmtTimeZone
         }
 
     @Volatile
@@ -110,7 +116,10 @@ object GoatCookieManager {
     /**
      * Sets a cookie on the specified URL.
      */
-    suspend fun setCookie(url: String, cookie: GoatCookie): Boolean = withContext(coroutineDispatcher) {
+    // Dispatchers.Main, not coroutineDispatcher (IO): android.webkit.CookieManager's write methods
+    // (setCookie/removeSessionCookies/removeAllCookies) throw IllegalStateException off a thread
+    // without a Looper - IO-pool threads don't have one, so every mutation silently failed.
+    suspend fun setCookie(url: String, cookie: GoatCookie): Boolean = withContext(Dispatchers.Main) {
         val manager = getSystemCookieManager()
         if (manager == null) {
             val domainKey = cookie.domain ?: getTenantDomain("default")
@@ -313,19 +322,25 @@ object GoatCookieManager {
     /**
      * Deletes a single cookie by name and path on a URL.
      */
-    suspend fun deleteCookie(url: String, name: String, domain: String? = null, path: String = "/"): Boolean = withContext(coroutineDispatcher) {
+    suspend fun deleteCookie(url: String, name: String, domain: String? = null, path: String = "/"): Boolean = withContext(Dispatchers.Main) {
         val manager = getSystemCookieManager()
         if (manager == null) {
             inMemoryCookies.values.forEach { it.remove(name) }
             return@withContext true
         }
+        // isSecure defaults to true on GoatCookie, but Chromium silently refuses to set a
+        // `Secure` cookie on a plain http:// origin — which would make this expiry a no-op for
+        // any http:// url. Deletion doesn't depend on the Secure attribute matching, so turn it
+        // off here regardless of the original cookie's flags. Max-Age=0 (not a negative value)
+        // is the form Chromium's cookie parser reliably treats as "expire immediately".
         val expiredCookie = GoatCookie(
             name = name,
             value = "",
             domain = domain,
             path = path,
-            maxAge = -1,
-            expiresDate = 0L
+            maxAge = 0,
+            expiresDate = 0L,
+            isSecure = false
         )
         setCookie(url, expiredCookie)
     }
@@ -342,7 +357,7 @@ object GoatCookieManager {
     /**
      * Clears all cookies associated with a specific mini-app tenant.
      */
-    suspend fun clearTenantCookies(appId: String): Boolean = withContext(coroutineDispatcher) {
+    suspend fun clearTenantCookies(appId: String): Boolean = withContext(Dispatchers.Main) {
         val origin = getTenantOrigin(appId)
         val domain = getTenantDomain(appId)
         if (getSystemCookieManager() == null) {
@@ -364,7 +379,7 @@ object GoatCookieManager {
     /**
      * Purges all cookies in the system CookieManager.
      */
-    suspend fun clearAllCookies(): Boolean = withContext(coroutineDispatcher) {
+    suspend fun clearAllCookies(): Boolean = withContext(Dispatchers.Main) {
         inMemoryCookies.clear()
         val manager = getSystemCookieManager() ?: return@withContext true
         suspendCancellableCoroutine { continuation ->
@@ -387,7 +402,7 @@ object GoatCookieManager {
     /**
      * Removes session-only cookies.
      */
-    suspend fun removeSessionCookies(): Boolean = withContext(coroutineDispatcher) {
+    suspend fun removeSessionCookies(): Boolean = withContext(Dispatchers.Main) {
         val manager = getSystemCookieManager() ?: return@withContext true
         suspendCancellableCoroutine { continuation ->
             try {

@@ -40,6 +40,13 @@ object GoatManifestWindowApplier {
             return state
         }
         try {
+            // Record the host's own orientation before touching it, and the manifest default this
+            // mini-app should fall back to. Without the baseline a runtime lock (Task 10175) has
+            // nothing to restore and would leak into the host app.
+            com.goat.webview.ui.GoatOrientationController.rememberManifestDefault(
+                activity,
+                state.screenOrientation
+            )
             if (config.orientation != MiniAppOrientation.AUTO) {
                 activity.requestedOrientation = state.screenOrientation
             }

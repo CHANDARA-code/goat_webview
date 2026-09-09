@@ -19,6 +19,10 @@ android {
         release {
             isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            // Macrobenchmark (:benchmark) installs this release APK on a device, and an unsigned
+            // APK fails with INSTALL_PARSE_FAILED_NO_CERTIFICATES. This is the example host app,
+            // never a shipped artifact, so the debug keystore is the right signer here.
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
     compileOptions {
@@ -55,6 +59,9 @@ dependencies {
   // Goat Engine Core & Feature Plugins
   implementation(project(":core"))
   implementation(project(":features-all-in"))
+  // GoatComposeTest exercises the @Composable GoatWebView, which now lives in :core-compose
+  // rather than :core (see RESULT_v13_ram_localized.md).
+  androidTestImplementation(project(":core-compose"))
 
   // Core Android dependencies
   implementation(libs.androidx.core.ktx)

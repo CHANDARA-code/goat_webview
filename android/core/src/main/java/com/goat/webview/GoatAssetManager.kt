@@ -81,6 +81,18 @@ class GoatAssetManager(private val context: Context) {
             }
         }
 
+        private val HEX_CHARS = "0123456789abcdef".toCharArray()
+
+        private fun bytesToHex(bytes: ByteArray): String {
+            val hex = CharArray(bytes.size * 2)
+            for (i in bytes.indices) {
+                val b = bytes[i].toInt() and 0xFF
+                hex[i * 2] = HEX_CHARS[b ushr 4]
+                hex[i * 2 + 1] = HEX_CHARS[b and 0x0F]
+            }
+            return String(hex)
+        }
+
         /**
          * Computes SHA-256 checksum of an InputStream.
          */
@@ -92,7 +104,7 @@ class GoatAssetManager(private val context: Context) {
                 while (input.read(buffer).also { read = it } != -1) {
                     digest.update(buffer, 0, read)
                 }
-                return digest.digest().joinToString("") { "%02x".format(it) }
+                return bytesToHex(digest.digest())
             }
         }
     }
@@ -111,9 +123,9 @@ class GoatAssetManager(private val context: Context) {
         val savedHash = prefs.getString(hashKey, null) ?: prefs.getString(KEY_BUNDLE_HASH, null)
 
         val currentHash = try {
-            computeAssetHash(bundleAssetPath)
+            computeAssetToken(bundleAssetPath)
         } catch (e: Exception) {
-            Log.e(TAG, "Failed to compute asset hash for $bundleAssetPath", e)
+            Log.e(TAG, "Failed to compute asset token for $bundleAssetPath", e)
             ""
         }
 
@@ -247,6 +259,27 @@ class GoatAssetManager(private val context: Context) {
     fun computeAssetHash(assetName: String): String {
         return context.assets.open(assetName).use { input ->
             computeStreamHash(input)
+        }
+    }
+
+    /**
+     * Lightweight identity token for a bundled asset, used to decide whether re-extraction is
+     * needed. A packaged asset is immutable between installs, so the package version code plus
+     * install timestamp uniquely identify its contents without hashing a multi-MB archive on
+     * every launch. Falls back to the content hash only if package info is unavailable.
+     */
+    fun computeAssetToken(assetName: String): String {
+        return try {
+            val info = context.packageManager.getPackageInfo(context.packageName, 0)
+            val versionCode = if (android.os.Build.VERSION.SDK_INT >= 28) {
+                info.longVersionCode
+            } else {
+                @Suppress("DEPRECATION") info.versionCode.toLong()
+            }
+            "$assetName|v$versionCode|u${info.lastUpdateTime}"
+        } catch (e: Exception) {
+            Log.w(TAG, "Package info unavailable; falling back to content hash for $assetName", e)
+            computeAssetHash(assetName)
         }
     }
 

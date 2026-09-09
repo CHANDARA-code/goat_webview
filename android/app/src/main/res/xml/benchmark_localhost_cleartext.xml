@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Macrobenchmark queries perfetto traces over cleartext HTTP to on-device localhost, and AndroidX
+  evaluates that policy against the *target* app (this one), not only the test APK. On API 28+ the
+  default is cleartext-denied, so without this every macrobenchmark aborts with:
+
+    java.io.IOException: Macrobenchmark requires cleartext HTTP traffic to the on-device localhost
+
+  Loopback only. Every other destination keeps the secure default, so this does not weaken the
+  app's posture for real network traffic.
+-->
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">localhost</domain>
+        <domain includeSubdomains="true">127.0.0.1</domain>
+    </domain-config>
+</network-security-config>

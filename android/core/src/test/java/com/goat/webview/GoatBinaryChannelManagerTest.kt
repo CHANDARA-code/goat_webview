@@ -59,4 +59,30 @@ class GoatBinaryChannelManagerTest {
         assertTrue(closed)
         assertFalse(channelManager.isPortActive(portId))
     }
+
+    @Test
+    fun testHighThroughputBinaryTransfer() = runTest {
+        val portId = "port_large_01"
+        channelManager.createBinaryPort(portId)
+        val tenMb = ByteArray(10 * 1024 * 1024)
+        val start = System.currentTimeMillis()
+        val meta = channelManager.postBinaryMessage(portId, tenMb)
+        val elapsed = System.currentTimeMillis() - start
+        assertEquals(10 * 1024 * 1024, meta.byteSize)
+        assertTrue("10MB transfer in <15ms, took: ${elapsed}ms", elapsed < 15)
+        channelManager.closeBinaryPort(portId)
+    }
+
+    @Test
+    fun testZeroMainThreadGcSpikesContinuousStreaming() = runTest {
+        val portId = "port_stream_continuous"
+        channelManager.createBinaryPort(portId)
+        val chunk = ByteArray(64 * 1024)
+        for (i in 0 until 50) {
+            channelManager.postBinaryMessage(portId, chunk)
+            channelManager.readBinaryMessage(portId)
+        }
+        assertEquals(50L * 64 * 1024, channelManager.getTotalBytesTransferred(portId))
+        channelManager.closeBinaryPort(portId)
+    }
 }

@@ -46,7 +46,7 @@ class GoatPaymentGatewayManager(
 ) {
     companion object {
         const val DEFAULT_WATCHDOG_MS = 45_000L
-        val BUILT_IN_PROVIDERS = setOf("alipay", "stripe", "link", "paypay", "bakong_khqr")
+        val BUILT_IN_PROVIDERS = setOf("alipay", "stripe", "link", "paypay", "bakong_khqr", "wechat_pay")
         private const val KHQR_PROVIDER_ID = "bakong_khqr"
     }
 

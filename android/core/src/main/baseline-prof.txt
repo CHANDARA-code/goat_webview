@@ -1,0 +1,25 @@
+# Baseline Profile for goat_webview :core — hand-authored (HRF).
+# H = hot, S = startup, P = post-startup. Packaged into the AAR at assets/dexopt/
+# and AOT-compiled at install time by androidx.profileinstaller (already a
+# transitive dependency), so a consuming app does not JIT goat's hot paths on the
+# first cold launch.
+#
+# The whole engine is on the launch / first-mount critical path (App Startup
+# initializer, plugin registration, platform-view creation, bridge-handler build,
+# WebMessageListener wiring, pooled-WebView acquire, asset extraction), so the
+# package is profiled wholesale rather than method-by-method.
+HSPLcom/goat/webview/**->**(**)**
+HSPLcom/goat/webview/flutter/**->**(**)**
+HSPLcom/goat/webview/startup/**->**(**)**
+HSPLcom/goat/webview/view/**->**(**)**
+HSPLcom/goat/webview/network/**->**(**)**
+HSPLcom/goat/webview/popup/**->**(**)**
+
+# androidx.webkit — WebViewCompat.addWebMessageListener + feature checks are hit
+# on every mini-app page load.
+HSPLandroidx/webkit/**->**(**)**
+HSPLandroidx/webkit/internal/**->**(**)**
+
+# App Startup runtime + ProfileInstaller itself run during Application.onCreate.
+HSPLandroidx/startup/**->**(**)**
+HSPLandroidx/profileinstaller/**->**(**)**

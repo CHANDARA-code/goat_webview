@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!--
+      GoatCompatAdapterBenchmark measures bench/compat_size_check, which is NOT this module's
+      targetProjectPath (:app). Under Android 11+ package visibility a package outside the target
+      is invisible to the instrumentation process, and macrobenchmark fails with
+      "Unable to find target package com.goat.bench.compat_size_check, is it installed?" even
+      though it is installed. Declaring it here is what makes it queryable.
+    -->
+    <queries>
+        <package android:name="com.goat.bench.compat_size_check" />
+    </queries>
+
+    <!-- Belt and braces: macrobenchmark resolves the target through the instrumentation
+         context's PackageManager, and QUERY_ALL_PACKAGES is the documented escape hatch for
+         benchmark/test APKs that measure a package chosen at runtime. Test APK only. -->
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"
+        tools:ignore="QueryAllPackagesPermission" />
+
+</manifest>

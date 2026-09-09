@@ -69,32 +69,7 @@ enum class GoatSheetValue {
     }
 }
 
-/**
- * Configuration model for Bottom Sheet.
- */
-data class GoatBottomSheetConfig(
-    val snapPoints: List<Float> = listOf(0.25f, 0.5f, 0.9f),
-    val initialSnap: Float = 0.5f,
-    val isDismissible: Boolean = true,
-    val showDragHandle: Boolean = true,
-    val cornerRadiusDp: Float = 16f
-) {
-    val sanitizedSnapPoints: List<Float> = sanitizeSnapPoints(snapPoints)
-    val sanitizedInitialSnap: Float = initialSnap.coerceIn(
-        sanitizedSnapPoints.firstOrNull() ?: 0.25f,
-        sanitizedSnapPoints.lastOrNull() ?: 0.9f
-    )
-
-    companion object {
-        fun sanitizeSnapPoints(points: List<Float>): List<Float> {
-            val valid = points
-                .map { it.coerceIn(0.1f, 1.0f) }
-                .distinct()
-                .sorted()
-            return if (valid.isEmpty()) listOf(0.25f, 0.5f, 0.9f) else valid
-        }
-    }
-}
+// GoatBottomSheetConfig now lives in :core (Compose-free); GoatBottomSheetTabsOverlay needs it.
 
 /**
  * State container for Bottom Sheet.

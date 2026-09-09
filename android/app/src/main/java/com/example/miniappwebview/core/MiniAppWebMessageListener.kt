@@ -15,10 +15,20 @@ import kotlinx.serialization.json.JsonObject
  */
 class MiniAppWebMessageListener(
     scope: CoroutineScope,
-    onNativeAction: suspend (action: String, payload: JsonObject) -> Result<JsonObject>
+    onNativeAction: suspend (action: String, payload: JsonObject) -> Result<JsonObject>,
+    allowedOrigins: Set<String> = emptySet(),
+    allowSubframes: Boolean = false
 ) : WebViewCompat.WebMessageListener {
 
-    private val delegate = GoatWebMessageListener(scope, onNativeAction)
+    // Named arguments deliberately: GoatWebMessageListener takes allowedOrigins/allowSubframes
+    // between scope and onNativeAction, and passing this positionally is what silently broke
+    // this call site when those origin parameters were introduced.
+    private val delegate = GoatWebMessageListener(
+        scope = scope,
+        allowedOrigins = allowedOrigins,
+        allowSubframes = allowSubframes,
+        onNativeAction = onNativeAction
+    )
 
     override fun onPostMessage(
         view: WebView,

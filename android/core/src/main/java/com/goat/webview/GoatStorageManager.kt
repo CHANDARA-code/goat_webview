@@ -50,6 +50,8 @@ class GoatStorageManager(
             return com.goat.webview.storage.GoatAccountScopedSandbox.getScopedDataDirectory(filesDir, appId)
         }
 
+        private val SANITIZE_REGEX = Regex("[^a-zA-Z0-9._-]")
+
         /**
          * Sanitizes an appId to prevent path traversal characters.
          *
@@ -62,7 +64,15 @@ class GoatStorageManager(
             if (identifier.contains("..") || identifier.contains("/") || identifier.contains("\\")) {
                 throw SecurityException("Path traversal sequence detected in appId: $identifier")
             }
-            return identifier.replace(Regex("[^a-zA-Z0-9._-]"), "_")
+            var isClean = true
+            for (i in 0 until identifier.length) {
+                val c = identifier[i]
+                if (!(c in 'a'..'z' || c in 'A'..'Z' || c in '0'..'9' || c == '.' || c == '_' || c == '-')) {
+                    isClean = false
+                    break
+                }
+            }
+            return if (isClean) identifier else identifier.replace(SANITIZE_REGEX, "_")
         }
     }
 

@@ -36,6 +36,7 @@ class GoatAbuseGuardManager(
             "IAP_PURCHASE",
             "OPEN_INVOICE",
             "WEB3_SIGN_TRANSACTION",
+            "WEB3_SIGN_MESSAGE",
             "CANCEL_PAYMENT"
         )
     }
@@ -48,7 +49,9 @@ class GoatAbuseGuardManager(
      */
     fun recordUserGesture(timestampMs: Long = System.currentTimeMillis()) {
         lastUserTouchTimestamp.set(timestampMs)
-        Log.d(TAG, "Recorded user gesture at $timestampMs")
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "Recorded user gesture at $timestampMs")
+        }
     }
 
     /**

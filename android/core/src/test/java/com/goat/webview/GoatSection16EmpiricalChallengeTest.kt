@@ -70,6 +70,47 @@ class GoatSection16EmpiricalChallengeTest {
     // =========================================================================
 
     @Test
+    fun `test compiled allowlist matches the per-call path exactly`() {
+        // isUriAllowed() runs per subresource request, so the hot caller pre-compiles the
+        // allowlist instead of re-normalising it on every call. That is only a safe optimisation
+        // if the compiled form decides identically -- including the cases this suite already
+        // treats as security-critical: wildcards, leading-dot patterns, exact-only hosts, suffix
+        // collisions, mixed case and untrimmed entries.
+        val allowed = setOf("*.Example.com ", ".partner.org", "exact.service.io", "PLAIN.io")
+        val tenantDomain = "Tenant1.appassets.androidplatform.net"
+        val compiled = GoatContentBlocker.compile(allowed, tenantDomain)
+
+        val urls = listOf(
+            "https://example.com/api",
+            "https://a.b.example.com/deep",
+            "https://partner.org/feed",
+            "https://cdn.partner.org/x.js",
+            "https://exact.service.io/gql",
+            "https://sub.exact.service.io/gql",
+            "https://service.io/gql",
+            "https://plain.io/a",
+            "https://sub.plain.io/a",
+            "https://notexample.com/evil",
+            "https://example.com.evil.com/evil",
+            "https://tenant1.appassets.androidplatform.net/assets/app.js",
+            "https://appassets.androidplatform.net/assets/main.css",
+            "blob:https://tenant1.appassets.androidplatform.net/xyz",
+            "data:image/png;base64,iVBORw0KGgo=",
+            "javascript:alert(1)",
+            "file:///etc/passwd"
+        )
+
+        for (url in urls) {
+            val uri = Uri.parse(url)
+            assertEquals(
+                "Compiled allowlist must decide identically to the per-call path for $url",
+                GoatContentBlocker.isUriAllowed(uri, allowed, tenantDomain),
+                compiled.isUriAllowed(uri)
+            )
+        }
+    }
+
+    @Test
     fun `test wildcard and deep subdomains matching on Android`() {
         val allowed = setOf("*.example.com", ".partner.org", "exact.service.io")
         val tenantDomain = "appassets.androidplatform.net"

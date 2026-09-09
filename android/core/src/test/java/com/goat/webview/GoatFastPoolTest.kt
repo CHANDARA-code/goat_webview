@@ -47,6 +47,30 @@ class GoatFastPoolTest {
     }
 
     @Test
+    fun `test createWarmWebView without warm navigation still yields a usable instance`() {
+        // acquire()'s pool-empty branch builds with warmNavigate=false: the caller navigates to the
+        // real entry URL immediately, so the about:blank priming load is pure cold-start cost.
+        val immediate = GoatFastPool.createWarmWebView(fakeAppContext, warmNavigate = false)
+        assertNotNull("Immediate-use instance must still be constructed", immediate)
+        assertTrue(
+            "Immediate-use instance must still be context-swappable",
+            immediate.context is MutableContextWrapper
+        )
+    }
+
+    @Test
+    fun `test isChromiumInitialized reports true once any instance exists`() {
+        // Deliberately asserts only the positive direction: the flag is process-wide and other
+        // tests in this JVM may already have constructed a WebView, so "false initially" would be
+        // an order-dependent assertion.
+        GoatFastPool.createWarmWebView(fakeAppContext)
+        assertTrue(
+            "Chromium must report initialized once a WebView has been constructed",
+            GoatFastPool.isChromiumInitialized
+        )
+    }
+
+    @Test
     fun `test pool constant configurations`() {
         assertEquals("Max pool size must be 2 to cap RAM below 45MB", 2, GoatFastPool.MAX_POOL_SIZE)
         assertEquals("Pool must start empty after trimMemory", 0, GoatFastPool.poolSize)
@@ -230,5 +254,16 @@ class GoatFastPoolTest {
         assertEquals(2, GoatFastPool.poolSize)
         registeredCallback?.onLowMemory()
         assertEquals(0, GoatFastPool.poolSize)
+    }
+
+    @Test
+    fun `test warm acquireHot latency is under 10ms`() {
+        val webView = GoatFastPool.createWarmWebView(fakeAppContext)
+        GoatFastPool.parkHot(webView, "testKey", null)
+        val start = System.currentTimeMillis()
+        val hot = GoatFastPool.acquireHot("testKey", fakeAppContext)
+        val elapsed = System.currentTimeMillis() - start
+        assertTrue("Warm swap took $elapsed ms (must be < 10ms)", elapsed < 10)
+        assertNotNull(hot)
     }
 }

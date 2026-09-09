@@ -44,7 +44,13 @@ data class MiniAppManifest(
     val entrypoint: String = DEFAULT_ENTRYPOINT,
     val window: MiniAppWindowConfig = MiniAppWindowConfig.DEFAULT,
     val requiredScopes: List<String> = emptyList(),
-    val allowedDomains: List<String> = emptyList()
+    val allowedDomains: List<String> = emptyList(),
+    /**
+     * Relying-party ids this mini-app may create or assert passkeys for, from
+     * `security.allowedRpIds`. Empty means no passkey ceremony is permitted: under the shared
+     * virtual origin every tenant would otherwise be able to claim any rpId.
+     */
+    val allowedRpIds: List<String> = emptyList()
 ) {
     companion object {
         const val DEFAULT_ENTRYPOINT = "index.html"
@@ -85,7 +91,8 @@ object GoatManifestParser {
             entrypoint = entrypoint,
             window = parseWindow(root["window"] as? JsonObject),
             requiredScopes = parseStringArray(root["permissions"] as? JsonObject, "requiredScopes"),
-            allowedDomains = parseStringArray(root["security"] as? JsonObject, "allowedDomains")
+            allowedDomains = parseStringArray(root["security"] as? JsonObject, "allowedDomains"),
+            allowedRpIds = parseStringArray(root["security"] as? JsonObject, "allowedRpIds")
         )
     }
 

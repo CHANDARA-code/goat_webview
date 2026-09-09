@@ -7,7 +7,7 @@ afterEvaluate {
             from(components["release"])
             groupId = "com.goat.webview"
             artifactId = project.name
-            version = (project.findProperty("GOAT_PUBLISH_VERSION") as String?) ?: "1.0.0-alpha.1"
+            version = (project.findProperty("GOAT_PUBLISH_VERSION") as String?) ?: "1.0.0-alpha.2"
             pom {
                 name.set("Goat WebView ${project.name}")
                 description.set("Goat WebView mini-app engine module ${project.name}.")
