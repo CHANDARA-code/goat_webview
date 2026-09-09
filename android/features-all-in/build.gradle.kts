@@ -28,6 +28,9 @@ kotlin {
 dependencies {
     api(project(":core"))
     api(project(":feature-media"))
+    api(project(":feature-sensors"))
+    api(project(":feature-web3"))
+    api(project(":feature-web3-compose"))
     api(project(":feature-scanner"))
     api(project(":feature-location"))
     api(project(":feature-biometrics"))
@@ -37,6 +40,8 @@ dependencies {
     api(project(":feature-payments-alipay"))
     api(project(":feature-payments-paypay"))
     api(project(":feature-payments-bakong"))
+    api(project(":feature-payments-wechat"))
+    api(project(":feature-wallet-passes"))
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)

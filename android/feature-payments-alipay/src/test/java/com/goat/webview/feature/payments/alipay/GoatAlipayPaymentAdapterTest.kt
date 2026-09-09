@@ -8,7 +8,9 @@ import com.goat.webview.payments.GoatPaymentServerProxyClient
 import com.goat.webview.payments.GoatPaymentStatus
 import com.goat.webview.payments.GoatTenantPublicKey
 import kotlinx.coroutines.test.runTest
+import com.goat.webview.payments.GoatPaymentSubCode
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Test
 
 class GoatAlipayPaymentAdapterTest {
@@ -52,6 +54,49 @@ class GoatAlipayPaymentAdapterTest {
         val outcome = adapter.processPayment(request(), ctx)
 
         assertEquals(GoatPaymentStatus.DISMISSED, outcome.status)
+    }
+
+    @Test
+    fun `resultStatus 8000 and 6004 stay non-terminal so onAppResume can reconcile them`() = runTest {
+        // Collapsing either into FAILED would report a payment as failed while it settles, and
+        // would drop the intent from the pending set the resume hook re-queries.
+        for (code in listOf(AlipayResultCode.PROCESSING, AlipayResultCode.RESULT_UNKNOWN)) {
+            val classified = AlipayResultCode.classify(code)
+            val proxy = FakeProxyClient(queryResult = GoatPaymentOutcome(GoatPaymentStatus.PROCESSING, "pi_1"))
+            val ctx = GoatPaymentContext(appId = "tenant-1", proxyClient = proxy)
+            val adapter = GoatAlipayPaymentAdapter(AlipayLauncher { _, _ -> classified })
+
+            val outcome = adapter.processPayment(request(), ctx)
+            assertEquals("resultStatus $code must stay in flight", GoatPaymentStatus.PROCESSING, outcome.status)
+            assertFalse("resultStatus $code must not be terminal", outcome.status.isTerminal)
+        }
+    }
+
+    @Test
+    fun `every documented Alipay resultStatus maps to the right classification`() {
+        assertEquals(AlipayResult.SUCCESS, AlipayResultCode.classify("9000"))
+        assertEquals(AlipayResult.PROCESSING, AlipayResultCode.classify("8000"))
+        assertEquals(AlipayResult.FAILED, AlipayResultCode.classify("4000"))
+        assertEquals(AlipayResult.CANCELED, AlipayResultCode.classify("6001"))
+        assertEquals(AlipayResult.FAILED, AlipayResultCode.classify("6002"))
+        assertEquals(AlipayResult.UNKNOWN, AlipayResultCode.classify("6004"))
+        assertEquals(AlipayResult.UNKNOWN, AlipayResultCode.classify(null))
+        assertEquals(AlipayResult.UNKNOWN, AlipayResultCode.classify("not-a-code"))
+    }
+
+    @Test
+    fun `a network error carries an actionable sub-code`() {
+        assertEquals(GoatPaymentSubCode.NETWORK_TIMEOUT, AlipayResultCode.subCodeFor("6002"))
+        assertEquals(GoatPaymentSubCode.AUTHENTICATION_FAILED, AlipayResultCode.subCodeFor("4000"))
+        assertEquals(null, AlipayResultCode.subCodeFor("9000"))
+    }
+
+    @Test
+    fun `user cancellation is DISMISSED, never FAILED`() = runTest {
+        val proxy = FakeProxyClient(queryResult = GoatPaymentOutcome(GoatPaymentStatus.PROCESSING, "pi_1"))
+        val ctx = GoatPaymentContext(appId = "tenant-1", proxyClient = proxy)
+        val adapter = GoatAlipayPaymentAdapter(AlipayLauncher { _, _ -> AlipayResultCode.classify("6001") })
+        assertEquals(GoatPaymentStatus.DISMISSED, adapter.processPayment(request(), ctx).status)
     }
 
     private class FakeProxyClient(private val queryResult: GoatPaymentOutcome) : GoatPaymentServerProxyClient {

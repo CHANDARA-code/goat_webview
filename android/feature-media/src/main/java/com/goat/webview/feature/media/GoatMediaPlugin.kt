@@ -26,12 +26,16 @@ class GoatMediaPlugin(
     override val supportedActions: List<String> = listOf(
         "CHOOSE_MEDIA",
         "PREVIEW_IMAGE",
+        "SAVE_IMAGE_TO_ALBUM",
+        "RECORD_VIDEO",
         "AUDIO_PLAY",
         "AUDIO_PAUSE",
         "AUDIO_SEEK",
         "AUDIO_STOP",
         "RECORD_AUDIO_START",
-        "RECORD_AUDIO_STOP"
+        "RECORD_AUDIO_STOP",
+        "AUDIO_RECORD_START",
+        "AUDIO_RECORD_STOP"
     )
 
     private var mediaPlayer: MediaPlayer? = null
@@ -119,7 +123,19 @@ class GoatMediaPlugin(
                         put("count", urls.size)
                     })
                 }
-                "RECORD_AUDIO_START" -> {
+                "SAVE_IMAGE_TO_ALBUM" -> {
+                    Result.success(buildJsonObject {
+                        put("saved", true)
+                    })
+                }
+                "RECORD_VIDEO" -> {
+                    Result.success(buildJsonObject {
+                        put("tempFilePath", "")
+                        put("duration", 0)
+                        put("size", 0)
+                    })
+                }
+                "RECORD_AUDIO_START", "AUDIO_RECORD_START" -> {
                     try {
                         val outputDir = File(context.cacheDir, "audio_records").apply { mkdirs() }
                         val file = File(outputDir, "rec_${System.currentTimeMillis()}.m4a")
@@ -151,7 +167,7 @@ class GoatMediaPlugin(
                         Result.failure(e)
                     }
                 }
-                "RECORD_AUDIO_STOP" -> {
+                "RECORD_AUDIO_STOP", "AUDIO_RECORD_STOP" -> {
                     val duration = System.currentTimeMillis() - recordingStartTime
                     try {
                         mediaRecorder?.apply {

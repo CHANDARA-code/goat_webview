@@ -7,6 +7,7 @@ import com.goat.webview.feature.payments.bakong.KhqrPresenter
 import com.goat.webview.feature.payments.paypay.GoatPayPayPaymentAdapter
 import com.goat.webview.feature.payments.stripe.GoatStripePaymentAdapter
 import com.goat.webview.feature.payments.stripe.GoatStripeLinkPaymentAdapter
+import com.goat.webview.feature.payments.wechat.GoatWechatPaymentAdapter
 import com.goat.webview.payments.GoatDefaultPaymentServerProxyClient
 import com.goat.webview.payments.GoatPaymentAdapter
 import com.goat.webview.payments.GoatPaymentContext
@@ -36,7 +37,8 @@ object GoatPaymentPluginRegistry {
         GoatStripeLinkPaymentAdapter(),
         GoatAlipayPaymentAdapter(),
         GoatPayPayPaymentAdapter(),
-        GoatBakongKhqrPaymentAdapter(RegistryKhqrPresenter())
+        GoatBakongKhqrPaymentAdapter(RegistryKhqrPresenter()),
+        GoatWechatPaymentAdapter()
     )
 
     @JvmOverloads

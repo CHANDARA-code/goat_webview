@@ -27,9 +27,9 @@ class GoatPluginRegistryTest {
     }
 
     @Test
-    fun testCreateAllPluginsReturnsAllSixPlugins() {
+    fun testCreateAllPluginsReturnsEveryBundledPlugin() {
         val plugins = GoatPluginRegistry.createAllPlugins(fakeContext)
-        assertEquals(6, plugins.size)
+        assertEquals(10, plugins.size)
         val pluginIds = plugins.map { it.pluginId }.toSet()
         assertTrue(pluginIds.contains("biometrics"))
         assertTrue(pluginIds.contains("bluetooth"))
@@ -37,6 +37,10 @@ class GoatPluginRegistryTest {
         assertTrue(pluginIds.contains("media"))
         assertTrue(pluginIds.contains("network"))
         assertTrue(pluginIds.contains("scanner"))
+        assertTrue(pluginIds.contains("sensors"))
+        assertTrue(pluginIds.contains("web3"))
+        assertTrue(pluginIds.contains("passkey"))
+        assertTrue(pluginIds.contains("wallet_passes"))
     }
 
     @Test
@@ -45,15 +49,32 @@ class GoatPluginRegistryTest {
         assertEquals(0, handler.getRegisteredPlugins().size)
 
         GoatPluginRegistry.registerAll(handler, fakeContext)
-        assertEquals(6, handler.getRegisteredPlugins().size)
+        assertEquals(10, handler.getRegisteredPlugins().size)
 
         val supportedActions = handler.getSupportedActions()
         assertTrue(supportedActions.contains("GET_LOCATION"))
         assertTrue(supportedActions.contains("SCAN_CODE"))
         assertTrue(supportedActions.contains("CHECK_BIOMETRIC_SUPPORT"))
+        assertTrue(supportedActions.contains("PASSKEY_REGISTER"))
+        assertTrue(supportedActions.contains("VAULT_ENCRYPT"))
         assertTrue(supportedActions.contains("CHOOSE_MEDIA"))
         assertTrue(supportedActions.contains("GET_NETWORK_TYPE"))
         assertTrue(supportedActions.contains("BLE_START_SCAN"))
+        // Domain 6 and 13b now arrive through plugins rather than the core dispatcher.
+        assertTrue(supportedActions.contains("START_COMPASS"))
+        assertTrue(supportedActions.contains("STOP_COMPASS"))
+        assertTrue(supportedActions.contains("START_DEVICE_MOTION"))
+        assertTrue(supportedActions.contains("WEB3_CONNECT_WALLET"))
+    }
+
+    @Test
+    fun testCoreAloneDoesNotAdvertiseExtractedFeatureActions() = runTest {
+        // G8: a host linking only :core must report these as unavailable rather than
+        // dispatching them, so canIUse reflects what is actually linked.
+        val coreOnly = GoatBridgeActionHandler(fakeContext).getSupportedActions()
+        assertTrue(!coreOnly.contains("START_COMPASS"))
+        assertTrue(!coreOnly.contains("WEB3_CONNECT_WALLET"))
+        assertTrue(!coreOnly.contains("SCAN_CODE"))
     }
 }
 

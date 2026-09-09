@@ -132,4 +132,25 @@ class GoatMediaPluginTest {
         val result = plugin.execute("UNKNOWN_ACTION", buildJsonObject {})
         assertTrue(result.isFailure)
     }
+
+    @Test
+    fun `the audio-record action names the cross-platform DSL targets are handled`() {
+        val iosDispatches = listOf("AUDIO_RECORD_START", "AUDIO_RECORD_STOP")
+        for (action in iosDispatches) {
+            assertTrue(
+                "$action is the name iOS dispatches and the DSL maps to; the Android plugin must accept it",
+                plugin.supportedActions.contains(action)
+            )
+        }
+    }
+
+    @Test
+    fun `the legacy Android-only record aliases still resolve`() {
+        for (action in listOf("RECORD_AUDIO_START", "RECORD_AUDIO_STOP")) {
+            assertTrue(
+                "$action is a legacy alias mini-apps may already call",
+                plugin.supportedActions.contains(action)
+            )
+        }
+    }
 }
