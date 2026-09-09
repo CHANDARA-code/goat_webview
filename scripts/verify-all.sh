@@ -22,6 +22,9 @@ node "${WORKSPACE_DIR}/scripts/verify-companion-actions.mjs"
 
 echo ""
 echo "🪙 Injected Web3 runtime is in sync with miniapp-web/src/injected/ and wired on both platforms..."
+# The sync check bundles miniapp-web/src/injected via miniapp-web's esbuild, so its deps
+# must be present before this step (it runs before the miniapp-web test step below).
+( cd "${WORKSPACE_DIR}/miniapp-web" && npm install --no-audit --no-fund --silent )
 node "${WORKSPACE_DIR}/scripts/verify-web3-runtime-sync.mjs"
 
 echo ""
