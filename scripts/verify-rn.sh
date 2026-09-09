@@ -14,6 +14,8 @@ if ! command -v npm >/dev/null 2>&1; then
   exit 1
 fi
 
+echo "📥 [React Native] Installing react-native-goat-webview dependencies..."
+npm install --no-audit --no-fund --silent
 echo "🔨 [React Native] Typechecking react-native-goat-webview (npm run build)..."
 npm run build
 echo "✅ [React Native] react-native-goat-webview TypeScript build and types passed."
@@ -29,6 +31,8 @@ echo "✅ [React Native] TurboModule & Fabric Jest tests passed."
 COMPAT_DIR="${WORKSPACE_DIR}/react-native-goat-webview-compat"
 if [ -f "${COMPAT_DIR}/package.json" ]; then
   echo ""
+  echo "📥 [React Native] Installing react-native-goat-webview-compat dependencies..."
+  ( cd "${COMPAT_DIR}" && npm install --no-audit --no-fund --silent )
   echo "🔨 [React Native] Typechecking react-native-goat-webview-compat (npm run build)..."
   ( cd "${COMPAT_DIR}" && npm run build )
   echo "✅ [React Native] compat adapter TypeScript typecheck passed."
