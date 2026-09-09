@@ -1,6 +1,6 @@
 name: goat_webview_media
 description: Modular Media Capability Companion Package for Goat WebView (Task 10202).
-version: 1.0.0-alpha.1
+version: 1.0.0-alpha.2
 homepage: https://github.com/CHANDARA-code/goat_webview
 repository: https://github.com/CHANDARA-code/goat_webview/tree/main/packages/flutter/goat_webview_media
 issue_tracker: https://github.com/CHANDARA-code/goat_webview/issues
@@ -18,7 +18,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  goat_webview: ^1.0.0-alpha.1
+  goat_webview: ^1.0.0-alpha.2
 
 dev_dependencies:
   flutter_test:

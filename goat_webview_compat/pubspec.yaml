@@ -1,0 +1,25 @@
+name: goat_webview_compat
+description: "Drop-in flutter_inappwebview-compatible value types and (later) widget/controller façade over goat_webview, for staged migration spikes only."
+version: 0.1.0
+homepage: https://github.com/CHANDARA-code/goat_webview
+repository: https://github.com/CHANDARA-code/goat_webview/tree/main/goat_webview_compat
+issue_tracker: https://github.com/CHANDARA-code/goat_webview/issues
+publish_to: none
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+  flutter: ">=3.10.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  goat_webview:
+    path: ../goat_webview
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+  custom_lint: ^0.6.0
+  goat_compat_lint:
+    path: ../tools/goat_compat_lint

@@ -1,9 +1,9 @@
 package com.goat.webview.flutter
 
 import android.content.Context
+import android.util.Log
 import android.view.View
 import com.goat.webview.GoatAssetManager
-import com.goat.webview.GoatBridgeActionHandler
 import com.goat.webview.GoatWarmupManager
 import com.goat.webview.popup.GoatPopupRoutingPolicy
 import com.goat.webview.view.GoatView
@@ -17,6 +17,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.add
@@ -37,23 +38,28 @@ class GoatPlatformView(
     private val messenger: BinaryMessenger
 ) : PlatformView, MethodChannel.MethodCallHandler {
 
+    companion object {
+        private const val TAG = "GoatPlatformView"
+    }
+
     private val goatView = GoatView(context)
     private val channel = MethodChannel(messenger, "com.goat.webview/bridge_$id")
     private val job = SupervisorJob()
     private val scope = CoroutineScope(Dispatchers.IO + job)
-    private var actionHandler = GoatBridgeActionHandler(context, autoRegisterPlugins = true, autoRegisterPayments = true)
+
+    private fun jsonElementToAny(v: kotlinx.serialization.json.JsonElement): Any? = when (v) {
+        is JsonNull -> null
+        is kotlinx.serialization.json.JsonPrimitive ->
+            if (v.isString) v.content
+            else v.booleanOrNull ?: v.longOrNull ?: v.doubleOrNull ?: v.content
+        is JsonObject -> jsonObjectToMap(v)
+        is JsonArray -> v.map { jsonElementToAny(it) }
+    }
 
     private fun jsonObjectToMap(jsonObj: JsonObject): Map<String, Any?> {
         val map = mutableMapOf<String, Any?>()
         for ((k, v) in jsonObj) {
-            map[k] = when {
-                v is kotlinx.serialization.json.JsonPrimitive -> {
-                    if (v.isString) v.content
-                    else v.booleanOrNull ?: v.longOrNull ?: v.doubleOrNull ?: v.content
-                }
-                v is JsonObject -> jsonObjectToMap(v)
-                else -> v.toString()
-            }
+            map[k] = jsonElementToAny(v)
         }
         return map
     }
@@ -95,11 +101,97 @@ class GoatPlatformView(
 
     init {
         channel.setMethodCallHandler(this)
+        // The mounted mini-app view keeps its WebView fully warm across remounts (warm pool swap).
+        goatView.hotReuseEnabled = true
         val appId = (creationParams?.get("appId") as? String) ?: GoatAssetManager.DEFAULT_APP_ID
-        actionHandler = GoatBridgeActionHandler(context, appId = appId, autoRegisterPlugins = true, autoRegisterPayments = true)
         val assetBundleName = (creationParams?.get("assetBundleName") as? String) ?: "miniapp.zip"
         val popupRoutingPolicyStr = creationParams?.get("popupRoutingPolicy") as? String
         goatView.defaultPopupRoutingPolicy = GoatPopupRoutingPolicy.fromString(popupRoutingPolicyStr)
+
+        @Suppress("UNCHECKED_CAST")
+        (creationParams?.get("initialUserScripts") as? List<String>)?.let {
+            goatView.initialUserScripts = it
+        }
+
+        // T7 compat: off unless a compat consumer explicitly sets these creation params.
+        (creationParams?.get("compatExternalSchemeResolver") as? Boolean)?.let {
+            goatView.compatExternalSchemeResolver = it
+        }
+        @Suppress("UNCHECKED_CAST")
+        (creationParams?.get("hostDomainAllowlist") as? List<*>)?.let { raw ->
+            val hosts = raw.filterIsInstance<String>().filter { it.isNotBlank() }.toSet()
+            if (hosts.isNotEmpty()) goatView.hostDomainAllowlist = hosts
+        }
+        (creationParams?.get("compatExternalLinkHosts") as? List<String>)?.let {
+            goatView.compatExternalLinkHosts = it.toSet()
+        }
+        goatView.onExternalNavigation = { url ->
+            scope.launch(Dispatchers.Main) { channel.invokeMethod("onExternalNavigation", url) }
+        }
+
+        // T8 compat (G7): each on*Compat callback is only assigned — at all — when the widget
+        // says the Dart side actually supplied that handler. Left null (the GoatView default),
+        // GoatWebViewClient's own `cb ?: return` skips the override's work entirely; assigning
+        // it unconditionally here would silently defeat that gate by always marshalling.
+        if (creationParams?.get("enableOnReceivedError") as? Boolean == true) {
+            goatView.onReceivedErrorCompat = { url, errorCode, description ->
+                scope.launch(Dispatchers.Main) {
+                    channel.invokeMethod("onReceivedError", mapOf(
+                        "url" to url, "errorCode" to errorCode, "description" to description
+                    ))
+                }
+            }
+        }
+        if (creationParams?.get("enableOnReceivedHttpError") as? Boolean == true) {
+            goatView.onReceivedHttpErrorCompat = { url, statusCode ->
+                scope.launch(Dispatchers.Main) {
+                    channel.invokeMethod("onReceivedHttpError", mapOf("url" to url, "statusCode" to statusCode))
+                }
+            }
+        }
+        if (creationParams?.get("enableOnPageCommitVisible") as? Boolean == true) {
+            goatView.onPageCommitVisibleCompat = { url ->
+                scope.launch(Dispatchers.Main) { channel.invokeMethod("onPageCommitVisible", url) }
+            }
+        }
+        if (creationParams?.get("enableOnLoadResource") as? Boolean == true) {
+            goatView.onLoadResourceCompat = { url ->
+                scope.launch(Dispatchers.Main) { channel.invokeMethod("onLoadResource", url) }
+            }
+        }
+        if (creationParams?.get("enableOnUpdateVisitedHistory") as? Boolean == true) {
+            goatView.onUpdateVisitedHistoryCompat = { url, isReload ->
+                scope.launch(Dispatchers.Main) {
+                    channel.invokeMethod("onUpdateVisitedHistory", mapOf("url" to url, "isReload" to isReload))
+                }
+            }
+        }
+        if (creationParams?.get("enableOnConsoleMessage") as? Boolean == true) {
+            goatView.onConsoleMessageCompat = { message, level ->
+                scope.launch(Dispatchers.Main) {
+                    channel.invokeMethod("onConsoleMessage", mapOf("message" to message, "messageLevel" to level))
+                }
+            }
+        }
+
+        // T9 compat: off unless requested. When on but no custom-refresh callback is wired,
+        // pulling to refresh does a plain native reload() -- zero Dart round-trip (G8-style).
+        // A custom onRefresh callback only costs a round-trip for hosts that actually asked for one.
+        if (creationParams?.get("pullToRefreshEnabled") as? Boolean == true) {
+            goatView.pullToRefreshEnabled = true
+            if (creationParams?.get("enableOnPullToRefresh") as? Boolean == true) {
+                goatView.onPullToRefresh = {
+                    scope.launch(Dispatchers.Main) { channel.invokeMethod("onPullToRefresh", null) }
+                }
+            }
+        }
+
+        goatView.onPageStarted = {
+            scope.launch(Dispatchers.Main) { channel.invokeMethod("onPageStarted", "") }
+        }
+        goatView.onPageFinished = {
+            scope.launch(Dispatchers.Main) { channel.invokeMethod("onPageFinished", "") }
+        }
 
         goatView.onPopupRequest = { req ->
             val wfMap = mutableMapOf<String, Any?>()
@@ -128,43 +220,73 @@ class GoatPlatformView(
         }
 
         goatView.onBridgeAction = { action, payload ->
-            // Execute natively first
-            val nativeResult = actionHandler.executeAction(action, payload)
-            // Notify Flutter of the message AND result (for observation/logging)
-            withContext(Dispatchers.Main) {
-                nativeResult.fold(
+            // Execute against the view's own single handler
+            val nativeResult = goatView.executeAction(action, payload)
+            // BRIDGE_PING is a raw latency probe — skip the Flutter observation hop (the map
+            // conversion + main-thread invokeMethod that every other action pays).
+            if (action != "BRIDGE_PING") {
+                // Build the observation payload on this (Default) thread and hop to Main only to
+                // hand it to the channel. jsonObjectToMap recurses over the whole payload *and*
+                // the whole result, so doing it inside the Main block ran that conversion on the
+                // UI thread for every bridge call — work that scales with payload size and shows
+                // up as jank, not as bridge latency. It also folded a kotlin.Result across the
+                // suspension point, the value-class/R8 hazard this codebase documents elsewhere.
+                val observation: Map<String, Any?> = nativeResult.fold(
                     onSuccess = { dataJson ->
-                        channel.invokeMethod("onBridgeMessage", mapOf(
+                        mapOf(
                             "action" to action,
                             "payload" to jsonObjectToMap(payload),
                             "result" to jsonObjectToMap(dataJson),
                             "success" to true
-                        ))
+                        )
                     },
                     onFailure = { err ->
-                        channel.invokeMethod("onBridgeMessage", mapOf(
+                        mapOf(
                             "action" to action,
                             "payload" to jsonObjectToMap(payload),
                             "result" to null,
                             "success" to false,
                             "error" to (err.message ?: "Native execution error")
-                        ))
+                        )
                     }
                 )
+                withContext(Dispatchers.Main) {
+                    channel.invokeMethod("onBridgeMessage", observation)
+                }
             }
             // Return native result to JS bridge
             nativeResult
         }
 
-        val assetManager = GoatAssetManager(context)
-        scope.launch {
-            try {
-                val assetDir = assetManager.ensureAssetsReady(bundleAssetPath = assetBundleName, appId = appId)
-                withContext(Dispatchers.Main) {
-                    goatView.initialize(assetDir, appId = appId)
+        // Pool warm-up is handled once per process by GoatAppInitializer's idle-time hook
+        // (androidx.startup). Re-triggering it here would only schedule redundant main-thread
+        // WebView construction; the explicit "prewarm" MethodChannel remains for host control.
+
+        val initialUrl = (creationParams?.get("initialUrl") as? String)?.takeIf { it.isNotBlank() }
+        // Warm pool swap in place — synchronous, no coroutine — if a parked instance matches.
+        val hotAttached = initialUrl != null && goatView.tryHotAttachSync(initialUrl, appId)
+        if (!hotAttached) {
+            scope.launch {
+                try {
+                    if (initialUrl != null) {
+                        // Mini-app-by-URL fast path: no zip extraction, no filesDir write, no asset
+                        // loader. Straight to a pooled WebView + loadUrl.
+                        goatView.initializeUrlAsync(initialUrl, appId = appId)
+                    } else {
+                        val assetDir = GoatAssetManager(context)
+                            .ensureAssetsReady(bundleAssetPath = assetBundleName, appId = appId)
+                        goatView.initializeAsync(assetDir, appId = appId)
+                    }
+                } catch (e: Exception) {
+                    // Nothing downstream observes this failure -- the view just stays blank
+                    // forever -- so it must at least be diagnosable from logcat.
+                    Log.e(
+                        TAG,
+                        "Mini-app initialization failed (appId=$appId, " +
+                            "target=${initialUrl ?: assetBundleName}); the view will stay blank",
+                        e
+                    )
                 }
-            } catch (e: Exception) {
-                // Asset loading error
             }
         }
     }
@@ -185,7 +307,7 @@ class GoatPlatformView(
                 val jsonPayload = mapToJsonObject(payloadMap)
 
                 scope.launch(Dispatchers.IO) {
-                    val resultObj = actionHandler.executeAction(action, jsonPayload)
+                    val resultObj = goatView.executeAction(action, jsonPayload)
                     withContext(Dispatchers.Main) {
                         resultObj.fold(
                             onSuccess = { dataJson ->
@@ -232,8 +354,15 @@ class GoatPlatformView(
                 }
             }
             "prewarm" -> {
-                GoatWarmupManager.prewarm(context)
+                GoatWarmupManager.prewarmNow(context)
                 result.success(true)
+            }
+            "openMiniApp" -> {
+                // In-place mini-app switch — no platform-view recreation.
+                val url = call.argument<String>("url") ?: ""
+                val targetAppId = call.argument<String>("appId") ?: "default"
+                if (url.isNotBlank()) goatView.hotSwapTo(url, targetAppId)
+                result.success(url.isNotBlank())
             }
             "goBack" -> {
                 val canBack = goatView.canGoBack()
@@ -246,6 +375,19 @@ class GoatPlatformView(
                 goatView.reload()
                 result.success(null)
             }
+            "getUrl" -> result.success(goatView.getUrl())
+            "getTitle" -> result.success(goatView.getTitle())
+            "canGoForward" -> result.success(goatView.canGoForward())
+            "goForward" -> {
+                goatView.goForward()
+                result.success(null)
+            }
+            "getCopyBackForwardList" -> result.success(goatView.getCopyBackForwardList())
+            "loadUrl" -> {
+                val url = call.argument<String>("url") ?: ""
+                if (url.isNotBlank()) goatView.loadUrl(url)
+                result.success(url.isNotBlank())
+            }
             "pause" -> {
                 goatView.onPause()
                 result.success(true)
@@ -254,6 +396,12 @@ class GoatPlatformView(
                 goatView.onResume()
                 result.success(true)
             }
+            "setRefreshing" -> {
+                val refreshing = call.argument<Boolean>("refreshing") ?: false
+                goatView.setRefreshing(refreshing)
+                result.success(true)
+            }
+            "isRefreshing" -> result.success(goatView.isRefreshing)
             "setPopupRoutingPolicy" -> {
                 val policyStr = call.argument<String>("policy")
                 goatView.defaultPopupRoutingPolicy = GoatPopupRoutingPolicy.fromString(policyStr)

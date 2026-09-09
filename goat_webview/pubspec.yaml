@@ -1,6 +1,6 @@
 name: goat_webview
 description: "High-Performance Embedded Mini-App Engine for Flutter powered by Goat WebView."
-version: 1.0.0-alpha.1
+version: 1.0.0-alpha.2
 homepage: https://github.com/CHANDARA-code/goat_webview
 repository: https://github.com/CHANDARA-code/goat_webview/tree/main/goat_webview
 issue_tracker: https://github.com/CHANDARA-code/goat_webview/issues

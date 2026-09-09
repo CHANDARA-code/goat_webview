@@ -461,6 +461,50 @@ void main() {
       await sub.cancel();
       controller.dispose();
     });
+
+    test('lifecycle helper methods dispatch callJs with canonical bridge actions', () async {
+      final controller = GoatWebViewController(viewId: 10);
+
+      final showRes = await controller.onAppShow({'entryRoute': '/home'});
+      expect(showRes.success, isTrue);
+      expect(log.last.method, equals('callJs'));
+      expect(log.last.arguments['action'], equals('ON_APP_SHOW'));
+      expect(log.last.arguments['payload']['entryRoute'], equals('/home'));
+
+      final hideRes = await controller.onAppHide();
+      expect(hideRes.success, isTrue);
+      expect(log.last.method, equals('callJs'));
+      expect(log.last.arguments['action'], equals('ON_APP_HIDE'));
+      expect(log.last.arguments['payload']['timestamp'], isNotNull);
+
+      final scrollRes = await controller.onPageScroll(
+        scrollTop: 100,
+        scrollLeft: 10,
+        scrollHeight: 1000,
+        scrollWidth: 500,
+      );
+      expect(scrollRes.success, isTrue);
+      expect(log.last.arguments['action'], equals('ON_PAGE_SCROLL'));
+      expect(log.last.arguments['payload']['scrollTop'], equals(100));
+
+      final memRes = await controller.onMemoryWarning(level: 80, memoryPressure: 'critical');
+      expect(memRes.success, isTrue);
+      expect(log.last.arguments['action'], equals('ON_MEMORY_WARNING'));
+      expect(log.last.arguments['payload']['level'], equals(80));
+
+      final resizeRes = await controller.onWindowResize(
+        width: 390,
+        height: 844,
+        windowWidth: 390,
+        windowHeight: 844,
+        orientation: 'portrait',
+      );
+      expect(resizeRes.success, isTrue);
+      expect(log.last.arguments['action'], equals('ON_WINDOW_RESIZE'));
+      expect(log.last.arguments['payload']['width'], equals(390));
+
+      controller.dispose();
+    });
   });
 }
 

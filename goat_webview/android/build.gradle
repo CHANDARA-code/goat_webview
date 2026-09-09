@@ -41,14 +41,32 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0"
 
+    // Dual-distribution (TASK_PORTABLE_MINIAPP_DSL_ADAPTERS.md §1).
+    //
+    // Default (Option B) links `features-all-in`, which is what every Flutter host has always
+    // got. Dropping that by default would silently remove ~60 bridge actions from existing
+    // hosts, so it stays the default and granular linking is opt-in.
+    //
+    // Option A: set `goatWebViewGranularFeatures=true` in the host app's gradle.properties, then
+    // depend only on the `feature-*` modules you actually need. `canIUse` / CAN_I_USE will report
+    // false for anything you did not link, which is the intended fail-closed behaviour.
+    def granularFeatures = (project.findProperty('goatWebViewGranularFeatures') ?: 'false')
+            .toString().toBoolean()
+
     if (findProject(':core') != null) {
         implementation project(':core')
-        implementation project(':features-all-in')
+        if (!granularFeatures) {
+            implementation project(':features-all-in')
+        }
     } else if (findProject(':android:core') != null) {
         implementation project(':android:core')
-        implementation project(':android:features-all-in')
+        if (!granularFeatures) {
+            implementation project(':android:features-all-in')
+        }
     } else {
         compileOnly 'com.goat.webview:core:1.0.0'
-        compileOnly 'com.goat.webview:features-all-in:1.0.0'
+        if (!granularFeatures) {
+            compileOnly 'com.goat.webview:features-all-in:1.0.0'
+        }
     }
 }

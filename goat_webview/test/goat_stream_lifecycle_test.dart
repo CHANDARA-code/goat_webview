@@ -40,10 +40,10 @@ void main() {
       expect(controller.isDisposed, isTrue);
     });
 
-    test('GoatWebViewController closes all 12 stream controllers on dispose()', () async {
+    test('GoatWebViewController closes all 20 stream controllers on dispose()', () async {
       final controller = GoatWebViewController(viewId: 42);
 
-      // Verify all 12 streams emit done events when disposed
+      // Verify all 20 streams emit done events when disposed
       final streamDones = <String, bool>{
         'bridgeMessage': false,
         'downloadProgress': false,
@@ -57,6 +57,14 @@ void main() {
         'appServiceCrash': false,
         'appServiceTerminate': false,
         'popupRequest': false,
+        'externalNavigation': false,
+        'receivedError': false,
+        'receivedHttpError': false,
+        'pageCommitVisible': false,
+        'loadResource': false,
+        'updateVisitedHistory': false,
+        'consoleMessage': false,
+        'pullToRefresh': false,
       };
 
       controller.onBridgeMessage.listen((_) {}, onDone: () => streamDones['bridgeMessage'] = true);
@@ -71,6 +79,14 @@ void main() {
       controller.onAppServiceCrash.listen((_) {}, onDone: () => streamDones['appServiceCrash'] = true);
       controller.onAppServiceTerminate.listen((_) {}, onDone: () => streamDones['appServiceTerminate'] = true);
       controller.onPopupRequest.listen((_) {}, onDone: () => streamDones['popupRequest'] = true);
+      controller.onExternalNavigation.listen((_) {}, onDone: () => streamDones['externalNavigation'] = true);
+      controller.onReceivedError.listen((_) {}, onDone: () => streamDones['receivedError'] = true);
+      controller.onReceivedHttpError.listen((_) {}, onDone: () => streamDones['receivedHttpError'] = true);
+      controller.onPageCommitVisible.listen((_) {}, onDone: () => streamDones['pageCommitVisible'] = true);
+      controller.onLoadResource.listen((_) {}, onDone: () => streamDones['loadResource'] = true);
+      controller.onUpdateVisitedHistory.listen((_) {}, onDone: () => streamDones['updateVisitedHistory'] = true);
+      controller.onConsoleMessage.listen((_) {}, onDone: () => streamDones['consoleMessage'] = true);
+      controller.onPullToRefresh.listen((_) {}, onDone: () => streamDones['pullToRefresh'] = true);
 
       controller.dispose();
       await Future<void>.delayed(Duration.zero);
@@ -130,6 +146,22 @@ void main() {
         const MethodCall('onAppServiceTerminate', {
           'appId': 'app_1',
         }),
+        const MethodCall('onExternalNavigation', 'tel:+15551234567'),
+        const MethodCall('onReceivedError', {
+          'url': 'https://goat.dev/broken', 'errorCode': -2, 'description': 'net::ERR_FAILED',
+        }),
+        const MethodCall('onReceivedHttpError', {
+          'url': 'https://goat.dev/missing', 'statusCode': 404,
+        }),
+        const MethodCall('onPageCommitVisible', 'https://goat.dev/visible'),
+        const MethodCall('onLoadResource', 'https://goat.dev/a.js'),
+        const MethodCall('onUpdateVisitedHistory', {
+          'url': 'https://goat.dev/page1', 'isReload': true,
+        }),
+        const MethodCall('onConsoleMessage', {
+          'message': 'hello from JS', 'messageLevel': 'log',
+        }),
+        const MethodCall('onPullToRefresh', null),
       ];
 
       for (final call in calls) {
@@ -144,7 +176,40 @@ void main() {
       }
     });
 
-    test('All 12 stream controllers safely dispatch active events when not closed', () async {
+    test('Events for never-subscribed streams are dropped, and a later subscriber still works', () async {
+      // The stream controllers are created on first subscription rather than eagerly per
+      // controller (20 of them per mounted WebView, when a typical mini-app listens to two or
+      // three). A broadcast controller with no listener drops events anyway, so skipping the
+      // dispatch entirely is observably identical -- this pins that equivalence, and that
+      // subscribing afterwards still wires up correctly.
+      final controller = GoatWebViewController(viewId: 42);
+      const codec = StandardMethodCodec();
+
+      Future<void> send(MethodCall call) async {
+        final ByteData encoded = codec.encodeMethodCall(call);
+        await TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+            .handlePlatformMessage(channelName, encoded, (ByteData? reply) {});
+      }
+
+      // Nobody has touched onPageFinished yet: this must be a silent no-op, not a StateError.
+      await expectLater(
+        send(const MethodCall('onPageFinished', 'https://goat.dev/ignored')),
+        completes,
+      );
+
+      // Subscribing now must still receive subsequent events.
+      final received = <String>[];
+      controller.onPageFinished.listen(received.add);
+      await send(const MethodCall('onPageFinished', 'https://goat.dev/after'));
+      await Future<void>.delayed(Duration.zero);
+
+      expect(received, equals(['https://goat.dev/after']),
+          reason: 'A subscriber attached after the first event must still receive later ones');
+
+      controller.dispose();
+    });
+
+    test('All 20 stream controllers safely dispatch active events when not closed', () async {
       final controller = GoatWebViewController(viewId: 42);
       const codec = StandardMethodCodec();
 
@@ -162,6 +227,14 @@ void main() {
       controller.onAppServiceReady.listen((e) => eventsReceived['appServiceReady'] = e['appId']);
       controller.onAppServiceCrash.listen((e) => eventsReceived['appServiceCrash'] = e['appId']);
       controller.onAppServiceTerminate.listen((e) => eventsReceived['appServiceTerminate'] = e['appId']);
+      controller.onExternalNavigation.listen((e) => eventsReceived['externalNavigation'] = e);
+      controller.onReceivedError.listen((e) => eventsReceived['receivedError'] = e['url']);
+      controller.onReceivedHttpError.listen((e) => eventsReceived['receivedHttpError'] = e['statusCode']);
+      controller.onPageCommitVisible.listen((e) => eventsReceived['pageCommitVisible'] = e);
+      controller.onLoadResource.listen((e) => eventsReceived['loadResource'] = e);
+      controller.onUpdateVisitedHistory.listen((e) => eventsReceived['updateVisitedHistory'] = e['isReload']);
+      controller.onConsoleMessage.listen((e) => eventsReceived['consoleMessage'] = e['message']);
+      controller.onPullToRefresh.listen((_) => eventsReceived['pullToRefresh'] = true);
 
       final testDispatches = [
         const MethodCall('onPopupRequest', {
@@ -204,6 +277,22 @@ void main() {
         const MethodCall('onAppServiceTerminate', {
           'appId': 'app_active',
         }),
+        const MethodCall('onExternalNavigation', 'tel:+15551234567'),
+        const MethodCall('onReceivedError', {
+          'url': 'https://goat.dev/broken', 'errorCode': -2, 'description': 'net::ERR_FAILED',
+        }),
+        const MethodCall('onReceivedHttpError', {
+          'url': 'https://goat.dev/missing', 'statusCode': 404,
+        }),
+        const MethodCall('onPageCommitVisible', 'https://goat.dev/visible'),
+        const MethodCall('onLoadResource', 'https://goat.dev/a.js'),
+        const MethodCall('onUpdateVisitedHistory', {
+          'url': 'https://goat.dev/page1', 'isReload': true,
+        }),
+        const MethodCall('onConsoleMessage', {
+          'message': 'hello from JS', 'messageLevel': 'log',
+        }),
+        const MethodCall('onPullToRefresh', null),
       ];
 
       for (final call in testDispatches) {
@@ -226,6 +315,14 @@ void main() {
       expect(eventsReceived['appServiceReady'], equals('app_active'));
       expect(eventsReceived['appServiceCrash'], equals('app_active'));
       expect(eventsReceived['appServiceTerminate'], equals('app_active'));
+      expect(eventsReceived['externalNavigation'], equals('tel:+15551234567'));
+      expect(eventsReceived['receivedError'], equals('https://goat.dev/broken'));
+      expect(eventsReceived['receivedHttpError'], equals(404));
+      expect(eventsReceived['pageCommitVisible'], equals('https://goat.dev/visible'));
+      expect(eventsReceived['loadResource'], equals('https://goat.dev/a.js'));
+      expect(eventsReceived['updateVisitedHistory'], equals(true));
+      expect(eventsReceived['consoleMessage'], equals('hello from JS'));
+      expect(eventsReceived['pullToRefresh'], equals(true));
 
       controller.dispose();
     });

@@ -9,7 +9,7 @@ abstract class GoatCapabilityPlugin {
   /// Unique namespace for this capability plugin (e.g. 'media', 'scanner', 'location').
   String get namespace;
 
-  /// Set of bridge actions handled by this plugin (e.g. {'CHOOSE_IMAGE', 'RECORD_AUDIO'}).
+  /// Set of bridge actions handled by this plugin (e.g. {'CHOOSE_MEDIA', 'AUDIO_RECORD_START'}).
   Set<String> get supportedActions;
 
   /// Handles an action dispatched to this capability plugin.

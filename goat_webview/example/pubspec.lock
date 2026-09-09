@@ -73,56 +73,56 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "1.0.0-alpha.1"
+    version: "1.0.0-alpha.2"
   goat_webview_biometrics:
     dependency: "direct main"
     description:
       path: "../../packages/flutter/goat_webview_biometrics"
       relative: true
     source: path
-    version: "1.0.0-alpha.1"
+    version: "1.0.0-alpha.2"
   goat_webview_bluetooth:
     dependency: "direct main"
     description:
       path: "../../packages/flutter/goat_webview_bluetooth"
       relative: true
     source: path
-    version: "1.0.0-alpha.1"
+    version: "1.0.0-alpha.2"
   goat_webview_location:
     dependency: "direct main"
     description:
       path: "../../packages/flutter/goat_webview_location"
       relative: true
     source: path
-    version: "1.0.0-alpha.1"
+    version: "1.0.0-alpha.2"
   goat_webview_media:
     dependency: "direct main"
     description:
       path: "../../packages/flutter/goat_webview_media"
       relative: true
     source: path
-    version: "1.0.0-alpha.1"
+    version: "1.0.0-alpha.2"
   goat_webview_network:
     dependency: "direct main"
     description:
       path: "../../packages/flutter/goat_webview_network"
       relative: true
     source: path
-    version: "1.0.0-alpha.1"
+    version: "1.0.0-alpha.2"
   goat_webview_payments:
     dependency: "direct main"
     description:
       path: "../../packages/flutter/goat_webview_payments"
       relative: true
     source: path
-    version: "1.0.0-alpha.1"
+    version: "1.0.0-alpha.2"
   goat_webview_scanner:
     dependency: "direct main"
     description:
       path: "../../packages/flutter/goat_webview_scanner"
       relative: true
     source: path
-    version: "1.0.0-alpha.1"
+    version: "1.0.0-alpha.2"
   leak_tracker:
     dependency: transitive
     description:

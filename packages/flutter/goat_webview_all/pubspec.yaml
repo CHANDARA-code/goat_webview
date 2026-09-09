@@ -1,0 +1,55 @@
+name: goat_webview_all
+description: Option B umbrella — every Goat WebView Flutter capability companion in one dependency.
+version: 1.0.0-alpha.2
+homepage: https://github.com/CHANDARA-code/goat_webview
+repository: https://github.com/CHANDARA-code/goat_webview/tree/main/packages/flutter/goat_webview_all
+issue_tracker: https://github.com/CHANDARA-code/goat_webview/issues
+topics:
+  - webview
+  - miniapp
+  - umbrella
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+  flutter: ">=3.10.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  goat_webview: ^1.0.0-alpha.2
+  goat_webview_biometrics: ^1.0.0-alpha.2
+  goat_webview_bluetooth: ^1.0.0-alpha.2
+  goat_webview_location: ^1.0.0-alpha.2
+  goat_webview_media: ^1.0.0-alpha.2
+  goat_webview_network: ^1.0.0-alpha.2
+  goat_webview_payments: ^1.0.0-alpha.2
+  goat_webview_scanner: ^1.0.0-alpha.2
+  goat_webview_sensors: ^1.0.0-alpha.2
+  goat_webview_web3: ^1.0.0-alpha.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+dependency_overrides:
+  goat_webview:
+    path: ../../../goat_webview
+  goat_webview_biometrics:
+    path: ../goat_webview_biometrics
+  goat_webview_bluetooth:
+    path: ../goat_webview_bluetooth
+  goat_webview_location:
+    path: ../goat_webview_location
+  goat_webview_media:
+    path: ../goat_webview_media
+  goat_webview_network:
+    path: ../goat_webview_network
+  goat_webview_payments:
+    path: ../goat_webview_payments
+  goat_webview_scanner:
+    path: ../goat_webview_scanner
+  goat_webview_sensors:
+    path: ../goat_webview_sensors
+  goat_webview_web3:
+    path: ../goat_webview_web3

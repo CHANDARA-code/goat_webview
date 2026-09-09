@@ -1,0 +1,14 @@
+name: goat_compat_lint
+description: "custom_lint rule (T14) forbidding runtime retention of goat_webview_compat migration/config value types."
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dependencies:
+  analyzer: ">=6.0.0"
+  custom_lint_builder: ^0.6.0
+
+dev_dependencies:
+  custom_lint: ^0.6.0

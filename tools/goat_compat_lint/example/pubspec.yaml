@@ -1,0 +1,18 @@
+name: goat_compat_lint_example
+description: "T14 acceptance fixture — deliberately violates NoRetainedCompatConfig so the rule's own test suite has something real to lint against."
+publish_to: none
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+  flutter: ">=3.10.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  goat_webview_compat:
+    path: ../../../goat_webview_compat
+
+dev_dependencies:
+  custom_lint: ^0.6.0
+  goat_compat_lint:
+    path: ../

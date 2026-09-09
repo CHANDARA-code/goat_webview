@@ -391,6 +391,49 @@ void main() {
       expect(w3Res.success, isTrue);
       expect(log.last.arguments['action'], equals('WEB3_CONNECT_WALLET'));
 
+      // Wallet SPI additions: off-chain signing and chain switching.
+      final signMsgRes = await controller.web3SignMessage(
+        message: '{"primaryType":"PermitSingle"}',
+        messageType: 'eth_signTypedData_v4',
+      );
+      expect(signMsgRes.success, isTrue);
+      expect(log.last.arguments['action'], equals('WEB3_SIGN_MESSAGE'));
+      expect(log.last.arguments['payload']['messageType'], equals('eth_signTypedData_v4'));
+
+      final switchRes = await controller.web3SwitchChain(chainId: 'eip155:137');
+      expect(switchRes.success, isTrue);
+      expect(log.last.arguments['action'], equals('WEB3_SWITCH_CHAIN'));
+
+      // Passkeys & the hardware vault.
+      final pkSupportRes = await controller.passkeyCheckSupport();
+      expect(pkSupportRes.success, isTrue);
+      expect(log.last.arguments['action'], equals('PASSKEY_CHECK_SUPPORT'));
+
+      final pkRegRes = await controller.passkeyRegister(
+        optionsJson: '{"rp":{"id":"shop.example.com"}}',
+        rpId: 'shop.example.com',
+      );
+      expect(pkRegRes.success, isTrue);
+      expect(log.last.arguments['action'], equals('PASSKEY_REGISTER'));
+      expect(log.last.arguments['payload']['rpId'], equals('shop.example.com'));
+
+      final pkAssertRes = await controller.passkeyAssert(
+        optionsJson: '{"rpId":"shop.example.com"}',
+      );
+      expect(pkAssertRes.success, isTrue);
+      expect(log.last.arguments['action'], equals('PASSKEY_ASSERT'));
+
+      final vaultEncRes = await controller.vaultEncrypt(vaultId: 'notes', plaintext: 'secret');
+      expect(vaultEncRes.success, isTrue);
+      expect(log.last.arguments['action'], equals('VAULT_ENCRYPT'));
+
+      final vaultDecRes = await controller.vaultDecrypt(
+        vaultId: 'notes',
+        envelope: const {'ciphertext': 'Y2k'},
+      );
+      expect(vaultDecRes.success, isTrue);
+      expect(log.last.arguments['action'], equals('VAULT_DECRYPT'));
+
       // IAP Invoices (Task 10121)
       final iapRes = await controller.openInvoice(invoiceSlug: 'inv_1', title: 'Credits', amount: 100);
       expect(iapRes.success, isTrue);

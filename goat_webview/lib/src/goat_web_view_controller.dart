@@ -12,30 +12,66 @@ class GoatWebViewController {
   /// Whether this controller has been disposed.
   bool get isDisposed => _isDisposed;
 
-  final StreamController<GoatBridgeMessage> _bridgeMessageStream =
-      StreamController<GoatBridgeMessage>.broadcast();
-  final StreamController<Map<String, dynamic>> _downloadProgressStream =
-      StreamController<Map<String, dynamic>>.broadcast();
-  final StreamController<int> _progressStream =
-      StreamController<int>.broadcast();
-  final StreamController<String> _pageStartedStream =
-      StreamController<String>.broadcast();
-  final StreamController<String> _pageFinishedStream =
-      StreamController<String>.broadcast();
-  final StreamController<GoatSafeAreaInsets> _safeAreaStream =
-      StreamController<GoatSafeAreaInsets>.broadcast();
-  final StreamController<GoatKeyboardInsets> _keyboardInsetsStream =
-      StreamController<GoatKeyboardInsets>.broadcast();
-  final StreamController<Map<String, dynamic>> _miniAppClosedStream =
-      StreamController<Map<String, dynamic>>.broadcast();
-  final StreamController<Map<String, dynamic>> _appServiceReadyStream =
-      StreamController<Map<String, dynamic>>.broadcast();
-  final StreamController<Map<String, dynamic>> _appServiceCrashStream =
-      StreamController<Map<String, dynamic>>.broadcast();
-  final StreamController<Map<String, dynamic>> _appServiceTerminateStream =
-      StreamController<Map<String, dynamic>>.broadcast();
-  final StreamController<GoatPopupRequest> _popupRequestStream =
-      StreamController<GoatPopupRequest>.broadcast();
+  StreamController<GoatBridgeMessage>? _bridgeMessageStreamCtrl;
+  StreamController<GoatBridgeMessage> get _bridgeMessageStream =>
+      _bridgeMessageStreamCtrl ??= StreamController<GoatBridgeMessage>.broadcast();
+  StreamController<Map<String, dynamic>>? _downloadProgressStreamCtrl;
+  StreamController<Map<String, dynamic>> get _downloadProgressStream =>
+      _downloadProgressStreamCtrl ??= StreamController<Map<String, dynamic>>.broadcast();
+  StreamController<int>? _progressStreamCtrl;
+  StreamController<int> get _progressStream =>
+      _progressStreamCtrl ??= StreamController<int>.broadcast();
+  StreamController<String>? _pageStartedStreamCtrl;
+  StreamController<String> get _pageStartedStream =>
+      _pageStartedStreamCtrl ??= StreamController<String>.broadcast();
+  StreamController<String>? _pageFinishedStreamCtrl;
+  StreamController<String> get _pageFinishedStream =>
+      _pageFinishedStreamCtrl ??= StreamController<String>.broadcast();
+  StreamController<GoatSafeAreaInsets>? _safeAreaStreamCtrl;
+  StreamController<GoatSafeAreaInsets> get _safeAreaStream =>
+      _safeAreaStreamCtrl ??= StreamController<GoatSafeAreaInsets>.broadcast();
+  StreamController<GoatKeyboardInsets>? _keyboardInsetsStreamCtrl;
+  StreamController<GoatKeyboardInsets> get _keyboardInsetsStream =>
+      _keyboardInsetsStreamCtrl ??= StreamController<GoatKeyboardInsets>.broadcast();
+  StreamController<Map<String, dynamic>>? _miniAppClosedStreamCtrl;
+  StreamController<Map<String, dynamic>> get _miniAppClosedStream =>
+      _miniAppClosedStreamCtrl ??= StreamController<Map<String, dynamic>>.broadcast();
+  StreamController<Map<String, dynamic>>? _appServiceReadyStreamCtrl;
+  StreamController<Map<String, dynamic>> get _appServiceReadyStream =>
+      _appServiceReadyStreamCtrl ??= StreamController<Map<String, dynamic>>.broadcast();
+  StreamController<Map<String, dynamic>>? _appServiceCrashStreamCtrl;
+  StreamController<Map<String, dynamic>> get _appServiceCrashStream =>
+      _appServiceCrashStreamCtrl ??= StreamController<Map<String, dynamic>>.broadcast();
+  StreamController<Map<String, dynamic>>? _appServiceTerminateStreamCtrl;
+  StreamController<Map<String, dynamic>> get _appServiceTerminateStream =>
+      _appServiceTerminateStreamCtrl ??= StreamController<Map<String, dynamic>>.broadcast();
+  StreamController<GoatPopupRequest>? _popupRequestStreamCtrl;
+  StreamController<GoatPopupRequest> get _popupRequestStream =>
+      _popupRequestStreamCtrl ??= StreamController<GoatPopupRequest>.broadcast();
+  StreamController<String>? _externalNavigationStreamCtrl;
+  StreamController<String> get _externalNavigationStream =>
+      _externalNavigationStreamCtrl ??= StreamController<String>.broadcast();
+  StreamController<Map<String, dynamic>>? _receivedErrorStreamCtrl;
+  StreamController<Map<String, dynamic>> get _receivedErrorStream =>
+      _receivedErrorStreamCtrl ??= StreamController<Map<String, dynamic>>.broadcast();
+  StreamController<Map<String, dynamic>>? _receivedHttpErrorStreamCtrl;
+  StreamController<Map<String, dynamic>> get _receivedHttpErrorStream =>
+      _receivedHttpErrorStreamCtrl ??= StreamController<Map<String, dynamic>>.broadcast();
+  StreamController<String>? _pageCommitVisibleStreamCtrl;
+  StreamController<String> get _pageCommitVisibleStream =>
+      _pageCommitVisibleStreamCtrl ??= StreamController<String>.broadcast();
+  StreamController<String>? _loadResourceStreamCtrl;
+  StreamController<String> get _loadResourceStream =>
+      _loadResourceStreamCtrl ??= StreamController<String>.broadcast();
+  StreamController<Map<String, dynamic>>? _updateVisitedHistoryStreamCtrl;
+  StreamController<Map<String, dynamic>> get _updateVisitedHistoryStream =>
+      _updateVisitedHistoryStreamCtrl ??= StreamController<Map<String, dynamic>>.broadcast();
+  StreamController<Map<String, dynamic>>? _consoleMessageStreamCtrl;
+  StreamController<Map<String, dynamic>> get _consoleMessageStream =>
+      _consoleMessageStreamCtrl ??= StreamController<Map<String, dynamic>>.broadcast();
+  StreamController<void>? _pullToRefreshStreamCtrl;
+  StreamController<void> get _pullToRefreshStream =>
+      _pullToRefreshStreamCtrl ??= StreamController<void>.broadcast();
 
   Stream<GoatBridgeMessage> get onBridgeMessage => _bridgeMessageStream.stream;
   Stream<Map<String, dynamic>> get onDownloadProgress =>
@@ -56,6 +92,35 @@ class GoatWebViewController {
       _appServiceTerminateStream.stream;
   Stream<GoatPopupRequest> get onPopupRequest => _popupRequestStream.stream;
 
+  /// T7 compat: fires with the raw URL whenever the native external-scheme resolver
+  /// resolves a navigation externally (only when `compatExternalSchemeResolver` is set
+  /// on the widget). Fire-and-forget — this is a notice, not a navigation veto.
+  Stream<String> get onExternalNavigation => _externalNavigationStream.stream;
+
+  /// T8 compat: each of these only ever emits when the [GoatWebView] widget was built with the
+  /// matching callback set (`enableOnX` creation param) — the native side skips the work
+  /// entirely otherwise (G7). `{url, errorCode, description}`.
+  Stream<Map<String, dynamic>> get onReceivedError => _receivedErrorStream.stream;
+
+  /// `{url, statusCode}`.
+  Stream<Map<String, dynamic>> get onReceivedHttpError =>
+      _receivedHttpErrorStream.stream;
+  Stream<String> get onPageCommitVisible => _pageCommitVisibleStream.stream;
+  Stream<String> get onLoadResource => _loadResourceStream.stream;
+
+  /// `{url, isReload}`.
+  Stream<Map<String, dynamic>> get onUpdateVisitedHistory =>
+      _updateVisitedHistoryStream.stream;
+
+  /// `{message, messageLevel}`.
+  Stream<Map<String, dynamic>> get onConsoleMessage =>
+      _consoleMessageStream.stream;
+
+  /// T9 compat: fires on every pull-to-refresh gesture, only when the widget's
+  /// `onPullToRefresh` callback was supplied. The default (unsupplied) case never reaches
+  /// Dart at all — native just reloads.
+  Stream<void> get onPullToRefresh => _pullToRefreshStream.stream;
+
   GoatWebViewController({required this.viewId})
       : _channel = MethodChannel('com.goat.webview/bridge_$viewId') {
     _channel.setMethodCallHandler(_handleMethodCall);
@@ -65,76 +130,116 @@ class GoatWebViewController {
     if (_isDisposed) return null;
     switch (call.method) {
       case 'onPopupRequest':
-        if (!_popupRequestStream.isClosed) {
+        if (_popupRequestStreamCtrl?.hasListener == true) {
           final map = Map<String, dynamic>.from(call.arguments as Map);
           _popupRequestStream.add(GoatPopupRequest.fromMap(map));
         }
         return null;
       case 'onBridgeMessage':
-        if (!_bridgeMessageStream.isClosed) {
+        if (_bridgeMessageStreamCtrl?.hasListener == true) {
           final map = Map<String, dynamic>.from(call.arguments as Map);
           final msg = GoatBridgeMessage.fromMap(map);
           _bridgeMessageStream.add(msg);
         }
         return null;
       case 'onDownloadProgress':
-        if (!_downloadProgressStream.isClosed) {
+        if (_downloadProgressStreamCtrl?.hasListener == true) {
           final map = Map<String, dynamic>.from(call.arguments as Map);
           _downloadProgressStream.add(map);
         }
         return null;
       case 'onProgressChanged':
-        if (!_progressStream.isClosed) {
+        if (_progressStreamCtrl?.hasListener == true) {
           final progress = (call.arguments as num?)?.toInt() ?? 0;
           _progressStream.add(progress);
         }
         return null;
       case 'onPageStarted':
-        if (!_pageStartedStream.isClosed) {
+        if (_pageStartedStreamCtrl?.hasListener == true) {
           final url = call.arguments as String? ?? '';
           _pageStartedStream.add(url);
         }
         return null;
       case 'onPageFinished':
-        if (!_pageFinishedStream.isClosed) {
+        if (_pageFinishedStreamCtrl?.hasListener == true) {
           final url = call.arguments as String? ?? '';
           _pageFinishedStream.add(url);
         }
         return null;
       case 'onSafeAreaChanged':
-        if (!_safeAreaStream.isClosed) {
+        if (_safeAreaStreamCtrl?.hasListener == true) {
           final map = Map<String, dynamic>.from(call.arguments as Map);
           _safeAreaStream.add(GoatSafeAreaInsets.fromMap(map));
         }
         return null;
       case 'onKeyboardInsetsChanged':
-        if (!_keyboardInsetsStream.isClosed) {
+        if (_keyboardInsetsStreamCtrl?.hasListener == true) {
           final map = Map<String, dynamic>.from(call.arguments as Map);
           _keyboardInsetsStream.add(GoatKeyboardInsets.fromMap(map));
         }
         return null;
       case 'onMiniAppClosed':
-        if (!_miniAppClosedStream.isClosed) {
+        if (_miniAppClosedStreamCtrl?.hasListener == true) {
           final map = Map<String, dynamic>.from(call.arguments as Map);
           _miniAppClosedStream.add(map);
         }
         return null;
       case 'onAppServiceReady':
-        if (!_appServiceReadyStream.isClosed) {
+        if (_appServiceReadyStreamCtrl?.hasListener == true) {
           final map = Map<String, dynamic>.from(call.arguments as Map);
           _appServiceReadyStream.add(map);
         }
         return null;
       case 'onAppServiceCrash':
-        if (!_appServiceCrashStream.isClosed) {
+        if (_appServiceCrashStreamCtrl?.hasListener == true) {
           final map = Map<String, dynamic>.from(call.arguments as Map);
           _appServiceCrashStream.add(map);
         }
         return null;
       case 'onAppServiceTerminate':
-        if (!_appServiceTerminateStream.isClosed) {
+        if (_appServiceTerminateStreamCtrl?.hasListener == true) {
           final map = Map<String, dynamic>.from(call.arguments as Map);
           _appServiceTerminateStream.add(map);
+        }
+        return null;
+      case 'onExternalNavigation':
+        if (_externalNavigationStreamCtrl?.hasListener == true) {
+          _externalNavigationStream.add(call.arguments as String? ?? '');
+        }
+        return null;
+      case 'onReceivedError':
+        if (_receivedErrorStreamCtrl?.hasListener == true) {
+          _receivedErrorStream.add(Map<String, dynamic>.from(call.arguments as Map));
+        }
+        return null;
+      case 'onReceivedHttpError':
+        if (_receivedHttpErrorStreamCtrl?.hasListener == true) {
+          _receivedHttpErrorStream.add(Map<String, dynamic>.from(call.arguments as Map));
+        }
+        return null;
+      case 'onPageCommitVisible':
+        if (_pageCommitVisibleStreamCtrl?.hasListener == true) {
+          _pageCommitVisibleStream.add(call.arguments as String? ?? '');
+        }
+        return null;
+      case 'onLoadResource':
+        if (_loadResourceStreamCtrl?.hasListener == true) {
+          _loadResourceStream.add(call.arguments as String? ?? '');
+        }
+        return null;
+      case 'onUpdateVisitedHistory':
+        if (_updateVisitedHistoryStreamCtrl?.hasListener == true) {
+          _updateVisitedHistoryStream.add(Map<String, dynamic>.from(call.arguments as Map));
+        }
+        return null;
+      case 'onConsoleMessage':
+        if (_consoleMessageStreamCtrl?.hasListener == true) {
+          _consoleMessageStream.add(Map<String, dynamic>.from(call.arguments as Map));
+        }
+        return null;
+      case 'onPullToRefresh':
+        if (_pullToRefreshStreamCtrl?.hasListener == true) {
+          _pullToRefreshStream.add(null);
         }
         return null;
       default:
@@ -159,6 +264,54 @@ class GoatWebViewController {
       return GoatBridgeResponse.fromMap(Map<String, dynamic>.from(res));
     }
     return GoatBridgeResponse(id: '', success: false, error: 'Empty response');
+  }
+
+  Future<GoatBridgeResponse> onAppShow([Map<String, dynamic> options = const {}]) async {
+    return await callJs('ON_APP_SHOW', options);
+  }
+
+  Future<GoatBridgeResponse> onAppHide() async {
+    return await callJs('ON_APP_HIDE', {'timestamp': DateTime.now().millisecondsSinceEpoch});
+  }
+
+  Future<GoatBridgeResponse> onPageScroll({
+    required int scrollTop,
+    required int scrollLeft,
+    required int scrollHeight,
+    required int scrollWidth,
+  }) async {
+    return await callJs('ON_PAGE_SCROLL', {
+      'scrollTop': scrollTop,
+      'scrollLeft': scrollLeft,
+      'scrollHeight': scrollHeight,
+      'scrollWidth': scrollWidth,
+    });
+  }
+
+  Future<GoatBridgeResponse> onMemoryWarning({
+    required int level,
+    String memoryPressure = 'warning',
+  }) async {
+    return await callJs('ON_MEMORY_WARNING', {
+      'level': level,
+      'memoryPressure': memoryPressure,
+    });
+  }
+
+  Future<GoatBridgeResponse> onWindowResize({
+    required int width,
+    required int height,
+    required int windowWidth,
+    required int windowHeight,
+    required String orientation,
+  }) async {
+    return await callJs('ON_WINDOW_RESIZE', {
+      'width': width,
+      'height': height,
+      'windowWidth': windowWidth,
+      'windowHeight': windowHeight,
+      'orientation': orientation,
+    });
   }
 
   /// Executes a native bridge action directly on the host platform engine (Android / iOS)
@@ -220,6 +373,50 @@ class GoatWebViewController {
     await _channel.invokeMethod<void>('reload');
   }
 
+  /// Current page URL, or null before any navigation.
+  Future<String?> getUrl() async => _channel.invokeMethod<String>('getUrl');
+
+  /// Current page title, or null before any navigation.
+  Future<String?> getTitle() async => _channel.invokeMethod<String>('getTitle');
+
+  /// Can the WebView navigate forward in history?
+  Future<bool> canGoForward() async {
+    final res = await _channel.invokeMethod<bool>('canGoForward');
+    return res ?? false;
+  }
+
+  /// Navigates forward in history.
+  Future<void> goForward() async {
+    await _channel.invokeMethod<void>('goForward');
+  }
+
+  /// Loads [url] directly on the live WebView — a raw navigation, not a mini-app switch
+  /// ([switchMiniApp]/[openMiniApp] go through the warm pool and sandbox model).
+  Future<bool> loadUrl(String url) async {
+    final res = await _channel.invokeMethod<bool>('loadUrl', {'url': url});
+    return res ?? false;
+  }
+
+  /// The WebView's back-forward list: `{currentIndex, history: [{url, title}]}`.
+  Future<Map<String, dynamic>> getCopyBackForwardList() async {
+    final res = await _channel.invokeMethod<Map>('getCopyBackForwardList');
+    return res != null
+        ? Map<String, dynamic>.from(res)
+        : {'currentIndex': -1, 'history': const []};
+  }
+
+  /// Switches the mini-app shown in this already-mounted view to [url] without
+  /// recreating the Flutter platform view. When [url] has been shown before, the
+  /// swap re-attaches the still-warm WebView (typically 5–20 ms). Listen on
+  /// [onPageFinished] for the ready signal.
+  Future<bool> switchMiniApp(String url, {String appId = 'default'}) async {
+    final ok = await _channel.invokeMethod<bool>(
+      'openMiniApp',
+      {'url': url, 'appId': appId},
+    );
+    return ok ?? false;
+  }
+
   /// Pauses timers and JS execution for background RAM saving (Pillar 5).
   Future<bool> pause() async {
     final res = await _channel.invokeMethod<bool>('pause');
@@ -230,6 +427,20 @@ class GoatWebViewController {
   Future<bool> resume() async {
     final res = await _channel.invokeMethod<bool>('resume');
     return res ?? true;
+  }
+
+  /// T9 compat: programmatically shows/hides the pull-to-refresh spinner. No-op if
+  /// `pullToRefreshEnabled` wasn't set on the widget.
+  Future<bool> setRefreshing(bool refreshing) async {
+    final res = await _channel
+        .invokeMethod<bool>('setRefreshing', {'refreshing': refreshing});
+    return res ?? false;
+  }
+
+  /// Real, live state — not cached — for compat's `PullToRefreshController.isRefreshing()`.
+  Future<bool> isRefreshing() async {
+    final res = await _channel.invokeMethod<bool>('isRefreshing');
+    return res ?? false;
   }
 
   /// Triggers a native HUD toast notification (Task 10109).
@@ -654,6 +865,96 @@ class GoatWebViewController {
       'to': to,
       'amount': amount,
       if (payload != null) 'payload': payload,
+    });
+  }
+
+  /// Signs an off-chain message: `personal_sign`, or EIP-712 typed data via
+  /// `eth_signTypedData_v4`.
+  ///
+  /// Gesture-gated on both platforms. An off-chain Permit2 allowance can drain a wallet without
+  /// ever producing a transaction, so this is gated exactly like [web3SignTransaction].
+  Future<GoatBridgeResponse> web3SignMessage({
+    required String message,
+    String messageType = 'personal_sign',
+    String? chainFamily,
+    String? network,
+  }) async {
+    return await executeAction('WEB3_SIGN_MESSAGE', {
+      'message': message,
+      'messageType': messageType,
+      if (chainFamily != null) 'chainFamily': chainFamily,
+      if (network != null) 'network': network,
+    });
+  }
+
+  /// Switches the connected wallet session to another chain (EIP-1193
+  /// `wallet_switchEthereumChain`). Accepts a bare id ("137") or CAIP-2 ("eip155:137").
+  Future<GoatBridgeResponse> web3SwitchChain({
+    required String chainId,
+    String? chainFamily,
+    Map<String, dynamic>? addChainParams,
+  }) async {
+    return await executeAction('WEB3_SWITCH_CHAIN', {
+      'chainId': chainId,
+      if (chainFamily != null) 'chainFamily': chainFamily,
+      if (addChainParams != null) 'addChainParams': addChainParams,
+    });
+  }
+
+  /// Reports whether this device can run a W3C WebAuthn passkey ceremony, and which hardware
+  /// vault mode is available.
+  Future<GoatBridgeResponse> passkeyCheckSupport() async {
+    return await executeAction('PASSKEY_CHECK_SUPPORT');
+  }
+
+  /// Runs a WebAuthn registration ceremony against the platform authenticator.
+  ///
+  /// [rpId] must be declared in the mini-app manifest under `security.allowedRpIds`, or native
+  /// rejects with `RP_ID_NOT_ALLOWED` — every tenant shares one virtual origin, so that list is
+  /// the only thing separating them.
+  Future<GoatBridgeResponse> passkeyRegister({
+    required String optionsJson,
+    String? rpId,
+  }) async {
+    return await executeAction('PASSKEY_REGISTER', {
+      'optionsJson': optionsJson,
+      if (rpId != null) 'rpId': rpId,
+    });
+  }
+
+  /// Runs a WebAuthn assertion ceremony. `clientExtensionResults.prf` is stripped natively and
+  /// can never be read from Dart.
+  Future<GoatBridgeResponse> passkeyAssert({
+    required String optionsJson,
+    String? rpId,
+  }) async {
+    return await executeAction('PASSKEY_ASSERT', {
+      'optionsJson': optionsJson,
+      if (rpId != null) 'rpId': rpId,
+    });
+  }
+
+  /// Encrypts [plaintext] with a hardware-anchored AES-256-GCM key derived entirely inside
+  /// native memory. Returns a ciphertext envelope carrying no key material.
+  Future<GoatBridgeResponse> vaultEncrypt({
+    required String vaultId,
+    required String plaintext,
+  }) async {
+    return await executeAction('VAULT_ENCRYPT', {
+      'vaultId': vaultId,
+      'plaintext': plaintext,
+    });
+  }
+
+  /// Decrypts a vault envelope natively and returns only the plaintext. The key is bound to
+  /// `appId` + [vaultId], so an envelope from another mini-app can never be opened.
+  Future<GoatBridgeResponse> vaultDecrypt({
+    required String vaultId,
+    required Map<String, dynamic> envelope,
+  }) async {
+    return await executeAction('VAULT_DECRYPT', {
+      'vaultId': vaultId,
+      'envelope': envelope,
     });
   }
 
@@ -1196,17 +1497,25 @@ class GoatWebViewController {
     if (_isDisposed) return;
     _isDisposed = true;
     _channel.setMethodCallHandler(null);
-    _bridgeMessageStream.close();
-    _downloadProgressStream.close();
-    _progressStream.close();
-    _pageStartedStream.close();
-    _pageFinishedStream.close();
-    _safeAreaStream.close();
-    _keyboardInsetsStream.close();
-    _miniAppClosedStream.close();
-    _appServiceReadyStream.close();
-    _appServiceCrashStream.close();
-    _appServiceTerminateStream.close();
-    _popupRequestStream.close();
+    _bridgeMessageStreamCtrl?.close();
+    _downloadProgressStreamCtrl?.close();
+    _progressStreamCtrl?.close();
+    _pageStartedStreamCtrl?.close();
+    _pageFinishedStreamCtrl?.close();
+    _safeAreaStreamCtrl?.close();
+    _keyboardInsetsStreamCtrl?.close();
+    _miniAppClosedStreamCtrl?.close();
+    _appServiceReadyStreamCtrl?.close();
+    _appServiceCrashStreamCtrl?.close();
+    _appServiceTerminateStreamCtrl?.close();
+    _popupRequestStreamCtrl?.close();
+    _externalNavigationStreamCtrl?.close();
+    _receivedErrorStreamCtrl?.close();
+    _receivedHttpErrorStreamCtrl?.close();
+    _pageCommitVisibleStreamCtrl?.close();
+    _loadResourceStreamCtrl?.close();
+    _updateVisitedHistoryStreamCtrl?.close();
+    _consoleMessageStreamCtrl?.close();
+    _pullToRefreshStreamCtrl?.close();
   }
 }

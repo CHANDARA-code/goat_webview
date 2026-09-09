@@ -9,8 +9,10 @@ class GoatHeadlessWebView {
   final String? assetBundleName;
   late final String id;
   late final MethodChannel _channel;
-  final StreamController<GoatBridgeMessage> _bridgeMessageStream =
-      StreamController<GoatBridgeMessage>.broadcast();
+  StreamController<GoatBridgeMessage>? _bridgeMessageStreamCtrl;
+  StreamController<GoatBridgeMessage> get _bridgeMessageStream =>
+      _bridgeMessageStreamCtrl ??=
+          StreamController<GoatBridgeMessage>.broadcast();
 
   bool _isRunning = false;
   bool _isDisposed = false;
@@ -36,8 +38,10 @@ class GoatHeadlessWebView {
   Future<dynamic> _handleMethodCall(MethodCall call) async {
     switch (call.method) {
       case 'onBridgeMessage':
-        final map = Map<String, dynamic>.from(call.arguments as Map);
-        _bridgeMessageStream.add(GoatBridgeMessage.fromMap(map));
+        if (_bridgeMessageStreamCtrl?.hasListener == true) {
+          final map = Map<String, dynamic>.from(call.arguments as Map);
+          _bridgeMessageStream.add(GoatBridgeMessage.fromMap(map));
+        }
         return null;
       default:
         throw MissingPluginException();
@@ -88,9 +92,10 @@ class GoatHeadlessWebView {
     if (_isDisposed) return;
     _isDisposed = true;
     _isRunning = false;
+    _channel.setMethodCallHandler(null);
     try {
       await _channel.invokeMethod<void>('dispose');
     } catch (_) {}
-    await _bridgeMessageStream.close();
+    await _bridgeMessageStreamCtrl?.close();
   }
 }
