@@ -139,6 +139,24 @@ All code contributions must strictly adhere to the **OWASP Mobile Application Se
 2. **Non-Dangling File Chooser Callbacks**: `WebChromeClient.onShowFileChooser` `filePathCallback` MUST NEVER remain dangling on user cancel/back-press. Always deliver `null` if canceled to prevent permanent WebKit engine deadlocks.
 3. **Memory Trimming (`ComponentCallbacks2`)**: On `TRIM_MEMORY_RUNNING_CRITICAL` or `TRIM_MEMORY_UI_HIDDEN`, immediately destroy standby instances in `GoatFastPool` and disable `offscreenPreRaster`.
 
+### 3.3 `goat_webview_compat`: Zero-Retention Migration Config (Lint-Enforced)
+
+The `flutter_inappwebview`-compat adapter (`goat_webview_compat`, a staged-migration aid — see `TASK_PORTABLE_PLUG_AND_PLAY_ADAPTER.md` G1) accepts config/options value types that a consumer coming from `flutter_inappwebview` is used to constructing once and keeping around. Doing that here defeats the adapter's zero-retention guarantee: these types must be built inline at the call site and handed straight to `InAppWebView`/its controller, never stored past that call.
+
+1. **Rule**: `tools/goat_compat_lint` (a `custom_lint` plugin, rule id `goat_compat_retained_config`) flags a field, top-level variable, `static` variable, or generic state holder (`ValueNotifier<T>`, `StateController<T>`, etc.) whose type is `InAppWebViewSettings`, `InAppWebViewGroupOptions`, `InAppWebViewOptions`, `URLRequest`, `PullToRefreshSettings`, or `LoadedResource`.
+2. **Exemptions** (not retention, so not flagged): a `Widget` subclass's own constructor-parameter field (discarded with the widget, not state) and a field inside one of the package's own `@immutable` value types (the type's definition, not a consumer holding config).
+3. **Escape hatch**: a documented `// ignore: goat_compat_retained_config` comment explaining the exception — used once in the adapter itself, for `PullToRefreshController.settings`, which is exempted under G4 (controllers, unlike config/settings value types, are allowed to hold state for their own operational lifetime).
+4. **Enforcement**: run via `dart run custom_lint` from any package that adds `custom_lint` + `goat_compat_lint` as dev dependencies and enables `analyzer: plugins: [custom_lint]` in `analysis_options.yaml`. `goat_webview_compat`'s own source must lint clean (self-check).
+
+### 3.4 `react-native-goat-webview-compat`: Zero-Retention Migration Config (Lint-Enforced)
+
+The React Native twin of §3.3, and the same guarantee for the same reason (`TASK_PORTABLE_PLUG_AND_PLAY_RN_ADAPTER.md` G1). A consumer coming from `react-native-webview` habitually hoists a `source` object or a props bag to module scope and reuses it; holding it there keeps it alive for the process lifetime, which is exactly the RAM regression the adapter exists to avoid. Compat props are built inline and handed to `<WebView>`.
+
+1. **Rule**: `react-native-goat-webview-compat/eslint-plugin`, rule id `no-retained-compat-config`, flags a module-scope binding, class field, or `useRef` whose type annotation is `WebViewProps`, `WebViewSource`, `WebViewSourceUri`, `WebViewSourceHtml`, or `CreationProps`, or whose initialiser is a call to the `toCreationProps` factory.
+2. **Exemption** (not retention, so not flagged): the intended shape — config constructed inline inside a component and passed straight to `<WebView>`.
+3. **Escape hatch**: the standard `// eslint-disable-next-line no-retained-compat-config` comment, which must carry a justification.
+4. **Enforcement**: `npm run test:lint-rule` in `react-native-goat-webview-compat` runs the rule's `RuleTester` suite (4 valid / 5 invalid cases). The adapter's own source must pass the rule (self-check).
+
 ---
 
 ## 4. Battery, Network & Thermal Efficiency Standards
@@ -398,8 +416,59 @@ Before any commit is created, Husky automatically executes the full **5-tier tes
 
 ### 11.4 Task-by-Task Commit Best Practices
 1. **Atomic Commits**: Commit changes task-by-task (e.g. implementation + matching unit test in one commit).
+1. **Atomic Commits**: Commit changes task-by-task or component-by-component (e.g. implementation + matching unit test in one commit).
 2. **Confidence Guarantee**: Ensure both the library code and example application build and pass 100% of unit tests before committing.
 3. **Traceability**: Reference task IDs in the commit message or body when applicable (e.g., `feat(storage): implement multi-tenant sandboxing (Task 10066)`).
+
+### 11.5 AI Assistant & CLI Tooling Compliance Standard (Claude Code, Antigravity / `agy cli`, and Autonomous Agents)
+
+> [!CRITICAL]
+> **Strict Prohibition of Bulk Staging (`git add .`)**  
+> AI coding assistants, automated agents, and contributors MUST NEVER perform blanket staging commands:
+> - ❌ **BANNED**: `git add .`
+> - ❌ **BANNED**: `git add -A`
+> - ❌ **BANNED**: `git add *`
+> - ❌ **BANNED**: Catch-all omnibus commits (e.g., `git add . && git commit -m "chore: various changes"`)
+>
+> Bulk staging obscures git blame history, destroys bisectability, risks committing sensitive scratch data or build artifacts, and violates repository compliance.
+
+#### Mandatory Part-by-Part (Granular) Commit Protocol
+
+Every AI agent (Claude Code, `agy cli`, Antigravity) and human contributor must adhere to the following sequence when committing:
+
+1. **Explicit File Staging Only**:
+   Stage only specific, related files for one discrete logical domain using explicit file paths:
+   ```bash
+   # ✅ Compliant: Staging specific files belonging to one logical subsystem
+   git add android/feature-bluetooth/src/main/java/... android/feature-bluetooth/src/test/...
+   git commit -m "feat(android/features): introduce BLE transport abstraction and add instrumentation suites"
+   ```
+
+2. **Standard Domain Partitioning Matrix**:
+   When multiple files across the repository have changed, partition them into separate, sequential commits:
+   | Partition | Typical Scope | Conventional Commit Format |
+   | :--- | :--- | :--- |
+   | **CI & Quality Gates** | `.github/workflows/`, `scripts/verify-*.sh` | `ci: add test suite coverage gating and companion action verification` |
+   | **Android Core** | `android/core/`, `android/app/`, `android/benchmark/` | `refactor(android/core): ...` or `test(android): ...` |
+   | **Android Features** | `android/feature-*/`, `android/features-all-in/` | `feat(android/features): ...` |
+   | **iOS Native** | `ios/Sources/`, `ios/Tests/`, `ios/*.podspec` | `feat(ios): ...` or `test(ios): ...` |
+   | **Companion Packages** | `packages/flutter/*`, `packages/react-native/*`, `goat_webview/` | `feat(packages): ...` |
+   | **Bridge & DSL Tools** | `packages/bridge-mock/`, `packages/adapter-dsl/` | `feat(bridge-mock): ...` or `feat(adapter-dsl): ...` |
+   | **Web Mini-App Runtime**| `miniapp-web/` | `feat(miniapp-web): ...` |
+   | **Game Demos & E2E** | `tests/games/`, `tests/e2e/` | `test(games): ...` |
+   | **Docs & Tracking** | `docs/`, `TASKS.md`, `PROJECT.md`, `CODE_RULE.md` | `docs: ...` |
+   | **Agent & Handoff Assets** | `CLAUDE.md`, `.claude/`, `.antigravity/`, `assets_*/` | `chore(agents): ...` |
+
+3. **Pre-Commit Hygiene & Workspace Sanitization**:
+   Before staging any commit:
+   - **Audit Uncommitted Changes**: Run `git status --short` or `git status --porcelain` to review every modified and untracked file.
+   - **Purge Scratch & Temporary Files**: Remove scratch scripts (e.g. `update_tasks*.py`, one-off debug scripts, scratch logs, temporary dumps) BEFORE staging.
+   - **Reject 0-Byte / Broken Files**: Never commit empty stub files (0 bytes) or corrupted cache artifacts.
+   - **Pre-Commit Staging Audit**: Always run `git diff --staged --name-only` to visually verify exactly what is staged before executing `git commit`.
+
+4. **Agent Autonomous Commit Restrictions**:
+   - AI assistants (Claude Code, `agy cli`, Antigravity) must **NEVER** commit autonomously unless explicitly instructed by the user (e.g., `"please commit part by part"`).
+   - When instructed to commit, the agent MUST follow this part-by-part protocol and must NEVER take the shortcut of `git add .`.
 
 ---
 
