@@ -9,27 +9,53 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 WORKSPACE_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
 echo ""
-echo "🧪 [1/8] Android Core Engine & Host Tests..."
+echo "🔀 [1/9] Bridge Action Parity (Android vs iOS)..."
+node "${WORKSPACE_DIR}/scripts/verify-action-parity.mjs"
+
+echo ""
+echo "🚦 Every test suite is run by some gate..."
+node "${WORKSPACE_DIR}/scripts/verify-suites-are-gated.mjs"
+
+echo ""
+echo "🧩 Companion action backing (Flutter + RN)..."
+node "${WORKSPACE_DIR}/scripts/verify-companion-actions.mjs"
+
+echo ""
+echo "🪙 Injected Web3 runtime is in sync with miniapp-web/src/injected/ and wired on both platforms..."
+node "${WORKSPACE_DIR}/scripts/verify-web3-runtime-sync.mjs"
+
+echo ""
+echo "🌐 Web SDK (miniapp-web) tests..."
+# No gate ran these before 2026-09-06, which is how two stale-duplicate syntax errors sat in
+# useGoatLifecycle.ts and goat-hooks.test.ts long enough to block all 82 tests from ever building.
+( cd "${WORKSPACE_DIR}/miniapp-web" && npm test )
+
+echo ""
+echo "🔎 Unwired-symbol review (advisory, never fails the run)..."
+python3 "${WORKSPACE_DIR}/scripts/find-unwired-symbols.py" || true
+
+echo ""
+echo "🧪 [2/9] Android Core Engine & Host Tests..."
 bash "${WORKSPACE_DIR}/scripts/verify-android.sh"
 
 echo ""
-echo "📱 [2/8] iOS Core Engine & Bridge Tests..."
+echo "📱 [3/9] iOS Core Engine & Bridge Tests..."
 bash "${WORKSPACE_DIR}/scripts/verify-ios.sh"
 
 echo ""
-echo "⚛️  [3/8] React Native TurboModule & Fabric Tests..."
+echo "⚛️  [4/9] React Native TurboModule & Fabric Tests..."
 bash "${WORKSPACE_DIR}/scripts/verify-rn.sh"
 
 echo ""
-echo "🎯 [4/8] Flutter PlatformView & MethodChannel Tests..."
+echo "🎯 [5/9] Flutter PlatformView & MethodChannel Tests..."
 bash "${WORKSPACE_DIR}/scripts/verify-flutter.sh"
 
 echo ""
-echo "🌐 [5/8] Web Mini-App & JS Bridge Tests..."
+echo "🌐 [6/9] Web Mini-App & JS Bridge Tests..."
 bash "${WORKSPACE_DIR}/scripts/verify-web.sh"
 
 echo ""
-echo "📦 [6/8] Monorepo Tooling Packages Verification (10 Packages)..."
+echo "📦 [7/9] Monorepo Tooling Packages Verification (11 Packages)..."
 
 PACKAGES_OK=0
 PACKAGES_FAIL=0
@@ -142,7 +168,7 @@ else
 fi
 
 echo ""
-echo "🛡️  [7/8] Enterprise Zero-Trust & Adversarial Fuzzing..."
+echo "🛡️  [8/9] Enterprise Zero-Trust & Adversarial Fuzzing..."
 if (cd "${WORKSPACE_DIR}" && GOAT_SKIP_NATIVE_RERUN=1 bash "${WORKSPACE_DIR}/scripts/run-security-fuzz.sh"); then
   echo "  ✅ Enterprise Zero-Trust Security & Fuzzing suite passed."
 else
@@ -151,7 +177,7 @@ else
 fi
 
 echo ""
-echo "🔗 [8/8] Master 4-Tier & Cross-MiniApp E2E Suites..."
+echo "🔗 [9/9] Master 4-Tier & Cross-MiniApp E2E Suites..."
 if (cd "${WORKSPACE_DIR}" && bash "${WORKSPACE_DIR}/scripts/verify-e2e.sh"); then
   echo "  ✅ Master 4-Tier E2E suite passed."
 else

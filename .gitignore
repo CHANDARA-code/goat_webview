@@ -85,3 +85,7 @@ packages/data/
 packages/server/data/
 docs-site/.docusaurus/
 packages/devtools/dist/
+
+# Python bytecode (scripts/lib)
+__pycache__/
+*.pyc

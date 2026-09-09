@@ -39,3 +39,22 @@ else
 fi
 
 echo "✅ [iOS] 100% iOS Swift Package XCTests Passed."
+
+# The package tests above and a Flutter host build compile from DIFFERENT file lists: the tests use
+# the SPM target, the host uses the CocoaPods project, which is regenerated only by `pod install`.
+# A stale Podfile.lock therefore leaves new Sources/GoatWebView files invisible to every Flutter
+# consumer while the package suite stays green -- which is exactly what happened on 2026-09-06, when
+# four types added that day broke `flutter build ios` with "cannot find in scope" and nothing caught
+# it (see bench/goat_vs_fiw/RESULT_v23_ios_release.md).
+#
+# Building a Flutter host is the check that catches it. Skipped when no Flutter host is present so
+# the script stays usable in a package-only checkout.
+HOST_APP="bench/goat_vs_fiw/app_goat"
+if command -v flutter >/dev/null 2>&1 && [ -d "${HOST_APP}/ios" ]; then
+  echo "Verifying a Flutter host still compiles against the package..."
+  ( cd "${HOST_APP}/ios" && pod install >/dev/null 2>&1 || true )
+  ( cd "${HOST_APP}" && flutter build ios --release --no-codesign )
+  echo "✅ [iOS] Flutter host builds against the package."
+else
+  echo "⏭  [iOS] No Flutter host found; skipping consumer build check."
+fi

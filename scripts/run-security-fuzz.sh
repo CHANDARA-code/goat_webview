@@ -42,6 +42,16 @@ else
 fi
 
 echo ""
+echo "🔐 [3b/4] Wallet, Passkey & Vault Adversarial Suite (A1-A10, Vectors 4/5)..."
+if (cd "${WORKSPACE_DIR}" && bash "${WORKSPACE_DIR}/scripts/verify-wallet-passkey-adapters.sh" > /dev/null 2>&1); then
+  echo "  ✅ Wallet/passkey adversarial and adapter suites passed."
+  PASSED_SUITES=$((PASSED_SUITES + 1))
+else
+  echo "  ❌ Wallet/passkey adversarial or adapter suites FAILED."
+  FAILED_SUITES=$((FAILED_SUITES + 1))
+fi
+
+echo ""
 echo "📱 [4/4] Native iOS & Android Section 16 Empirical Security Suites..."
 if [ "${GOAT_SKIP_NATIVE_RERUN:-0}" = "1" ]; then
   echo "  ⏭️  Skipped (native suites already verified in the master gate — GOAT_SKIP_NATIVE_RERUN=1)."
