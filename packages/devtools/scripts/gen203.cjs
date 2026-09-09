@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const ktPath = '/Users/chandara-dgc/Documents/working/goat_webview/goat_webview/android/core/src/main/java/com/goat/webview/GoatBridgeActionHandler.kt';
+const ktPath = path.join(__dirname, '../../../android/core/src/main/java/com/goat/webview/GoatBridgeActionHandler.kt');
 const kt = fs.readFileSync(ktPath, 'utf8');
 const match = kt.match(/val SUPPORTED_ACTIONS = setOf\(([\s\S]*?)\n        \)/);
 
