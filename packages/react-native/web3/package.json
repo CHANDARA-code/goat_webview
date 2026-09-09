@@ -1,0 +1,9 @@
+{
+  "name": "@goat-webview/web3",
+  "version": "1.0.0",
+  "description": "Modular Web3 & Wallet Signing Capability Companion Package for React Native Goat WebView",
+  "main": "src/index.ts",
+  "peerDependencies": {
+    "react-native-goat-webview": "^1.0.0"
+  }
+}

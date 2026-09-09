@@ -1,0 +1,18 @@
+{
+  "name": "@goat-webview/all",
+  "version": "1.0.0",
+  "description": "Option B umbrella \u2014 every Goat WebView React Native capability companion in one dependency.",
+  "main": "src/index.ts",
+  "peerDependencies": {
+    "react-native-goat-webview": "^1.0.0"
+  },
+  "dependencies": {
+    "@goat-webview/biometrics": "^1.0.0",
+    "@goat-webview/bluetooth": "^1.0.0",
+    "@goat-webview/location": "^1.0.0",
+    "@goat-webview/media": "^1.0.0",
+    "@goat-webview/network": "^1.0.0",
+    "@goat-webview/payments": "^1.0.0",
+    "@goat-webview/scanner": "^1.0.0"
+  }
+}

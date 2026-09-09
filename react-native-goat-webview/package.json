@@ -1,6 +1,6 @@
 {
   "name": "react-native-goat-webview",
-  "version": "1.0.0-alpha.1",
+  "version": "1.0.0-alpha.2",
   "description": "High-Performance Embedded Mini-App Engine for React Native powered by Goat WebView",
   "main": "lib/commonjs/index.js",
   "module": "lib/module/index.js",
@@ -10,7 +10,10 @@
   "files": [
     "src",
     "lib",
-    "android",
+    "android/build.gradle",
+    "android/gradle.properties",
+    "android/settings.gradle",
+    "android/src",
     "ios",
     "react-native-goat-webview.podspec",
     "README.md"
@@ -67,5 +70,8 @@
     "react": "^18.3.1",
     "ts-jest": "^29.2.5",
     "typescript": "^5.7.3"
+  },
+  "detox": {
+    "test-runner": "jest"
   }
 }

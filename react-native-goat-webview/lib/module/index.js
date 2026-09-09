@@ -1,14 +1,15 @@
-import React from 'react';
-import { requireNativeComponent, UIManager, } from 'react-native';
-import GoatWebViewNativeComponent from './GoatWebViewNativeComponent';
-export * from './types';
-export * from './GoatBridge';
-export * from './useGoatBridge';
-export * from './GoatCapabilityPlugin';
-export { default as GoatWebViewNativeComponent } from './GoatWebViewNativeComponent';
-export { default as NativeGoatWebViewModule } from './NativeGoatWebViewModule';
-const COMPONENT_NAME = 'GoatWebView';
-const isFabric = typeof global !== 'undefined' && global.nativeFabricUIManager != null;
+import React from "react";
+import { requireNativeComponent, UIManager } from "react-native";
+import GoatWebViewNativeComponent from "./GoatWebViewNativeComponent";
+export * from "./types";
+export * from "./GoatBridge";
+export * from "./useGoatBridge";
+export * from "./GoatCapabilityPlugin";
+export { default as GoatWebViewNativeComponent, Commands, } from "./GoatWebViewNativeComponent";
+export { default as NativeGoatWebViewModule } from "./NativeGoatWebViewModule";
+const COMPONENT_NAME = "GoatWebView";
+const isFabric = typeof global !== "undefined" &&
+    global.nativeFabricUIManager != null;
 const FallbackGoatWebView = UIManager.getViewManagerConfig(COMPONENT_NAME) != null
     ? requireNativeComponent(COMPONENT_NAME)
     : () => {
@@ -25,3 +26,5 @@ export const GoatWebView = (props) => {
     return React.createElement(FallbackGoatWebView, { ...props });
 };
 export default GoatWebView;
+export { useGoatWallet } from './hooks/useGoatWallet';
+export { usePasskey } from './hooks/usePasskey';

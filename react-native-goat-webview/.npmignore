@@ -1,5 +1,5 @@
-android/.gradle
-android/build
-ios/.build
-ios/build
-**/.*.cache
+android/.gradle/
+android/build/
+android/.kotlin/
+src/__tests__/
+*.tgz

@@ -33,4 +33,38 @@ describe('GoatBridge Extended Suite (Task 10089)', () => {
       bridge.handleBridgeResponse({ id: reqId, success: true, data: { ok: true } });
     }).not.toThrow();
   });
+
+  test('subscribes and receives unified lifecycle events', () => {
+    let showData: any = null;
+    let hideData: any = null;
+    let scrollData: any = null;
+    let memData: any = null;
+    let resizeData: any = null;
+
+    const unsubs = [
+      bridge.onAppShow((data) => { showData = data; }),
+      bridge.onAppHide((data) => { hideData = data; }),
+      bridge.onPageScroll((data) => { scrollData = data; }),
+      bridge.onMemoryWarning((data) => { memData = data; }),
+      bridge.onWindowResize((data) => { resizeData = data; }),
+    ];
+
+    bridge.emit('ON_APP_SHOW', { entryRoute: '/pages/index', scene: 1001 });
+    bridge.emit('ON_APP_HIDE', { timestamp: 123456789 });
+    bridge.emit('ON_PAGE_SCROLL', { scrollTop: 250, scrollLeft: 0, scrollHeight: 1200, scrollWidth: 400 });
+    bridge.emit('ON_MEMORY_WARNING', { level: 80, memoryPressure: 'critical' });
+    bridge.emit('ON_WINDOW_RESIZE', { width: 390, height: 844, windowWidth: 390, windowHeight: 844, orientation: 'portrait' });
+
+    expect(showData?.entryRoute).toBe('/pages/index');
+    expect(showData?.scene).toBe(1001);
+    expect(hideData?.timestamp).toBe(123456789);
+    expect(scrollData?.scrollTop).toBe(250);
+    expect(memData?.level).toBe(80);
+    expect(memData?.memoryPressure).toBe('critical');
+    expect(resizeData?.orientation).toBe('portrait');
+
+    unsubs.forEach((fn) => fn());
+    bridge.emit('ON_APP_SHOW', { entryRoute: '/detached' });
+    expect(showData?.entryRoute).toBe('/pages/index');
+  });
 });

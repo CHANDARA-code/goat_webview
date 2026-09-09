@@ -24,6 +24,30 @@ export interface AppServiceTerminateEventData {
     appId: string;
     timestamp?: number;
 }
+export interface LaunchOptions {
+    entryRoute?: string;
+    queryParams?: Record<string, string>;
+    referrerInfo?: Record<string, any>;
+    scene?: number;
+    timestamp?: number;
+}
+export interface PageScrollEventData {
+    scrollTop: number;
+    scrollLeft: number;
+    scrollHeight: number;
+    scrollWidth: number;
+}
+export interface MemoryWarningEventData {
+    level: number | string;
+    memoryPressure?: string;
+}
+export interface WindowResizeEventData {
+    width: number;
+    height: number;
+    windowWidth: number;
+    windowHeight: number;
+    orientation: string;
+}
 export type PopupRoutingPolicy = 'auto' | 'systemBrowser' | 'modal' | 'sameFrame' | 'block';
 export interface GoatWindowFeaturesMap {
     width?: number;
@@ -48,8 +72,28 @@ export interface PopupRequestEvent {
 export interface GoatWebViewProps {
     assetBundleName?: string;
     appId?: string;
+    initialUrl?: string;
+    initialUserScripts?: readonly string[];
+    /**
+     * Origins this mini-app may load subresources from and reach through `API_REQUEST`.
+     *
+     * Overrides the bundle manifest's `security.allowedDomains`. A packaged mini-app declaring that
+     * field is already filtered without this; leaving it unset keeps the long-standing unfiltered
+     * behaviour rather than silently blocking requests.
+     *
+     * Required for URL-mode mini-apps (`initialUrl`), which have no bundle and so no manifest.
+     *
+     * Entries are host patterns, not URLs: `api.example.com`, or `*.cdn.example.com` for a domain
+     * and its subdomains.
+     */
+    hostDomainAllowlist?: readonly string[];
     style?: any;
     popupRoutingPolicy?: PopupRoutingPolicy;
+    incognito?: boolean;
+    compatExternalSchemeResolver?: boolean;
+    originWhitelist?: readonly string[];
+    hasOnScroll?: boolean;
+    hasOnHttpError?: boolean;
     onBridgeMessage?: (event: {
         nativeEvent: {
             action: string;
@@ -77,6 +121,32 @@ export interface GoatWebViewProps {
     }) => void;
     onPopupRequest?: (event: {
         nativeEvent: PopupRequestEvent;
+    }) => void;
+    onHttpError?: (event: {
+        nativeEvent: {
+            url: string;
+            statusCode: number;
+            description: string;
+        };
+    }) => void;
+    onRenderProcessGone?: (event: {
+        nativeEvent: {
+            didCrash: boolean;
+        };
+    }) => void;
+    onContentProcessDidTerminate?: (event: {
+        nativeEvent: Record<string, never>;
+    }) => void;
+    onScroll?: (event: {
+        nativeEvent: {
+            x: number;
+            y: number;
+        };
+    }) => void;
+    onExternalNavigation?: (event: {
+        nativeEvent: {
+            url: string;
+        };
     }) => void;
     testID?: string;
     children?: React.ReactNode;

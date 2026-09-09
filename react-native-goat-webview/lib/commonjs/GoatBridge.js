@@ -220,6 +220,95 @@ class GoatBridgeClient {
             return false;
         }
     }
+    /**
+     * Dispatches a wallet, passkey or vault action to the native engine.
+     *
+     * Deliberately has no catch-all fallback. Several sibling methods here degrade to a default on
+     * failure, which is tolerable for device metadata and an auth bypass for anything security
+     * relevant — before 2026-09-06 the React Native companions returned `{ authenticated: true }`
+     * and a faked payment success while the native gate was never reached. A signing or credential
+     * call must surface the native error verbatim so a caller cannot mistake failure for consent.
+     */
+    async executeSecureAction(action, payload, appId) {
+        // When the package is not linked, GoatWebViewNativeModule is a Proxy that throws on ANY
+        // property access — so probing it has to be guarded, or the caller gets the raw linking
+        // error instead of something actionable.
+        let execute;
+        try {
+            execute = exports.GoatWebViewNativeModule?.executeAction;
+        }
+        catch {
+            execute = undefined;
+        }
+        if (typeof execute !== 'function') {
+            throw new Error(`Cannot execute ${action}: react-native-goat-webview's native module is unavailable. ` +
+                'Rebuild the app after installing the package (Expo Go is not supported).');
+        }
+        return (await execute.call(exports.GoatWebViewNativeModule, action, payload, appId));
+    }
+    /** Connects to the host's registered wallet adapter. */
+    async web3ConnectWallet(options = {}, appId) {
+        return this.executeSecureAction('WEB3_CONNECT_WALLET', { ...options }, appId);
+    }
+    /** Signs a transaction after the native modal decodes and confirms it. */
+    async web3SignTransaction(options, appId) {
+        return this.executeSecureAction('WEB3_SIGN_TRANSACTION', options, appId);
+    }
+    /**
+     * Signs an off-chain message (`personal_sign` / `eth_signTypedData_v4`). Gesture-gated: an
+     * off-chain Permit2 allowance can drain a wallet without producing a transaction.
+     */
+    async web3SignMessage(options, appId) {
+        return this.executeSecureAction('WEB3_SIGN_MESSAGE', { ...options }, appId);
+    }
+    /** Switches the connected session to another chain (EIP-1193 `wallet_switchEthereumChain`). */
+    async web3SwitchChain(options, appId) {
+        return this.executeSecureAction('WEB3_SWITCH_CHAIN', { ...options }, appId);
+    }
+    async web3Disconnect(appId) {
+        return this.executeSecureAction('WEB3_DISCONNECT', {}, appId);
+    }
+    async web3GetAccount(appId) {
+        return this.executeSecureAction('WEB3_GET_ACCOUNT', {}, appId);
+    }
+    /** Reports whether a WebAuthn ceremony is possible and which hardware vault mode is available. */
+    async passkeyCheckSupport(appId) {
+        return this.executeSecureAction('PASSKEY_CHECK_SUPPORT', {}, appId);
+    }
+    /**
+     * Runs a WebAuthn registration ceremony. `rpId` must be declared in the mini-app manifest's
+     * `security.allowedRpIds` or native rejects with `RP_ID_NOT_ALLOWED`.
+     */
+    async passkeyRegister(options, appId) {
+        return this.executeSecureAction('PASSKEY_REGISTER', { ...options }, appId);
+    }
+    /** Runs a WebAuthn assertion. `clientExtensionResults.prf` is stripped natively. */
+    async passkeyAssert(options, appId) {
+        return this.executeSecureAction('PASSKEY_ASSERT', { ...options }, appId);
+    }
+    /** Encrypts with a hardware-anchored AES-256-GCM key derived entirely in native memory. */
+    async vaultEncrypt(options, appId) {
+        return this.executeSecureAction('VAULT_ENCRYPT', { ...options }, appId);
+    }
+    /** Decrypts a vault envelope natively; the key never enters the JS realm. */
+    async vaultDecrypt(options, appId) {
+        return this.executeSecureAction('VAULT_DECRYPT', { ...options }, appId);
+    }
+    onAppShow(listener) {
+        return this.on('ON_APP_SHOW', listener);
+    }
+    onAppHide(listener) {
+        return this.on('ON_APP_HIDE', listener);
+    }
+    onPageScroll(listener) {
+        return this.on('ON_PAGE_SCROLL', listener);
+    }
+    onMemoryWarning(listener) {
+        return this.on('ON_MEMORY_WARNING', listener);
+    }
+    onWindowResize(listener) {
+        return this.on('ON_WINDOW_RESIZE', listener);
+    }
 }
 exports.GoatBridgeClient = GoatBridgeClient;
 exports.goatBridge = new GoatBridgeClient();

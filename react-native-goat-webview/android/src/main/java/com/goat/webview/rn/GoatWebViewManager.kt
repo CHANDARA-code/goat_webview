@@ -45,6 +45,10 @@ class GoatWebViewManager : SimpleViewManager<GoatView>() {
         const val EVENT_ON_APP_SERVICE_CRASH = "onAppServiceCrash"
         const val EVENT_ON_APP_SERVICE_TERMINATE = "onAppServiceTerminate"
         const val EVENT_ON_POPUP_REQUEST = "onPopupRequest"
+        const val EVENT_ON_HTTP_ERROR = "onHttpError"
+        const val EVENT_ON_RENDER_PROCESS_GONE = "onRenderProcessGone"
+        const val EVENT_ON_SCROLL = "onScroll"
+        const val EVENT_ON_EXTERNAL_NAVIGATION = "onExternalNavigation"
     }
 
     private val actionHandlers = mutableMapOf<GoatView, GoatBridgeActionHandler>()
@@ -101,9 +105,28 @@ class GoatWebViewManager : SimpleViewManager<GoatView>() {
                         nativeResult
                     }
 
+                    goatView.onPageStarted = {
+                        val currentUrl = goatView.getUrl() ?: GoatView.ENTRY_URL
+                        val event = Arguments.createMap().apply {
+                            putString("url", currentUrl)
+                            putString("title", goatView.getTitle() ?: "")
+                            putBoolean("loading", true)
+                            putBoolean("canGoBack", goatView.canGoBack())
+                            putBoolean("canGoForward", goatView.canGoForward())
+                        }
+                        reactContext.getJSModule(RCTEventEmitter::class.java)
+                            .receiveEvent(goatView.id, EVENT_ON_PAGE_STARTED, event)
+                    }
+
                     goatView.onPageFinished = {
+                        val currentUrl = goatView.getUrl() ?: GoatView.ENTRY_URL
                         val event = Arguments.createMap().apply {
                             putString("url", GoatView.ENTRY_URL)
+                            putString("url", currentUrl)
+                            putString("title", goatView.getTitle() ?: "")
+                            putBoolean("loading", false)
+                            putBoolean("canGoBack", goatView.canGoBack())
+                            putBoolean("canGoForward", goatView.canGoForward())
                         }
                         reactContext.getJSModule(RCTEventEmitter::class.java)
                             .receiveEvent(goatView.id, EVENT_ON_PAGE_LOADED, event)
@@ -141,6 +164,31 @@ class GoatWebViewManager : SimpleViewManager<GoatView>() {
                             .receiveEvent(goatView.id, EVENT_ON_POPUP_REQUEST, event)
                         null
                     }
+                    goatView.onReceivedHttpErrorCompat = { url, statusCode ->
+                        val event = Arguments.createMap().apply {
+                            putString("url", url)
+                            putDouble("statusCode", statusCode.toDouble())
+                            putString("description", "HTTP $statusCode")
+                        }
+                        reactContext.getJSModule(RCTEventEmitter::class.java)
+                            .receiveEvent(goatView.id, EVENT_ON_HTTP_ERROR, event)
+                    }
+
+                    goatView.onExternalNavigation = { url ->
+                        val event = Arguments.createMap().apply {
+                            putString("url", url)
+                        }
+                        reactContext.getJSModule(RCTEventEmitter::class.java)
+                            .receiveEvent(goatView.id, EVENT_ON_EXTERNAL_NAVIGATION, event)
+                    }
+
+                    goatView.onAppServiceCrash = { _, _, _ ->
+                        val event = Arguments.createMap().apply {
+                            putBoolean("didCrash", true)
+                        }
+                        reactContext.getJSModule(RCTEventEmitter::class.java)
+                            .receiveEvent(goatView.id, EVENT_ON_RENDER_PROCESS_GONE, event)
+                    }
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
@@ -151,6 +199,15 @@ class GoatWebViewManager : SimpleViewManager<GoatView>() {
                         .receiveEvent(goatView.id, EVENT_ON_ERROR, event)
                 }
             }
+        }
+
+        goatView.setOnScrollChangeListener { _, scrollX, scrollY, _, _ ->
+            val event = Arguments.createMap().apply {
+                putDouble("x", scrollX.toDouble())
+                putDouble("y", scrollY.toDouble())
+            }
+            reactContext.getJSModule(RCTEventEmitter::class.java)
+                .receiveEvent(goatView.id, EVENT_ON_SCROLL, event)
         }
 
         return goatView
@@ -207,6 +264,45 @@ class GoatWebViewManager : SimpleViewManager<GoatView>() {
                     }
                 }
             }
+        }
+    }
+
+    @ReactProp(name = "initialUrl")
+    fun setInitialUrl(view: GoatView, initialUrl: String?) {
+        if (!initialUrl.isNullOrBlank()) {
+            CoroutineScope(Dispatchers.Main).launch {
+                try {
+                    view.initializeUrlAsync(initialUrl, appId = "default")
+                    initializedViews.add(view)
+                    applyPendingUiProps(view)
+                } catch (e: Exception) {
+                    view.onError?.invoke("Failed loading initialUrl $initialUrl: ${e.message}")
+                }
+            }
+        }
+    }
+
+    @ReactProp(name = "hostDomainAllowlist")
+    fun setHostDomainAllowlist(view: GoatView, hosts: ReadableArray?) {
+        val parsed = LinkedHashSet<String>()
+        if (hosts != null) {
+            for (i in 0 until hosts.size()) {
+                hosts.getString(i)?.trim()?.takeIf { it.isNotEmpty() }?.let { parsed.add(it) }
+            }
+        }
+        view.hostDomainAllowlist = parsed.takeIf { it.isNotEmpty() }
+    }
+
+    @ReactProp(name = "initialUserScripts")
+    fun setInitialUserScripts(view: GoatView, scripts: ReadableArray?) {
+        if (scripts != null && scripts.size() > 0) {
+            val list = ArrayList<String>(scripts.size())
+            for (i in 0 until scripts.size()) {
+                scripts.getString(i)?.let { list.add(it) }
+            }
+            view.initialUserScripts = list
+        } else {
+            view.initialUserScripts = emptyList()
         }
     }
 
@@ -281,6 +377,89 @@ class GoatWebViewManager : SimpleViewManager<GoatView>() {
             view,
             if (visible) "EXPAND_BOTTOM_SHEET" else "COLLAPSE_BOTTOM_SHEET",
             buildJsonObject { }
+        )
+    }
+
+    @ReactProp(name = "pullToRefreshEnabled", defaultBoolean = false)
+    fun setPullToRefreshEnabled(view: GoatView, enabled: Boolean) {
+        view.pullToRefreshEnabled = enabled
+    }
+
+    @ReactProp(name = "incognito", defaultBoolean = false)
+    fun setIncognito(view: GoatView, incognito: Boolean) {
+        view.incognito = incognito
+    }
+
+    @ReactProp(name = "compatExternalSchemeResolver", defaultBoolean = false)
+    fun setCompatExternalSchemeResolver(view: GoatView, enabled: Boolean) {
+        view.compatExternalSchemeResolver = enabled
+    }
+
+    @ReactProp(name = "originWhitelist")
+    fun setOriginWhitelist(view: GoatView, whitelist: ReadableArray?) {
+    }
+
+    @ReactProp(name = "hasOnScroll", defaultBoolean = false)
+    fun setHasOnScroll(view: GoatView, hasOnScroll: Boolean) {
+    }
+
+    @ReactProp(name = "hasOnHttpError", defaultBoolean = false)
+    fun setHasOnHttpError(view: GoatView, hasOnHttpError: Boolean) {
+    }
+
+    override fun receiveCommand(root: GoatView, commandId: String, args: ReadableArray?) {
+        when (commandId) {
+            "goBack" -> root.goBack()
+            "goForward" -> root.goForward()
+            "reload" -> root.reload()
+            "stopLoading" -> root.stopLoading()
+            "injectJavaScript" -> {
+                val script = args?.getString(0) ?: ""
+                root.evaluateJavascript(script)
+            }
+            "requestFocus" -> root.requestFocus()
+            "postMessage" -> {
+                val data = args?.getString(0) ?: ""
+                val escaped = org.json.JSONObject.quote(data)
+                root.evaluateJavascript("window.__rnwReceive && window.__rnwReceive($escaped)")
+            }
+            "clearFormData" -> root.clearFormData()
+            "clearCache" -> {
+                val includeDiskFiles = args?.getBoolean(0) ?: false
+                root.clearCache(includeDiskFiles)
+            }
+            "clearHistory" -> root.clearHistory()
+        }
+    }
+
+    override fun receiveCommand(root: GoatView, commandId: Int, args: ReadableArray?) {
+        when (commandId) {
+            1 -> receiveCommand(root, "goBack", args)
+            2 -> receiveCommand(root, "goForward", args)
+            3 -> receiveCommand(root, "reload", args)
+            4 -> receiveCommand(root, "stopLoading", args)
+            5 -> receiveCommand(root, "injectJavaScript", args)
+            6 -> receiveCommand(root, "requestFocus", args)
+            7 -> receiveCommand(root, "postMessage", args)
+            8 -> receiveCommand(root, "clearFormData", args)
+            9 -> receiveCommand(root, "clearCache", args)
+            10 -> receiveCommand(root, "clearHistory", args)
+            else -> super.receiveCommand(root, commandId, args)
+        }
+    }
+
+    override fun getCommandsMap(): Map<String, Int>? {
+        return mapOf(
+            "goBack" to 1,
+            "goForward" to 2,
+            "reload" to 3,
+            "stopLoading" to 4,
+            "injectJavaScript" to 5,
+            "requestFocus" to 6,
+            "postMessage" to 7,
+            "clearFormData" to 8,
+            "clearCache" to 9,
+            "clearHistory" to 10
         )
     }
 
@@ -369,6 +548,10 @@ class GoatWebViewManager : SimpleViewManager<GoatView>() {
             .put(EVENT_ON_APP_SERVICE_TERMINATE, MapBuilder.of("registrationName", "onAppServiceTerminate"))
             .put(EVENT_ON_POPUP_REQUEST, MapBuilder.of("registrationName", "onPopupRequest"))
             .put("topPopupRequest", MapBuilder.of("registrationName", "onPopupRequest"))
+            .put(EVENT_ON_HTTP_ERROR, MapBuilder.of("registrationName", "onHttpError"))
+            .put(EVENT_ON_RENDER_PROCESS_GONE, MapBuilder.of("registrationName", "onRenderProcessGone"))
+            .put(EVENT_ON_SCROLL, MapBuilder.of("registrationName", "onScroll"))
+            .put(EVENT_ON_EXTERNAL_NAVIGATION, MapBuilder.of("registrationName", "onExternalNavigation"))
             .build()
     }
 

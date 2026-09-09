@@ -29,6 +29,18 @@ export const GoatWebViewNativeModule: TurboGoatWebViewSpec =
     }
   );
 
+/** Ciphertext envelope returned by VAULT_ENCRYPT. Carries no key material by construction. */
+export interface GoatVaultEnvelope {
+  version: number;
+  vaultMode: string;
+  appId: string;
+  vaultId: string;
+  salt: string;
+  iv: string;
+  ciphertext: string;
+  tag: string;
+}
+
 export class GoatBridgeClient {
   private pendingRequests = new Map<
     string,
@@ -236,6 +248,141 @@ export class GoatBridgeClient {
     } catch {
       return false;
     }
+  }
+
+  /**
+   * Dispatches a wallet, passkey or vault action to the native engine.
+   *
+   * Deliberately has no catch-all fallback. Several sibling methods here degrade to a default on
+   * failure, which is tolerable for device metadata and an auth bypass for anything security
+   * relevant — before 2026-09-06 the React Native companions returned `{ authenticated: true }`
+   * and a faked payment success while the native gate was never reached. A signing or credential
+   * call must surface the native error verbatim so a caller cannot mistake failure for consent.
+   */
+  private async executeSecureAction<T>(
+    action: string,
+    payload: Record<string, unknown>,
+    appId?: string
+  ): Promise<T> {
+    // When the package is not linked, GoatWebViewNativeModule is a Proxy that throws on ANY
+    // property access — so probing it has to be guarded, or the caller gets the raw linking
+    // error instead of something actionable.
+    let execute: TurboGoatWebViewSpec['executeAction'] | undefined;
+    try {
+      execute = GoatWebViewNativeModule?.executeAction;
+    } catch {
+      execute = undefined;
+    }
+    if (typeof execute !== 'function') {
+      throw new Error(
+        `Cannot execute ${action}: react-native-goat-webview's native module is unavailable. ` +
+          'Rebuild the app after installing the package (Expo Go is not supported).'
+      );
+    }
+    return (await execute.call(GoatWebViewNativeModule, action, payload, appId)) as T;
+  }
+
+  /** Connects to the host's registered wallet adapter. */
+  public async web3ConnectWallet(
+    options: { network?: string; chainFamily?: string; chains?: string[]; manifestUrl?: string } = {},
+    appId?: string
+  ): Promise<Record<string, unknown>> {
+    return this.executeSecureAction('WEB3_CONNECT_WALLET', { ...options }, appId);
+  }
+
+  /** Signs a transaction after the native modal decodes and confirms it. */
+  public async web3SignTransaction(
+    options: Record<string, unknown>,
+    appId?: string
+  ): Promise<Record<string, unknown>> {
+    return this.executeSecureAction('WEB3_SIGN_TRANSACTION', options, appId);
+  }
+
+  /**
+   * Signs an off-chain message (`personal_sign` / `eth_signTypedData_v4`). Gesture-gated: an
+   * off-chain Permit2 allowance can drain a wallet without producing a transaction.
+   */
+  public async web3SignMessage(
+    options: { message: string; messageType?: string; chainFamily?: string; network?: string },
+    appId?: string
+  ): Promise<Record<string, unknown>> {
+    return this.executeSecureAction('WEB3_SIGN_MESSAGE', { ...options }, appId);
+  }
+
+  /** Switches the connected session to another chain (EIP-1193 `wallet_switchEthereumChain`). */
+  public async web3SwitchChain(
+    options: { chainId: string; chainFamily?: string; addChainParams?: Record<string, unknown> },
+    appId?: string
+  ): Promise<{ switched: boolean; chainId: string }> {
+    return this.executeSecureAction('WEB3_SWITCH_CHAIN', { ...options }, appId);
+  }
+
+  public async web3Disconnect(appId?: string): Promise<{ disconnected: boolean }> {
+    return this.executeSecureAction('WEB3_DISCONNECT', {}, appId);
+  }
+
+  public async web3GetAccount(appId?: string): Promise<Record<string, unknown>> {
+    return this.executeSecureAction('WEB3_GET_ACCOUNT', {}, appId);
+  }
+
+  /** Reports whether a WebAuthn ceremony is possible and which hardware vault mode is available. */
+  public async passkeyCheckSupport(appId?: string): Promise<Record<string, unknown>> {
+    return this.executeSecureAction('PASSKEY_CHECK_SUPPORT', {}, appId);
+  }
+
+  /**
+   * Runs a WebAuthn registration ceremony. `rpId` must be declared in the mini-app manifest's
+   * `security.allowedRpIds` or native rejects with `RP_ID_NOT_ALLOWED`.
+   */
+  public async passkeyRegister(
+    options: { optionsJson: string; rpId?: string },
+    appId?: string
+  ): Promise<Record<string, unknown>> {
+    return this.executeSecureAction('PASSKEY_REGISTER', { ...options }, appId);
+  }
+
+  /** Runs a WebAuthn assertion. `clientExtensionResults.prf` is stripped natively. */
+  public async passkeyAssert(
+    options: { optionsJson: string; rpId?: string },
+    appId?: string
+  ): Promise<Record<string, unknown>> {
+    return this.executeSecureAction('PASSKEY_ASSERT', { ...options }, appId);
+  }
+
+  /** Encrypts with a hardware-anchored AES-256-GCM key derived entirely in native memory. */
+  public async vaultEncrypt(
+    options: { vaultId: string; plaintext: string },
+    appId?: string
+  ): Promise<GoatVaultEnvelope> {
+    return this.executeSecureAction<GoatVaultEnvelope>('VAULT_ENCRYPT', { ...options }, appId);
+  }
+
+  /** Decrypts a vault envelope natively; the key never enters the JS realm. */
+  public async vaultDecrypt(
+    options: { vaultId: string; envelope: GoatVaultEnvelope | Record<string, unknown> },
+    appId?: string
+  ): Promise<{ plaintext: string; migratedEnvelope?: GoatVaultEnvelope }> {
+    return this.executeSecureAction('VAULT_DECRYPT', { ...options }, appId);
+  }
+
+  public onAppShow(listener: (data: import('./types').LaunchOptions) => void): () => void {
+    return this.on('ON_APP_SHOW', listener);
+  }
+
+  public onAppHide(listener: (data: { timestamp: number }) => void): () => void {
+    return this.on('ON_APP_HIDE', listener);
+  }
+
+  public onPageScroll(listener: (data: import('./types').PageScrollEventData) => void): () => void {
+    return this.on('ON_PAGE_SCROLL', listener);
+  }
+
+  public onMemoryWarning(listener: (data: import('./types').MemoryWarningEventData) => void): () => void {
+    return this.on('ON_MEMORY_WARNING', listener);
+  }
+
+  public onWindowResize(listener: (data: import('./types').WindowResizeEventData) => void): () => void {
+    return this.on('ON_WINDOW_RESIZE', listener);
   }
 }
 

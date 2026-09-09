@@ -1,4 +1,4 @@
-declare module 'react-native' {
+declare module "react-native" {
   export const NativeModules: {
     GoatWebViewModule?: any;
     [key: string]: any;
@@ -15,24 +15,42 @@ declare module 'react-native' {
     getEnforcing: <T>(name: string) => T;
   };
   export interface TurboModule {}
-  export interface HostComponent<T> extends React.ComponentType<T> {}
+  export type HostComponent<T> = React.ComponentClass<T>;
   export interface ViewProps {
     [key: string]: any;
   }
-  export function requireNativeComponent<T = any>(name: string): React.ComponentType<T>;
+  export function requireNativeComponent<T = any>(
+    name: string,
+  ): React.ComponentType<T>;
   export interface ViewStyle {
     [key: string]: any;
   }
 }
 
-declare module 'react-native/Libraries/Utilities/codegenNativeComponent' {
-  import type { HostComponent } from 'react-native';
-  export default function codegenNativeComponent<T>(name: string, options?: any): HostComponent<T>;
+declare module "react-native/Libraries/Utilities/codegenNativeComponent" {
+  import type { HostComponent } from "react-native";
+  export default function codegenNativeComponent<T>(
+    name: string,
+    options?: any,
+  ): HostComponent<T>;
 }
 
-declare module 'react-native/Libraries/Types/CodegenTypes' {
-  export type DirectEventHandler<T, EventPriority = never> = (event: { nativeEvent: T }) => void;
-  export type BubblingEventHandler<T, EventPriority = never> = (event: { nativeEvent: T }) => void;
+declare module "react-native/Libraries/Utilities/codegenNativeCommands" {
+  export interface Options<T> {
+    supportedCommands: ReadonlyArray<keyof T>;
+  }
+  export default function codegenNativeCommands<T extends {}>(
+    options: Options<T>,
+  ): T;
+}
+
+declare module "react-native/Libraries/Types/CodegenTypes" {
+  export type DirectEventHandler<T, EventPriority = never> = (event: {
+    nativeEvent: T;
+  }) => void;
+  export type BubblingEventHandler<T, EventPriority = never> = (event: {
+    nativeEvent: T;
+  }) => void;
   export type WithDefault<T, V> = T;
   export type Int32 = number;
   export type Double = number;

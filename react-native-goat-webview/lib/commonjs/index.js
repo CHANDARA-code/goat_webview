@@ -17,7 +17,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.GoatWebView = exports.NativeGoatWebViewModule = exports.GoatWebViewNativeComponent = void 0;
+exports.usePasskey = exports.useGoatWallet = exports.GoatWebView = exports.NativeGoatWebViewModule = exports.Commands = exports.GoatWebViewNativeComponent = void 0;
 const react_1 = __importDefault(require("react"));
 const react_native_1 = require("react-native");
 const GoatWebViewNativeComponent_1 = __importDefault(require("./GoatWebViewNativeComponent"));
@@ -27,10 +27,12 @@ __exportStar(require("./useGoatBridge"), exports);
 __exportStar(require("./GoatCapabilityPlugin"), exports);
 var GoatWebViewNativeComponent_2 = require("./GoatWebViewNativeComponent");
 Object.defineProperty(exports, "GoatWebViewNativeComponent", { enumerable: true, get: function () { return __importDefault(GoatWebViewNativeComponent_2).default; } });
+Object.defineProperty(exports, "Commands", { enumerable: true, get: function () { return GoatWebViewNativeComponent_2.Commands; } });
 var NativeGoatWebViewModule_1 = require("./NativeGoatWebViewModule");
 Object.defineProperty(exports, "NativeGoatWebViewModule", { enumerable: true, get: function () { return __importDefault(NativeGoatWebViewModule_1).default; } });
-const COMPONENT_NAME = 'GoatWebView';
-const isFabric = typeof global !== 'undefined' && global.nativeFabricUIManager != null;
+const COMPONENT_NAME = "GoatWebView";
+const isFabric = typeof global !== "undefined" &&
+    global.nativeFabricUIManager != null;
 const FallbackGoatWebView = react_native_1.UIManager.getViewManagerConfig(COMPONENT_NAME) != null
     ? (0, react_native_1.requireNativeComponent)(COMPONENT_NAME)
     : () => {
@@ -48,3 +50,7 @@ const GoatWebView = (props) => {
 };
 exports.GoatWebView = GoatWebView;
 exports.default = exports.GoatWebView;
+var useGoatWallet_1 = require("./hooks/useGoatWallet");
+Object.defineProperty(exports, "useGoatWallet", { enumerable: true, get: function () { return useGoatWallet_1.useGoatWallet; } });
+var usePasskey_1 = require("./hooks/usePasskey");
+Object.defineProperty(exports, "usePasskey", { enumerable: true, get: function () { return usePasskey_1.usePasskey; } });

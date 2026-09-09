@@ -16,13 +16,20 @@ public final class GoatWebViewModule: NSObject, RCTBridgeModule {
     /// before the first `<GoatWebView />` mounts, matching the Android `WebViewWarmupManager` idea.
     private static var prewarmedView: GoatView?
 
-    private let bridgeHandler = GoatScriptMessageHandler()
+    private var handlerCache: [String: GoatScriptMessageHandler] = [:]
+    private let handlerCacheLock = NSLock()
 
     private func getBridgeHandler(for appId: String?) -> GoatScriptMessageHandler {
-        guard let appId = appId, !appId.isEmpty, appId != bridgeHandler.appId else {
-            return bridgeHandler
+        let cleanId = appId?.trimmingCharacters(in: .whitespacesAndNewlines)
+        let effectiveAppId = (cleanId?.isEmpty == false) ? cleanId! : "default"
+        handlerCacheLock.lock()
+        defer { handlerCacheLock.unlock() }
+        if let cached = handlerCache[effectiveAppId] {
+            return cached
         }
-        return GoatScriptMessageHandler(appId: appId)
+        let handler = GoatScriptMessageHandler(appId: effectiveAppId)
+        handlerCache[effectiveAppId] = handler
+        return handler
     }
 
     public static func moduleName() -> String! {
@@ -96,7 +103,7 @@ public final class GoatWebViewModule: NSObject, RCTBridgeModule {
         ]
         Task {
             do {
-                let result = try await bridgeHandler.dispatchDirect(action: "HAPTIC_FEEDBACK", payload: payload)
+                let result = try await getBridgeHandler(for: nil).dispatchDirect(action: "HAPTIC_FEEDBACK", payload: payload)
                 resolve(result as NSDictionary)
             } catch {
                 reject("HAPTIC_ERROR", error.localizedDescription, error)
