@@ -257,6 +257,7 @@ For complete technical specifications, sequence diagrams, and interface contract
 
 ## 🔗 Documentation & References
 
+- 🤖 [**llm_integrate.md**](./llm_integrate.md) — Single-file integration reference for developers and coding agents: which package, minimal host snippet per platform, the bridge model, drop-in migration, and the gotchas.
 - 📋 [**CONTRIBUTING.md**](./CONTRIBUTING.md) — Contribution workflow, branch conventions, and PR checklist.
 - 🛡️ [**CODE_RULE.md**](./CODE_RULE.md) — Principal engineering standards, OWASP MASVS v2.0 compliance, and memory rules.
 - 🤝 [**CODE_OF_CONDUCT.md**](./CODE_OF_CONDUCT.md) — Expected conduct for everyone participating here.
