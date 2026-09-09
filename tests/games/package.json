@@ -1,0 +1,34 @@
+{
+  "name": "goat-webview-game-demos",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "2D/3D Game Performance & Embeddability Demos for Goat WebView",
+  "workspaces": [
+    "littlejs-demo",
+    "phaser-demo",
+    "threejs-demo",
+    "r3f-demo"
+  ],
+  "scripts": {
+    "install:all": "bash run-all.sh install",
+    "build": "bash run-all.sh build",
+    "build:all": "bash run-all.sh build",
+    "dev:littlejs": "npm --workspace=littlejs-demo run dev",
+    "dev:phaser": "npm --workspace=phaser-demo run dev",
+    "dev:threejs": "npm --workspace=threejs-demo run dev",
+    "dev:r3f": "npm --workspace=r3f-demo run dev",
+    "build:littlejs": "npm --workspace=littlejs-demo run build",
+    "build:phaser": "npm --workspace=phaser-demo run build",
+    "build:threejs": "npm --workspace=threejs-demo run build",
+    "build:r3f": "npm --workspace=r3f-demo run build",
+    "preview:littlejs": "npm --workspace=littlejs-demo run preview",
+    "preview:phaser": "npm --workspace=phaser-demo run preview",
+    "preview:threejs": "npm --workspace=threejs-demo run preview",
+    "preview:r3f": "npm --workspace=r3f-demo run preview",
+    "test": "node --experimental-strip-types e2e-verify.ts",
+    "check:size": "bash run-all.sh check-size",
+    "verify": "bash run-all.sh verify",
+    "clean": "bash run-all.sh clean"
+  }
+}
