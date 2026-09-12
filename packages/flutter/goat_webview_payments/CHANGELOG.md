@@ -1,6 +1,10 @@
 # Changelog
 
+## 1.0.0-alpha.2
+
+* Public developer preview release of the Goat WebView Payments capability companion package.
+* Multi-adapter payment gateway (Stripe, Alipay, WeChat Pay, PayPay, Bakong KHQR, Apple StoreKit 2).
+
 ## 1.0.0
 
-* Initial stable 1.0.0 GA release of the Goat WebView Payments capability companion package.
-* Multi-adapter payment gateway (Stripe, Alipay, PayPay, Bakong KHQR, StoreKit 2).
+* Initial release baseline of the Goat WebView Payments capability companion package.
