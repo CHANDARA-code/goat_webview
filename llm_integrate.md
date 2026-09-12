@@ -352,13 +352,172 @@ loudly when a toolchain or device is absent rather than passing silently.
 - **iOS cookie partitions:** never touch `GoatCookieManager` for an `appId` that has not had a
   live WebView this process (native trap).
 - **`@goat/adapter-dsl` is partial** — see §8.
+- **Soft keyboard is host-wired today.** iOS observes it (`GoatKeyboardManager`) but nothing
+  injects the CSS vars, and Android has no observer at all — the host must push the inset and the
+  page must scroll the focused field itself. See §12; skipping it costs input lag and fields stuck
+  under the keyboard.
 - **AAR size:** `android/core` currently ships above the `CODE_RULE.md` 500 KB target because the
   18-domain dispatcher still lives inline; the interim CI budget is 1,600 KB. Feature code is
   already split into `feature-*` modules — do not merge it back.
 
 ---
 
-## 12. Authoritative documents in this repo
+## 12. Soft keyboard & viewport insets (read this before you ship a form)
+
+Mini-apps with text input hit three separate traps, on every host, and none of them is obvious from
+the symptom. Budget an hour here or lose a day to "typing feels laggy" and "the field is under the
+keyboard".
+
+### 12.1 What the engine gives you today
+
+| | iOS | Android |
+|---|---|---|
+| Keyboard height observed natively | yes — `GoatKeyboardManager` (`keyboardWillShow/Hide`) | **no equivalent** |
+| CSS vars generated | yes — `GoatSafeAreaManager.generateCssInjectionScript()` emits `--keyboard-inset-bottom` / `--goat-keyboard-height` | n/a |
+| Those vars actually injected | **no** — nothing calls `injectCssVariables(into:)` | n/a |
+| Readable over the bridge | yes — the keyboard-insets action returns `{keyboardHeight, isVisible, durationMs}` | n/a |
+
+So: **do not assume the page receives a keyboard inset.** Today the host has to push it. Treat
+`--keyboard-inset-bottom` as available-but-dormant until the SDK wires the injection, and treat
+Android as unimplemented.
+
+### 12.2 Never resize the view that hosts the engine
+
+On Flutter this is the single biggest cause of input lag:
+
+```dart
+Scaffold(
+  resizeToAvoidBottomInset: false, // required
+  body: GoatWebView(appId: ...),
+)
+```
+
+With the default (`true`) the Scaffold resizes the platform view on every frame of the keyboard
+animation. Resizing an Android platform view detaches it from its virtual display and attaches it to
+a new one, and the WebView **loses its active input connection** each time
+([flutter#58943](https://github.com/flutter/flutter/issues/58943)). The same applies to any host that
+animates the engine view's frame in response to the keyboard — animate a sibling, or nothing.
+
+The engine view should stay full-bleed and the *page* should clear the keyboard in CSS.
+
+### 12.3 Flutter will not tell you the keyboard height on Android
+
+Under edge-to-edge on modern Android, `MediaQuery.viewInsetsOf(context).bottom` and
+`View.of(context).viewInsets.bottom` are both `0.0` for the whole time the keyboard is up
+([flutter#174790](https://github.com/flutter/flutter/issues/174790)) — verified on API 31 and API 37
+with `dumpsys input_method` reporting `mInputShown=true`. `MediaQuery.paddingOf` is hit by the same
+bug, so a safe-area bottom of `0px` on Android is this, not your code.
+
+Read it off the window instead:
+
+```kotlin
+// MainActivity.kt
+class MainActivity : FlutterActivity() {
+    private var events: EventChannel.EventSink? = null
+
+    override fun configureFlutterEngine(engine: FlutterEngine) {
+        super.configureFlutterEngine(engine)
+        EventChannel(engine.dartExecutor.binaryMessenger, "app/keyboard_inset")
+            .setStreamHandler(object : EventChannel.StreamHandler {
+                override fun onListen(args: Any?, sink: EventChannel.EventSink?) {
+                    events = sink; observe()
+                }
+                override fun onCancel(args: Any?) { events = null }
+            })
+    }
+
+    private fun observe() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) return
+        window.decorView.setOnApplyWindowInsetsListener { view, insets ->
+            val ime = insets.getInsets(WindowInsets.Type.ime()).bottom
+            events?.success(ime / resources.displayMetrics.density.toDouble())
+            view.onApplyWindowInsets(insets) // keep the default dispatch
+        }
+    }
+}
+```
+
+iOS `viewInsets` is correct — prefer the native channel on Android and fall back to `viewInsets`
+elsewhere. Push the value into the page with `controller.callJs('KEYBOARD', {'height': h})`.
+
+### 12.4 The two platforms shrink different things
+
+This is the one that produces a "fixed" build with a dead band above the keyboard. Measured with the
+keyboard up:
+
+| | `window.innerHeight` | `document.documentElement.clientHeight` |
+|---|---|---|
+| iOS (WKWebView) | 840 → **539** | 778 — never moves |
+| Android (view not resized) | 853 — never moves | 853 — never moves |
+
+If your page root is sized off `innerHeight` (the usual fix for WKWebView's safe-area inset — see
+`contentInsetAdjustmentBehavior = .always`), then on iOS the root **already excludes the keyboard**
+and adding the full inset on top double-insets it. Subtract what the engine already took:
+
+```ts
+const layout = window.innerHeight;               // the quantity the root is sized off
+const already = Math.max(0, baseHeight - layout); // baseHeight = layout with no keyboard
+const inset = Math.max(0, hostKeyboardHeight - already);
+```
+
+Done right, iOS ends up applying only the leftover home-indicator inset (~34 px) while Android
+applies the full keyboard height. Judging it against `clientHeight` instead looks correct on Android
+and silently breaks iOS.
+
+### 12.5 The page must scroll the focused field itself
+
+Neither engine does it for you:
+
+- **WKWebView** does auto-scroll, but its logic gets lost when the form lives in a nested scroll
+  container under an `overflow: hidden` root — the common mini-app shell. The field stays covered.
+- **Android WebView**, embedded and not resized, is never told the keyboard exists, so
+  `visualViewport` may never fire at all.
+
+So on focus, and whenever the inset grows, do it explicitly:
+
+```ts
+document.addEventListener('focusin', (e) => {
+  if (!(e.target as HTMLElement).matches('input, textarea, [contenteditable="true"]')) return;
+  requestAnimationFrame(reveal);
+  setTimeout(reveal, 300); // the keyboard animation outlasts the next frame
+});
+
+const reveal = () => (document.activeElement as HTMLElement)
+  ?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+```
+
+Pair it with `scroll-margin-block: 24px` on inputs so the revealed field is not flush against the
+keyboard. Focusing a *second* field while the keyboard is already up raises no new inset to ride on,
+which is why `focusin` is handled separately from the inset change.
+
+### 12.6 Two things not to do
+
+- **Do not add `interactive-widget=resizes-content`** to the viewport meta if the host pushes the
+  inset. Both would apply and the page is inset twice. (WebKit does not implement the key anyway.)
+- **Do not write the inset to a CSS variable on every event.** The keyboard fires a stream of resize
+  events; if that variable feeds the root height or font sizing through `calc()`, each write is a
+  full style recalc. Coalesce to one write per frame with `requestAnimationFrame` and skip it when
+  the value has not changed.
+
+### 12.7 Testing: your emulator is probably lying
+
+An AVD with `hw.keyboard=yes` (the default) shows a **zero-height IME toolbar**, not a keyboard:
+
+```
+$ adb shell dumpsys window | grep type=ime
+InsetsSource id=3 type=ime frame=[0,2992][1344,2992] visible=true   # top == bottom
+```
+
+`mInputShown` reads `true`, so a correct implementation reports an inset of `0` and looks broken.
+Set `hw.keyboard=no` in `~/.android/avd/<name>.avd/config.ini` and cold boot first. A real keyboard
+looks like `frame=[0,1984][1344,2992]`.
+
+On iOS, a `position: fixed` debug overlay drifts once the keyboard is up — log to `console` and read
+it back through the engine's console forwarding rather than drawing values on the page.
+
+---
+
+## 13. Authoritative documents in this repo
 
 | Topic | File |
 |---|---|
