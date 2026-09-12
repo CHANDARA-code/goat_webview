@@ -1,6 +1,6 @@
 name: goat_webview_compat
 description: "Drop-in flutter_inappwebview-compatible widget, controller, and value types over Goat WebView."
-version: 0.1.0
+version: 1.0.0-alpha.2
 homepage: https://github.com/CHANDARA-code/goat_webview
 repository: https://github.com/CHANDARA-code/goat_webview/tree/main/goat_webview_compat
 issue_tracker: https://github.com/CHANDARA-code/goat_webview/issues
