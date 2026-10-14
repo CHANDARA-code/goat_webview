@@ -19,7 +19,7 @@ export 'package:goat_webview_scanner/goat_webview_scanner.dart';
 export 'package:goat_webview_sensors/goat_webview_sensors.dart';
 export 'package:goat_webview_web3/goat_webview_web3.dart';
 
-/// Option B of the dual-distribution model in TASK_PORTABLE_MINIAPP_DSL_ADAPTERS.md §1: one
+/// Option B of the dual-distribution model: one
 /// dependency that pulls every capability companion, for hosts that want the full 18-domain
 /// surface without picking modules. Option A remains depending on the individual packages.
 ///

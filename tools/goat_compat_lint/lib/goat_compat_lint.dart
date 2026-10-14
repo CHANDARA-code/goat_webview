@@ -12,7 +12,7 @@ class _GoatCompatLintPlugin extends PluginBase {
       ];
 }
 
-/// T14 (`TASK_PORTABLE_PLUG_AND_PLAY_ADAPTER.md`): forbids storing a
+/// Forbids storing a
 /// `goat_webview_compat` migration/config value type in a field, top-level
 /// variable, or generic state holder (`ValueNotifier<T>`,
 /// `StateController<T>`, etc.) — these types must be built inline and passed

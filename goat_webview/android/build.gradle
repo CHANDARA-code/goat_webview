@@ -41,7 +41,7 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0"
 
-    // Dual-distribution (TASK_PORTABLE_MINIAPP_DSL_ADAPTERS.md §1).
+    // Dual-distribution model.
     //
     // Default (Option B) links `features-all-in`, which is what every Flutter host has always
     // got. Dropping that by default would silently remove ~60 bridge actions from existing

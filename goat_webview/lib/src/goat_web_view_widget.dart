@@ -35,8 +35,7 @@ class GoatWebView extends StatefulWidget {
   /// `comgooglemaps`, Android `intent://` incl. `browser_fallback_url`, and any host in
   /// [compatExternalLinkHosts]) are resolved directly to an external app/browser instead of the
   /// bundled-mini-app sandbox's user-facing warning dialog. Existing sandbox behavior is
-  /// unaffected when this is false. For compatibility-adapter use — see
-  /// `TASK_PORTABLE_PLUG_AND_PLAY_ADAPTER.md` T7.
+  /// unaffected when this is false. For compatibility-adapter use.
   final bool compatExternalSchemeResolver;
 
   /// Universal-link hosts (e.g. `t.me`) treated as external navigation when

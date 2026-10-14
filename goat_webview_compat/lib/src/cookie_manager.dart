@@ -1,6 +1,6 @@
 import 'package:goat_webview/goat_webview.dart';
 
-/// T6 (`TASK_PORTABLE_PLUG_AND_PLAY_ADAPTER.md`): flutter_inappwebview-compatible
+/// flutter_inappwebview-compatible
 /// `CookieManager` façade over the engine's existing [GoatCookieManager]. Per G2, this class
 /// never touches a native object or channel on its own — [GoatCookieManager]'s `MethodChannel`
 /// is a `const` declaration (free to construct), and the platform side stays untouched until one

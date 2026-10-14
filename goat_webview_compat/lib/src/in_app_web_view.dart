@@ -77,8 +77,8 @@ class InAppWebView extends StatefulWidget {
       onProgressChanged;
   final Set<Factory<OneSequenceGestureRecognizer>>? gestureRecognizers;
 
-  /// T8 compat: each is only ever enabled natively when set here (G7) — see
-  /// `TASK_PORTABLE_PLUG_AND_PLAY_ADAPTER.md` T8. [WebResourceError.type] is always
+  /// Compat error handling: each is only ever enabled natively when set here (G7).
+  /// In compatibility mode, [WebResourceError.type] is always
   /// [WebResourceErrorType.unknown] — Android and iOS use unrelated error-code numbering
   /// with no clean shared mapping; [WebResourceError.description] carries the real,
   /// platform-native message (what a Crashlytics-style consumer actually logs).
