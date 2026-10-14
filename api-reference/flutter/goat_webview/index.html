@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="goat_webview library API docs, for the Dart programming language.">
+  <title>goat_webview library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">goat_webview</a></li>
+    <li class="self-crumb">goat_webview.dart</li>
+  </ol>
+  <div class="self-name">goat_webview</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar=""
+    data-below-sidebar="goat_webview&#47;goat_webview-library-sidebar.html">
+  
+    <div>
+      
+
+      <h1>
+        <span class="kind-library">goat_webview</span>
+        library 
+ 
+
+      </h1>
+    </div>
+
+    
+
+
+    <section class="summary offset-anchor" id="classes">
+      <h2>Classes</h2>
+      <dl>
+          <dt id="GoatBridgeMessage">
+  <span class="name "><a href="../goat_webview/GoatBridgeMessage-class.html">GoatBridgeMessage</a></span> 
+
+</dt>
+<dd>
+  Represents an incoming or outgoing message through Goat WebView bridge.
+</dd>
+
+          <dt id="GoatBridgeResponse">
+  <span class="name "><a href="../goat_webview/GoatBridgeResponse-class.html">GoatBridgeResponse</a></span> 
+
+</dt>
+<dd>
+  Response returned by the native bridge.
+</dd>
+
+          <dt id="GoatCapabilityPlugin">
+  <span class="name "><a href="../goat_webview/GoatCapabilityPlugin-class.html">GoatCapabilityPlugin</a></span> 
+
+</dt>
+<dd>
+  Service Provider Interface (SPI) for modular Goat WebView capabilities (Task 10202).
+</dd>
+
+          <dt id="GoatCapabilityRegistry">
+  <span class="name "><a href="../goat_webview/GoatCapabilityRegistry-class.html">GoatCapabilityRegistry</a></span> 
+
+</dt>
+<dd>
+  Global registry for dynamic capability plugins and SPI discovery (Task 10202).
+</dd>
+
+          <dt id="GoatDeviceInfo">
+  <span class="name "><a href="../goat_webview/GoatDeviceInfo-class.html">GoatDeviceInfo</a></span> 
+
+</dt>
+<dd>
+  Structured device metadata, telemetry, and install-scoped GUID (Task 10203 / R3).
+</dd>
+
+          <dt id="GoatFlutterApi">
+  <span class="name "><a href="../goat_webview/GoatFlutterApi-class.html">GoatFlutterApi</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="GoatHeadlessWebView">
+  <span class="name "><a href="../goat_webview/GoatHeadlessWebView-class.html">GoatHeadlessWebView</a></span> 
+
+</dt>
+<dd>
+  Headless background WebView instance for executing offscreen JavaScript and bridge tasks.
+</dd>
+
+          <dt id="GoatHostApi">
+  <span class="name "><a href="../goat_webview/GoatHostApi-class.html">GoatHostApi</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="GoatKeyboardInsets">
+  <span class="name "><a href="../goat_webview/GoatKeyboardInsets-class.html">GoatKeyboardInsets</a></span> 
+
+</dt>
+<dd>
+  Represents soft keyboard insets and transition duration.
+</dd>
+
+          <dt id="GoatPopupRequest">
+  <span class="name "><a href="../goat_webview/GoatPopupRequest-class.html">GoatPopupRequest</a></span> 
+
+</dt>
+<dd>
+  Structured popup window creation request intercepted natively (Task 10183 / Pillar 1).
+</dd>
+
+          <dt id="GoatSafeAreaInsets">
+  <span class="name "><a href="../goat_webview/GoatSafeAreaInsets-class.html">GoatSafeAreaInsets</a></span> 
+
+</dt>
+<dd>
+  Represents safe area insets of the active WebView container.
+</dd>
+
+          <dt id="GoatWebView">
+  <span class="name "><a href="../goat_webview/GoatWebView-class.html">GoatWebView</a></span> 
+
+</dt>
+<dd>
+  Flutter Widget embedding the hardware-accelerated Goat WebView via Android Hybrid Composition and iOS UiKitView.
+</dd>
+
+          <dt id="GoatWebViewController">
+  <span class="name "><a href="../goat_webview/GoatWebViewController-class.html">GoatWebViewController</a></span> 
+
+</dt>
+<dd>
+  Controller for programmatic interaction with the embedded Goat WebView instance.
+</dd>
+
+          <dt id="GoatWebViewEngine">
+  <span class="name "><a href="../goat_webview/GoatWebViewEngine-class.html">GoatWebViewEngine</a></span> 
+
+</dt>
+<dd>
+  Top-level platform service for global Goat WebView prewarming and cache management.
+</dd>
+
+          <dt id="GoatWindowFeatures">
+  <span class="name "><a href="../goat_webview/GoatWindowFeatures-class.html">GoatWindowFeatures</a></span> 
+
+</dt>
+<dd>
+  Parsed window geometry and display features requested via <code>window.open()</code> (Task 10183 / R3).
+</dd>
+
+          <dt id="PigeonBridgeRequest">
+  <span class="name "><a href="../goat_webview/PigeonBridgeRequest-class.html">PigeonBridgeRequest</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="PigeonBridgeResponse">
+  <span class="name "><a href="../goat_webview/PigeonBridgeResponse-class.html">PigeonBridgeResponse</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+      </dl>
+    </section>
+
+    <section class="summary offset-anchor" id="enums">
+      <h2>Enums</h2>
+      <dl>
+          <dt id="GoatPopupRoutingPolicy">
+  <span class="name "><a href="../goat_webview/GoatPopupRoutingPolicy.html">GoatPopupRoutingPolicy</a></span> 
+
+</dt>
+<dd>
+  Host-configurable popup window and target="_blank" routing policy (Task 10183 / R1 / R2).
+</dd>
+
+      </dl>
+    </section>
+
+
+
+
+
+
+    <section class="summary offset-anchor" id="functions">
+      <h2>Functions</h2>
+      <dl class="callables">
+          <dt id="parseGoatPopupRoutingPolicy" class="callable">
+  <span class="name"><a href="../goat_webview/parseGoatPopupRoutingPolicy.html">parseGoatPopupRoutingPolicy</a></span><span class="signature">(<wbr><span class="parameter" id="parseGoatPopupRoutingPolicy-param-value"><span class="type-annotation">String?</span> <span class="parameter-name">value</span></span>)
+    <span class="returntype parameter">&#8594; <a href="../goat_webview/GoatPopupRoutingPolicy.html">GoatPopupRoutingPolicy</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Parses string representation of <a href="../goat_webview/GoatPopupRoutingPolicy.html">GoatPopupRoutingPolicy</a> (case-insensitive, snake/camel).
+  
+
+</dd>
+
+      </dl>
+    </section>
+
+    <section class="summary offset-anchor" id="typedefs">
+      <h2>Typedefs</h2>
+      <dl>
+          
+  <dt id="GoatWebViewCreatedCallback" class="callable">
+    <span class="name"><a href="../goat_webview/GoatWebViewCreatedCallback.html">GoatWebViewCreatedCallback</a></span><span class="signature">
+      <span class="returntype parameter">= void Function<span class="signature">(<span class="parameter" id="param-controller"><span class="type-annotation"><a href="../goat_webview/GoatWebViewController-class.html">GoatWebViewController</a></span> <span class="parameter-name">controller</span></span>)</span></span>
+    </span>
+    
+
+  </dt>
+  <dd>
+    
+    
+
+  </dd>
+
+      </dl>
+    </section>
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">goat_webview</a></li>
+    <li class="self-crumb">goat_webview.dart</li>
+</ol>
+
+    <h5><span class="package-name">goat_webview</span> <span class="package-kind">package</span></h5>
+    <ol>
+      <li class="section-title">Libraries</li>
+      <li><a href="../goat_webview/">goat_webview</a></li>
+</ol>
+
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+    <h5>goat_webview library</h5>
+  </div><!--/sidebar-offcanvas-right-->
+</main>
+<footer>
+  <span class="no-break">
+    goat_webview
+      1.0.0
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+
