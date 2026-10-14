@@ -1,6 +1,6 @@
 /**
  * Adversarial suite for the wallet, passkey and vault bridge surface -- threat vectors A1-A10
- * and Vectors 4/5 from TASK_GOAT_BRIDGE_WALLET_PASSKEY_ADAPTERS section 3.6.
+ * and Vectors 4/5 from wallet and passkey security specification.
  *
  * Lives in packages/bridge-mock/test/ rather than a new top-level tests/security/ on purpose:
  * this package's npm test already runs, is in CI, and is covered by verify-suites-are-gated. A

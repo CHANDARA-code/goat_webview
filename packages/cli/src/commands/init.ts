@@ -101,17 +101,30 @@ createRoot(container).render(
 
 function generateAppTsx(opts: InitOptions): string {
   return `import React, { useEffect, useState } from 'react';
-import { MiniAppBridge } from '@goat/sdk';
 
-const bridge = new MiniAppBridge();
+// Access the native bridge injected into window by GoatWebView
+declare global {
+  interface Window {
+    nativeBridge?: {
+      postMessage: (msg: string) => void;
+    };
+    goatBridge?: {
+      callNative: (action: string, payload?: Record<string, unknown>) => Promise<unknown>;
+    };
+  }
+}
 
 export default function App() {
   const [deviceInfo, setDeviceInfo] = useState<string>('Loading...');
 
   useEffect(() => {
-    bridge.callNative('GET_DEVICE_INFO', {}).then((info) => {
-      setDeviceInfo(JSON.stringify(info, null, 2));
-    }).catch(() => setDeviceInfo('Bridge not available (browser mode)'));
+    if (typeof window !== 'undefined' && window.goatBridge) {
+      window.goatBridge.callNative('GET_DEVICE_INFO', {}).then((info: any) => {
+        setDeviceInfo(JSON.stringify(info, null, 2));
+      }).catch(() => setDeviceInfo('Bridge not available (browser mode)'));
+    } else {
+      setDeviceInfo('Bridge not available (browser mode)');
+    }
   }, []);
 
   return (
@@ -162,7 +175,6 @@ function generatePackageJson(opts: InitOptions): string {
       dependencies: {
         react: "^19.0.0",
         "react-dom": "^19.0.0",
-        "@goat/sdk": "^1.0.0",
       },
       devDependencies: {
         "@types/react": "^19.0.0",

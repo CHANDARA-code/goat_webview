@@ -2,8 +2,8 @@
   "name": "@goat/adapter-dsl",
   "version": "0.1.0",
   "description": "Portable WeChat (wx.*) / Alibaba (my.*) / uni-app / Taro mini-app DSL adapters for goat_webview.",
-  "license": "UNLICENSED",
-  "private": true,
+  "license": "MIT",
+  "private": false,
   "type": "module",
   "sideEffects": false,
   "main": "./dist/cjs/index.js",
@@ -87,11 +87,13 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
-    "build:esm": "esbuild src/index.ts src/wechat/index.ts src/alibaba/index.ts src/uniapp/index.ts src/taro/index.ts src/features/storage/index.ts src/features/sensors/index.ts src/features/scanner/index.ts src/features/location/index.ts src/features/bluetooth/index.ts src/features/media/index.ts src/features/payments/index.ts src/features/biometrics/index.ts src/features/navigation/index.ts src/features/binary/index.ts --outdir=dist/esm --format=esm --outbase=src",
-    "build:cjs": "esbuild src/index.ts src/wechat/index.ts src/alibaba/index.ts src/uniapp/index.ts src/taro/index.ts src/features/storage/index.ts src/features/sensors/index.ts src/features/scanner/index.ts src/features/location/index.ts src/features/bluetooth/index.ts src/features/media/index.ts src/features/payments/index.ts src/features/biometrics/index.ts src/features/navigation/index.ts src/features/binary/index.ts --outdir=dist/cjs --format=cjs --outbase=src",
+    "build:esm": "esbuild src/index.ts src/bootstrap.ts src/actionMap.ts src/capabilities.ts src/navigation.ts src/features/types.ts src/wechat/index.ts src/alibaba/index.ts src/uniapp/index.ts src/taro/index.ts src/features/storage/index.ts src/features/sensors/index.ts src/features/scanner/index.ts src/features/location/index.ts src/features/bluetooth/index.ts src/features/media/index.ts src/features/payments/index.ts src/features/biometrics/index.ts src/features/navigation/index.ts src/features/binary/index.ts --bundle --outdir=dist/esm --format=esm --outbase=src",
+    "build:cjs": "esbuild src/index.ts src/bootstrap.ts src/actionMap.ts src/capabilities.ts src/navigation.ts src/features/types.ts src/wechat/index.ts src/alibaba/index.ts src/uniapp/index.ts src/taro/index.ts src/features/storage/index.ts src/features/sensors/index.ts src/features/scanner/index.ts src/features/location/index.ts src/features/bluetooth/index.ts src/features/media/index.ts src/features/payments/index.ts src/features/biometrics/index.ts src/features/navigation/index.ts src/features/binary/index.ts --bundle --outdir=dist/cjs --format=cjs --outbase=src && node -e \"require('fs').writeFileSync('dist/cjs/package.json', JSON.stringify({type:'commonjs'}, null, 2))\"",
     "build:types": "tsc -p tsconfig.types.json",
     "build": "npm run build:esm && npm run build:cjs && npm run build:types",
     "test": "esbuild src/__tests__/dsl.test.ts --bundle --outfile=dist-test/dsl.test.js --format=esm --platform=node && esbuild src/__tests__/features.test.ts --bundle --outfile=dist-test/features.test.js --format=esm --platform=node && node --test dist-test/*.test.js",

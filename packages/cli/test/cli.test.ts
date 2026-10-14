@@ -185,15 +185,24 @@ describe("@goat/cli — Command Suite", () => {
           "my-app",
           "package.json name should match",
         );
-        assert.ok(
+        assert.strictEqual(
           pkg.dependencies?.["@goat/sdk"],
-          "Should depend on @goat/sdk",
+          undefined,
+          "Should not depend on ghost package @goat/sdk",
+        );
+        assert.ok(
+          pkg.dependencies?.react,
+          "Should depend on react",
         );
 
         const appTsx = await readFile(join(tmpDir, "src", "App.tsx"), "utf-8");
         assert.ok(
-          appTsx.includes("MiniAppBridge"),
-          "App.tsx should import MiniAppBridge",
+          !appTsx.includes("@goat/sdk"),
+          "App.tsx should not import @goat/sdk",
+        );
+        assert.ok(
+          appTsx.includes("deviceInfo"),
+          "App.tsx should handle deviceInfo",
         );
 
         const tsconfig = JSON.parse(

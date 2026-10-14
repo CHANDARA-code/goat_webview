@@ -35,7 +35,7 @@ npx @goat/cli <command> [options]
 
 ### 1. `goat init <name>`
 
-Scaffold a new mini-app workspace with pre-configured project templates, TypeScript types, and `@goat/sdk` integration.
+Scaffold a new mini-app workspace with pre-configured project templates, TypeScript types, and native bridge integration.
 
 ```bash
 goat init my-app [options]
@@ -53,10 +53,10 @@ my-app/
 ├── index.html          # HTML entry point
 ├── src/
 │   ├── main.tsx        # Application root mount
-│   └── App.tsx         # Root component with MiniAppBridge integration
+│   └── App.tsx         # Root component with native bridge integration
 ├── vite.config.ts      # Vite dev server and Rollup packaging config
 ├── tsconfig.json       # TypeScript compiler settings
-└── package.json        # Dependencies including @goat/sdk
+└── package.json        # Dependencies and scripts
 ```
 
 ---

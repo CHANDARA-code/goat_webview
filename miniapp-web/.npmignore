@@ -1,3 +1,9 @@
 dist-test/
 node_modules/
 *.log
+AGENTS.md
+CLAUDE.md
+src/__tests__/
+**/__tests__/**
+*.test.ts
+*.test.js

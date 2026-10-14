@@ -2,6 +2,14 @@
   "name": "goat-webview-workspace",
   "version": "1.0.0",
   "private": true,
+  "workspaces": [
+    "miniapp-web",
+    "packages/*",
+    "packages/react-native/*",
+    "tests/games",
+    "react-native-goat-webview",
+    "react-native-goat-webview-compat"
+  ],
   "description": "Monorepo workspace for Goat WebView universal multi-platform engine",
   "scripts": {
     "prepare": "husky",

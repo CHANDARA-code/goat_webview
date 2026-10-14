@@ -29,8 +29,8 @@
   "author": "Goat Engineering Team",
   "license": "MIT",
   "dependencies": {
-    "@goat/appservice": "file:../appservice",
-    "@goat/bridge-mock": "file:../bridge-mock",
+    "@goat/appservice": "^1.0.0",
+    "@goat/bridge-mock": "^1.4.0",
     "@monaco-editor/react": "^4.6.0",
     "clsx": "^2.1.1",
     "lucide-react": "^0.475.0",

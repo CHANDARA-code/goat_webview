@@ -3,13 +3,21 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
+  "license": "MIT",
+  "files": [
+    "dist",
+    "src/miniapp-bridge.ts",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build && esbuild src/miniapp-bridge.ts --minify --bundle --outfile=dist/miniapp-bridge.min.js && npm run build:web3-runtime",
     "build:sdk": "esbuild src/miniapp-bridge.ts --minify --bundle --outfile=dist/miniapp-bridge.min.js",
     "test": "esbuild src/index.ts src/miniapp-bridge.ts src/injected/*.ts src/hooks/*.ts src/__tests__/*.test.ts --outdir=dist-test --format=esm --platform=node && node --test dist-test/__tests__/*.test.js",
     "preview": "vite preview",
-    "build:web3-runtime": "esbuild src/injected/index.ts --minify --bundle --format=iife --target=es2019 --outfile=dist/goat-web3-runtime.min.js"
+    "build:web3-runtime": "esbuild src/injected/index.ts --minify --bundle --format=iife --target=es2019 --outfile=dist/goat-web3-runtime.min.js",
+    "postinstall": "node --input-type=module -e \"import fs from 'node:fs'; import path from 'node:path'; const root = path.resolve('..'); try { fs.cpSync(path.join(root, 'node_modules/@types'), path.resolve('node_modules/@types'), { recursive: true }); } catch (e) {} try { fs.cpSync(path.join(root, 'node_modules/@types'), path.resolve('../packages/appservice/node_modules/@types'), { recursive: true }); } catch (e) {} try { if (!fs.existsSync(path.resolve('../packages/appservice/node_modules/typescript'))) { fs.symlinkSync(path.join(root, 'node_modules/typescript'), path.resolve('../packages/appservice/node_modules/typescript'), 'dir'); } } catch (e) {}\""
   },
   "dependencies": {
     "@ant-design/icons": "^5.6.1",
@@ -24,6 +32,7 @@
     "@types/react-dom": "^18.3.5",
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.20",
+    "esbuild": "^0.24.2",
     "postcss": "^8.5.2",
     "tailwindcss": "^3.4.17",
     "terser": "^5.39.0",
