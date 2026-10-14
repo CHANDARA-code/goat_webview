@@ -15,7 +15,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * T12 (`TASK_PORTABLE_PLUG_AND_PLAY_ADAPTER.md` §4): the compat-adapter half of the perf/RAM
+ * The compat-adapter half of the perf/RAM
  * contract. Baseline = `bench/compat_size_check`'s `main_a_engine_only.dart` entry point
  * (`goat_webview` only). Candidate = the same app rebuilt from `main_c_adapter_used.dart`
  * (`goat_webview_compat`'s `InAppWebView`, settings, pull-to-refresh, and callbacks all live).

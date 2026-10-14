@@ -12,15 +12,11 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * T12 (`TASK_PORTABLE_PLUG_AND_PLAY_ADAPTER.md` §4): opens and disposes 100 mini-app [GoatView]
+ * Opens and disposes 100 mini-app [GoatView]
  * instances and asserts nothing beyond the intentional bounded warm pool survives — no leaked
  * native WebView pointers, no unbounded retained-heap growth from repeated create/dispose cycles
  * (G5's device-side counterpart to the pure-Dart 100×(create→use→dispose) test in
  * `goat_webview_compat`'s own controller suite).
- *
- * NOTE: written but not yet run on a device/emulator — see T12 in
- * `TASK_PORTABLE_PLUG_AND_PLAY_ADAPTER.md` for the still-open CI/physical-device wiring this
- * depends on.
  */
 @RunWith(AndroidJUnit4::class)
 class GoatViewHeapRetentionTest {

@@ -56,7 +56,8 @@ open class GoatWebViewClient(
     private val onPageCommitVisibleCompat: ((url: String) -> Unit)? = null,
     private val onLoadResourceCompat: ((url: String) -> Unit)? = null,
     private val onUpdateVisitedHistoryCompat: ((url: String, isReload: Boolean) -> Unit)? = null,
-    private val assetByteCache: GoatAssetByteCache? = null
+    private val assetByteCache: GoatAssetByteCache? = null,
+    var onRehydrationHandler: ((didCrash: Boolean) -> Unit)? = null
 ) : WebViewClient() {
 
     val byteCache: GoatAssetByteCache by lazy { assetByteCache ?: GoatAssetByteCache.getInstance(context) }
@@ -510,7 +511,6 @@ open class GoatWebViewClient(
         try {
             view?.let { webView ->
                 webView.stopLoading()
-                webView.loadUrl("about:blank")
                 (webView.parent as? android.view.ViewGroup)?.removeView(webView)
                 webView.destroy()
             }
@@ -518,7 +518,12 @@ open class GoatWebViewClient(
             Log.e(TAG, "Error cleaning up crashed WebView instance", e)
         }
 
-        this.onRenderCrashed?.invoke(didCrash)
+        try {
+            this.onRenderCrashed?.invoke(didCrash)
+            this.onRehydrationHandler?.invoke(didCrash)
+        } catch (t: Throwable) {
+            Log.e(TAG, "Error in crash handler", t)
+        }
         // Return true to prevent host application crash
         return true
     }

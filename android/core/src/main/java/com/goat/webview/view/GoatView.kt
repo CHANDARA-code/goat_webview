@@ -8,18 +8,25 @@ import android.util.AttributeSet
 import android.util.Log
 import android.view.ViewGroup
 import android.webkit.ConsoleMessage
+import android.webkit.CookieManager
+import android.webkit.GeolocationPermissions
+import android.webkit.ServiceWorkerController
 import android.webkit.URLUtil
 import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
 import android.webkit.WebSettings
+import android.webkit.WebStorage
 import android.webkit.WebView
 import android.widget.FrameLayout
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import androidx.webkit.Profile
+import androidx.webkit.ProfileStore
 import androidx.webkit.WebSettingsCompat
 import androidx.webkit.WebViewCompat
 import androidx.webkit.WebViewFeature
 import com.goat.webview.GoatAssetManager
 import com.goat.webview.GoatBridgeActionHandler
+import com.goat.webview.GoatCookieManager
 import com.goat.webview.GoatFastPool
 import com.goat.webview.GoatFindInPageController
 import com.goat.webview.GoatPrintController
@@ -45,7 +52,51 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
+import android.os.Bundle
 import java.io.File
+
+/**
+ * Immutable, durable snapshot of a GoatView browsing session,
+ * enabling transparent surface rehydration after Chromium renderer termination.
+ */
+data class GoatSessionSnapshot(
+    val entryUrl: String? = null,
+    val confirmedUrl: String? = null,
+    val routeHash: String? = null,
+    val title: String? = null,
+    val textZoom: Int = 100,
+    val navigationBundle: Bundle? = null,
+    val timestamp: Long = System.currentTimeMillis(),
+    val appId: String? = null
+) {
+    val lastConfirmedUrl: String? get() = confirmedUrl
+
+    /**
+     * Resolves the target URL for post-crash rehydration.
+     * Prefers confirmedUrl (with routeHash preserved if missing), then entryUrl + routeHash, then entryUrl.
+     */
+    fun resolveRestoreUrl(): String {
+        val confirmed = confirmedUrl
+        if (!confirmed.isNullOrBlank() && confirmed != "about:blank") {
+            if (!routeHash.isNullOrBlank()) {
+                val base = confirmed.substringBefore('#')
+                val hash = if (routeHash.startsWith("#")) routeHash else "#$routeHash"
+                return "$base$hash"
+            }
+            return confirmed
+        }
+        val entry = entryUrl
+        if (!entry.isNullOrBlank()) {
+            if (!routeHash.isNullOrBlank()) {
+                val base = entry.substringBefore('#')
+                val hash = if (routeHash.startsWith("#")) routeHash else "#$routeHash"
+                return "$base$hash"
+            }
+            return entry
+        }
+        return "about:blank"
+    }
+}
 
 /**
  * Enterprise-grade Android View container for Goat WebView.
@@ -144,6 +195,9 @@ class GoatView @JvmOverloads constructor(
                 ?: MiniAppManifest.DEFAULT_ENTRYPOINT
         private val WILDCARD_ORIGIN_SET = setOf("*")
 
+        const val MAX_CONSECUTIVE_CRASHES = 3
+        const val CRASH_WINDOW_MS = 15_000L // 15 seconds
+
         @JvmStatic
         internal fun isNightMode(uiMode: Int): Boolean =
             (uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
@@ -158,6 +212,15 @@ class GoatView @JvmOverloads constructor(
         }
     )
     private var webView: WebView? = null
+    private var currentSessionSnapshot: GoatSessionSnapshot? = null
+    private var initialEntryUrl: String? = null
+    private var lastKnownUrl: String? = null
+    private var lastKnownTitle: String? = null
+    private var lastKnownRouteHash: String? = null
+
+    // Anti-crash-loop circuit breaker state: max 3 crashes within 15 seconds
+    private var lastCrashTimestamp: Long = 0L
+    private var consecutiveCrashCount: Int = 0
     val lifecycleManager = com.goat.webview.lifecycle.GoatLifecycleManager().apply {
         attachScriptEvaluator { script ->
             evaluateJavascript(script)
@@ -355,6 +418,22 @@ class GoatView @JvmOverloads constructor(
         private set
     private var currentHotKey: String? = null
 
+    /** Active AndroidX Profile when MULTI_PROFILE is supported */
+    var tenantProfile: Profile? = null
+        private set
+    /** Profile-dedicated CookieManager */
+    var tenantCookieManager: CookieManager? = null
+        private set
+    /** Profile-dedicated WebStorage (DOM localStorage & sessionStorage) */
+    var tenantWebStorage: WebStorage? = null
+        private set
+    /** Profile-dedicated GeolocationPermissions */
+    var tenantGeolocationPermissions: GeolocationPermissions? = null
+        private set
+    /** Profile-dedicated ServiceWorkerController */
+    var tenantServiceWorkerController: ServiceWorkerController? = null
+        private set
+
     /**
      * When set, an unmount parks this view's WebView fully warm (page + JS heap intact) keyed by
      * tenant + entry, and the next same-key mount is a re-attach instead of a navigation. Off by
@@ -439,15 +518,24 @@ class GoatView @JvmOverloads constructor(
     private fun attachWebViewToHierarchy(wv: WebView) {
         removeAllViews()
         if (pullToRefreshEnabled) {
-            val srl = SwipeRefreshLayout(context ?: hostContext).apply {
-                setOnRefreshListener {
-                    val custom = onPullToRefresh
-                    if (custom != null) custom.invoke() else wv.reload()
+            val srl = try {
+                SwipeRefreshLayout(context ?: hostContext).apply {
+                    setOnRefreshListener {
+                        val custom = onPullToRefresh
+                        if (custom != null) custom.invoke() else wv.reload()
+                    }
                 }
+            } catch (_: Throwable) {
+                null
             }
-            srl.addView(wv, LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
-            addView(srl, LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
-            swipeRefreshLayout = srl
+            if (srl != null) {
+                srl.addView(wv, LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
+                addView(srl, LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
+                swipeRefreshLayout = srl
+            } else {
+                swipeRefreshLayout = null
+                addView(wv, LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
+            }
         } else {
             swipeRefreshLayout = null
             addView(wv, LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
@@ -476,6 +564,7 @@ class GoatView @JvmOverloads constructor(
     fun setTextZoom(zoom: Int): Boolean {
         val clamped = com.goat.webview.accessibility.GoatTextZoomPolicy.clampTextZoom(zoom)
         pendingTextZoom = clamped
+        saveSessionState()
         val wv = webView
         return if (wv != null) {
             try {
@@ -498,6 +587,49 @@ class GoatView @JvmOverloads constructor(
     }
 
     fun getUnderlyingWebView(): WebView? = webView
+
+    /**
+     * Captures an explicit snapshot of the current browsing session.
+     */
+    fun saveSessionState(): GoatSessionSnapshot {
+        val wv = webView
+        val bundle = Bundle()
+        try {
+            wv?.saveState(bundle)
+        } catch (_: Throwable) {
+            // Safe fallback in headless / unit-test environments
+        }
+
+        val liveUrl = try { wv?.url } catch (_: Throwable) { null }
+        val currentUrl = liveUrl?.takeIf { it.isNotBlank() && it != "about:blank" }
+            ?: lastKnownUrl?.takeIf { it.isNotBlank() && it != "about:blank" }
+            ?: initialEntryUrl
+
+        val route = extractRouteHash(currentUrl) ?: lastKnownRouteHash
+        val liveTitle = try { wv?.title } catch (_: Throwable) { null }
+        val currentTitle = liveTitle ?: lastKnownTitle
+
+        val snapshot = GoatSessionSnapshot(
+            entryUrl = initialEntryUrl ?: currentUrl,
+            confirmedUrl = currentUrl?.takeIf { it.isNotBlank() && it != "about:blank" },
+            routeHash = route,
+            title = currentTitle,
+            textZoom = pendingTextZoom,
+            navigationBundle = bundle.takeIf { !it.isEmpty },
+            timestamp = System.currentTimeMillis(),
+            appId = currentAppId
+        )
+        currentSessionSnapshot = snapshot
+        return snapshot
+    }
+
+    fun getSessionSnapshot(): GoatSessionSnapshot = currentSessionSnapshot ?: saveSessionState()
+
+    private fun extractRouteHash(url: String?): String? {
+        if (url == null) return null
+        val hashIdx = url.indexOf('#')
+        return if (hashIdx >= 0) url.substring(hashIdx) else null
+    }
 
     init {
         try {
@@ -695,6 +827,18 @@ class GoatView @JvmOverloads constructor(
         }
         val finalEntryUrl = entryUrl
             ?: if (urlMode) "about:blank" else "https://$clientDomain/assets/${manifestEntrypoint(assetDir)}"
+        initialEntryUrl = finalEntryUrl
+        lastKnownUrl = finalEntryUrl
+        lastKnownRouteHash = extractRouteHash(finalEntryUrl)
+        currentSessionSnapshot = GoatSessionSnapshot(
+            entryUrl = finalEntryUrl,
+            confirmedUrl = finalEntryUrl,
+            routeHash = lastKnownRouteHash,
+            title = null,
+            textZoom = pendingTextZoom,
+            timestamp = System.currentTimeMillis(),
+            appId = appId
+        )
         currentSenderOrigins = if (urlMode) {
             urlModeSenderOrigins(finalEntryUrl)
         } else {
@@ -714,7 +858,32 @@ class GoatView @JvmOverloads constructor(
             return
         }
 
-        val wv = GoatFastPool.acquire(activeContext).apply {
+        val wv = GoatFastPool.acquire(activeContext, appId).apply {
+            // AndroidX MULTI_PROFILE tenant isolation: allocate or retrieve profile and attach
+            // strictly before any navigation or script evaluation.
+            try {
+                if (WebViewFeature.isFeatureSupported(WebViewFeature.MULTI_PROFILE)) {
+                    val profileName = GoatCookieManager.getProfileName(appId)
+                    val profile = ProfileStore.getInstance().getOrCreateProfile(profileName)
+                    if (profile != null) {
+                        if (profileName != Profile.DEFAULT_PROFILE_NAME) {
+                            try {
+                                WebViewCompat.setProfile(this, profile.name)
+                            } catch (e: Throwable) {
+                                Log.w(TAG, "Failed setting profile '$profileName': ${e.message}")
+                            }
+                        }
+                        tenantProfile = profile
+                        tenantCookieManager = try { profile.cookieManager } catch (_: Throwable) { null }
+                        tenantWebStorage = try { profile.webStorage } catch (_: Throwable) { null }
+                        tenantGeolocationPermissions = try { profile.geolocationPermissions } catch (_: Throwable) { null }
+                        tenantServiceWorkerController = try { profile.serviceWorkerController } catch (_: Throwable) { null }
+                    }
+                }
+            } catch (e: Throwable) {
+                Log.w(TAG, "MULTI_PROFILE initialization skipped: ${e.message}")
+            }
+
             layoutParams = LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT
@@ -865,10 +1034,26 @@ class GoatView @JvmOverloads constructor(
                     // confirmation armed on a form screen would keep blocking dismissal after the
                     // user navigated away from it (Task 10173).
                     com.goat.webview.ui.GoatClosingBehaviorController.resetForNewRoute()
+                    val curUrl = webView?.url
+                    if (!curUrl.isNullOrBlank() && curUrl != "about:blank") {
+                        lastKnownUrl = curUrl
+                        extractRouteHash(curUrl)?.let { lastKnownRouteHash = it }
+                    }
+                    saveSessionState()
                     onPageStarted?.invoke()
                 },
                 onPageLoaded = {
                     swipeRefreshLayout?.isRefreshing = false
+                    val curUrl = webView?.url
+                    if (!curUrl.isNullOrBlank() && curUrl != "about:blank") {
+                        lastKnownUrl = curUrl
+                        extractRouteHash(curUrl)?.let { lastKnownRouteHash = it }
+                    }
+                    val curTitle = webView?.title
+                    if (!curTitle.isNullOrBlank()) {
+                        lastKnownTitle = curTitle
+                    }
+                    saveSessionState()
                     onPageFinished?.invoke()
                 },
                 onRenderCrashed = { didCrash ->
@@ -882,97 +1067,20 @@ class GoatView @JvmOverloads constructor(
                 onReceivedHttpErrorCompat = { url, status -> onReceivedHttpErrorCompat?.invoke(url, status) },
                 onPageCommitVisibleCompat = { url -> onPageCommitVisibleCompat?.invoke(url) },
                 onLoadResourceCompat = { url -> onLoadResourceCompat?.invoke(url) },
-                onUpdateVisitedHistoryCompat = { url, isReload -> onUpdateVisitedHistoryCompat?.invoke(url, isReload) }
+                onUpdateVisitedHistoryCompat = { url, isReload ->
+                    if (url.isNotBlank() && url != "about:blank") {
+                        lastKnownUrl = url
+                        extractRouteHash(url)?.let { lastKnownRouteHash = it }
+                        saveSessionState()
+                    }
+                    onUpdateVisitedHistoryCompat?.invoke(url, isReload)
+                },
+                onRehydrationHandler = { didCrash ->
+                    rehydrateAfterCrash(didCrash)
+                }
             )
 
-            webChromeClient = object : WebChromeClient() {
-                override fun onConsoleMessage(message: ConsoleMessage?): Boolean {
-                    Log.d("GoatWebConsole", "[${message?.messageLevel()}] ${message?.message()}")
-                    onConsoleMessageCompat?.invoke(
-                        message?.message() ?: "",
-                        message?.messageLevel()?.name?.lowercase() ?: "log"
-                    )
-                    return true
-                }
-
-                override fun onCreateWindow(
-                    view: WebView?,
-                    isDialog: Boolean,
-                    isUserGesture: Boolean,
-                    resultMsg: android.os.Message?
-                ): Boolean {
-                    val customListen = object : GoatPopupListener {
-                        override fun onPopupRequest(request: GoatPopupRequest): GoatPopupRoutingPolicy? {
-                            return onPopupRequest?.invoke(request) ?: popupListener?.onPopupRequest(request)
-                        }
-                        override fun onModalWindowCreated(modalView: GoatView, request: GoatPopupRequest) {
-                            popupListener?.onModalWindowCreated(modalView, request)
-                        }
-                        override fun onModalWindowClosed(modalView: GoatView) {
-                            popupListener?.onModalWindowClosed(modalView)
-                        }
-                    }
-                    return GoatPopupManager.handleCreateWindow(
-                        parentGoatView = this@GoatView,
-                        isDialog = isDialog,
-                        isUserGesture = isUserGesture,
-                        resultMsg = resultMsg,
-                        customListener = customListen,
-                        routingPolicy = defaultPopupRoutingPolicy,
-                        eventCoalescer = actionHandler?.coalescer
-                    )
-                }
-
-                override fun onCloseWindow(window: WebView?) {
-                    GoatPopupManager.handleCloseWindow(window)
-                }
-
-                override fun onShowFileChooser(
-                    webView: WebView?,
-                    filePathCallback: ValueCallback<Array<Uri>>?,
-                    fileChooserParams: FileChooserParams?
-                ): Boolean {
-                    val customChooser = onFileChooserRequested
-                    if (customChooser != null) {
-                        return customChooser(filePathCallback, fileChooserParams?.acceptTypes)
-                    }
-                    return false
-                }
-
-                override fun onPermissionRequest(request: android.webkit.PermissionRequest?) {
-                    if (request == null) return
-                    val resources = request.resources ?: return
-                    val scope = when {
-                        resources.contains(android.webkit.PermissionRequest.RESOURCE_VIDEO_CAPTURE) -> com.goat.webview.GoatPermissionManager.SCOPE_CAMERA
-                        resources.contains(android.webkit.PermissionRequest.RESOURCE_AUDIO_CAPTURE) -> com.goat.webview.GoatPermissionManager.SCOPE_RECORD
-                        else -> "web_resource"
-                    }
-
-                    val act = activeContext as? android.app.Activity
-                    val isPermanentlyDenied = if (act != null) {
-                        val perm = when (scope) {
-                            com.goat.webview.GoatPermissionManager.SCOPE_CAMERA -> android.Manifest.permission.CAMERA
-                            com.goat.webview.GoatPermissionManager.SCOPE_RECORD -> android.Manifest.permission.RECORD_AUDIO
-                            else -> null
-                        }
-                        if (perm != null) com.goat.webview.permission.GoatPermissionPrimingDialog.isPermanentlyDenied(act, perm) else false
-                    } else false
-
-                    com.goat.webview.permission.GoatPermissionPrimingDialog.show(
-                        context = activeContext,
-                        appId = appId,
-                        scope = scope,
-                        rationale = "Mini-App '$appId' is requesting access to $scope to enable interactive features.",
-                        isPermanentlyDenied = isPermanentlyDenied,
-                        onAccept = {
-                            request.grant(resources)
-                        },
-                        onDenied = {
-                            request.deny()
-                        }
-                    )
-                }
-            }
+            webChromeClient = createWebChromeClient(activeContext, appId)
 
             loadUrl(finalEntryUrl)
         }
@@ -1062,6 +1170,9 @@ class GoatView @JvmOverloads constructor(
 
     /** Loads [url] directly on the live WebView — a raw navigation, not a mini-app switch. */
     fun loadUrl(url: String) {
+        lastKnownUrl = url
+        extractRouteHash(url)?.let { lastKnownRouteHash = it }
+        saveSessionState()
         webView?.loadUrl(url)
     }
 
@@ -1158,6 +1269,22 @@ class GoatView @JvmOverloads constructor(
         allowedOrigins: Set<String>,
         immediateReady: Boolean = false
     ) {
+        // Bind dedicated multi-profile components on hot re-attach
+        try {
+            if (WebViewFeature.isFeatureSupported(WebViewFeature.MULTI_PROFILE)) {
+                val profileName = GoatCookieManager.getProfileName(appId)
+                val profile = ProfileStore.getInstance().getOrCreateProfile(profileName)
+                if (profile != null) {
+                    tenantProfile = profile
+                    tenantCookieManager = try { profile.cookieManager } catch (_: Throwable) { null }
+                    tenantWebStorage = try { profile.webStorage } catch (_: Throwable) { null }
+                    tenantGeolocationPermissions = try { profile.geolocationPermissions } catch (_: Throwable) { null }
+                    tenantServiceWorkerController = try { profile.serviceWorkerController } catch (_: Throwable) { null }
+                }
+            }
+        } catch (e: Throwable) {
+            Log.w(TAG, "Profile bind on hot attach failed: ${e.message}")
+        }
 
         // Re-point the (already-registered) bridge listener at this fresh view — no listener churn,
         // so window.nativeBridge on the live page keeps working.
@@ -1167,19 +1294,41 @@ class GoatView @JvmOverloads constructor(
                 ?: Result.failure(IllegalStateException("Action handler not initialized"))
         }
 
+        initialEntryUrl = wv.url ?: initialEntryUrl
+        lastKnownUrl = wv.url ?: lastKnownUrl
+        lastKnownTitle = wv.title ?: lastKnownTitle
+        lastKnownRouteHash = extractRouteHash(lastKnownUrl) ?: lastKnownRouteHash
+        saveSessionState()
+
         wv.webViewClient = GoatWebViewClient(
             context = activeContext,
             extractedDir = assetDir,
             appId = appId,
             onPageStarted = {
-                    // A new route must not inherit the previous one's closing behaviour, or a
-                    // confirmation armed on a form screen would keep blocking dismissal after the
-                    // user navigated away from it (Task 10173).
-                    com.goat.webview.ui.GoatClosingBehaviorController.resetForNewRoute()
-                    onPageStarted?.invoke()
-                },
+                // A new route must not inherit the previous one's closing behaviour, or a
+                // confirmation armed on a form screen would keep blocking dismissal after the
+                // user navigated away from it (Task 10173).
+                com.goat.webview.ui.GoatClosingBehaviorController.resetForNewRoute()
+                val curUrl = webView?.url
+                if (!curUrl.isNullOrBlank() && curUrl != "about:blank") {
+                    lastKnownUrl = curUrl
+                    extractRouteHash(curUrl)?.let { lastKnownRouteHash = it }
+                }
+                saveSessionState()
+                onPageStarted?.invoke()
+            },
             onPageLoaded = {
                 swipeRefreshLayout?.isRefreshing = false
+                val curUrl = webView?.url
+                if (!curUrl.isNullOrBlank() && curUrl != "about:blank") {
+                    lastKnownUrl = curUrl
+                    extractRouteHash(curUrl)?.let { lastKnownRouteHash = it }
+                }
+                val curTitle = webView?.title
+                if (!curTitle.isNullOrBlank()) {
+                    lastKnownTitle = curTitle
+                }
+                saveSessionState()
                 onPageFinished?.invoke()
             },
             onRenderCrashed = { didCrash ->
@@ -1193,8 +1342,21 @@ class GoatView @JvmOverloads constructor(
             onReceivedHttpErrorCompat = { url, status -> onReceivedHttpErrorCompat?.invoke(url, status) },
             onPageCommitVisibleCompat = { url -> onPageCommitVisibleCompat?.invoke(url) },
             onLoadResourceCompat = { url -> onLoadResourceCompat?.invoke(url) },
-            onUpdateVisitedHistoryCompat = { url, isReload -> onUpdateVisitedHistoryCompat?.invoke(url, isReload) }
+            onUpdateVisitedHistoryCompat = { url, isReload ->
+                if (url.isNotBlank() && url != "about:blank") {
+                    lastKnownUrl = url
+                    extractRouteHash(url)?.let { lastKnownRouteHash = it }
+                    saveSessionState()
+                }
+                onUpdateVisitedHistoryCompat?.invoke(url, isReload)
+            },
+            onRehydrationHandler = { didCrash ->
+                rehydrateAfterCrash(didCrash)
+            }
         )
+        if (wv.webChromeClient == null) {
+            wv.webChromeClient = createWebChromeClient(activeContext, appId)
+        }
 
         webView = wv
         com.goat.webview.design.GoatThemeManager.addListener(themeListener)
@@ -1216,6 +1378,357 @@ class GoatView @JvmOverloads constructor(
                 "try{window.dispatchEvent(new Event('goat:reactivate'))}catch(e){}", null
             )
         } catch (_: Throwable) {}
+    }
+
+    private fun createWebChromeClient(activeContext: Context, appId: String): WebChromeClient {
+        return object : WebChromeClient() {
+            override fun onReceivedTitle(view: WebView?, title: String?) {
+                super.onReceivedTitle(view, title)
+                if (!title.isNullOrBlank()) {
+                    lastKnownTitle = title
+                    saveSessionState()
+                }
+            }
+
+            override fun onConsoleMessage(message: ConsoleMessage?): Boolean {
+                Log.d("GoatWebConsole", "[${message?.messageLevel()}] ${message?.message()}")
+                onConsoleMessageCompat?.invoke(
+                    message?.message() ?: "",
+                    message?.messageLevel()?.name?.lowercase() ?: "log"
+                )
+                return true
+            }
+
+            override fun onCreateWindow(
+                view: WebView?,
+                isDialog: Boolean,
+                isUserGesture: Boolean,
+                resultMsg: android.os.Message?
+            ): Boolean {
+                val customListen = object : GoatPopupListener {
+                    override fun onPopupRequest(request: GoatPopupRequest): GoatPopupRoutingPolicy? {
+                        return onPopupRequest?.invoke(request) ?: popupListener?.onPopupRequest(request)
+                    }
+                    override fun onModalWindowCreated(modalView: GoatView, request: GoatPopupRequest) {
+                        popupListener?.onModalWindowCreated(modalView, request)
+                    }
+                    override fun onModalWindowClosed(modalView: GoatView) {
+                        popupListener?.onModalWindowClosed(modalView)
+                    }
+                }
+                return GoatPopupManager.handleCreateWindow(
+                    parentGoatView = this@GoatView,
+                    isDialog = isDialog,
+                    isUserGesture = isUserGesture,
+                    resultMsg = resultMsg,
+                    customListener = customListen,
+                    routingPolicy = defaultPopupRoutingPolicy,
+                    eventCoalescer = actionHandler?.coalescer
+                )
+            }
+
+            override fun onCloseWindow(window: WebView?) {
+                GoatPopupManager.handleCloseWindow(window)
+            }
+
+            override fun onShowFileChooser(
+                webView: WebView?,
+                filePathCallback: ValueCallback<Array<Uri>>?,
+                fileChooserParams: FileChooserParams?
+            ): Boolean {
+                val customChooser = onFileChooserRequested
+                if (customChooser != null) {
+                    return customChooser(filePathCallback, fileChooserParams?.acceptTypes)
+                }
+                return false
+            }
+
+            override fun onPermissionRequest(request: android.webkit.PermissionRequest?) {
+                if (request == null) return
+                val resources = request.resources ?: return
+                val scope = when {
+                    resources.contains(android.webkit.PermissionRequest.RESOURCE_VIDEO_CAPTURE) -> com.goat.webview.GoatPermissionManager.SCOPE_CAMERA
+                    resources.contains(android.webkit.PermissionRequest.RESOURCE_AUDIO_CAPTURE) -> com.goat.webview.GoatPermissionManager.SCOPE_RECORD
+                    else -> "web_resource"
+                }
+
+                val act = activeContext as? android.app.Activity
+                val isPermanentlyDenied = if (act != null) {
+                    val perm = when (scope) {
+                        com.goat.webview.GoatPermissionManager.SCOPE_CAMERA -> android.Manifest.permission.CAMERA
+                        com.goat.webview.GoatPermissionManager.SCOPE_RECORD -> android.Manifest.permission.RECORD_AUDIO
+                        else -> null
+                    }
+                    if (perm != null) com.goat.webview.permission.GoatPermissionPrimingDialog.isPermanentlyDenied(act, perm) else false
+                } else false
+
+                com.goat.webview.permission.GoatPermissionPrimingDialog.show(
+                    context = activeContext,
+                    appId = appId,
+                    scope = scope,
+                    rationale = "Mini-App '$appId' is requesting access to $scope to enable interactive features.",
+                    isPermanentlyDenied = isPermanentlyDenied,
+                    onAccept = {
+                        request.grant(resources)
+                    },
+                    onDenied = {
+                        request.deny()
+                    }
+                )
+            }
+        }
+    }
+
+    /**
+     * Transparently rehydrates a fresh WebView surface after a Chromium renderer crash or LMK termination,
+     * restoring navigation state, route hash, and bridge routers without host app crash.
+     */
+    internal fun rehydrateAfterCrash(didCrash: Boolean) {
+        onError?.invoke("Render process crashed: didCrash=$didCrash")
+        onAppServiceCrash?.invoke(currentAppId, "Render process crashed: didCrash=$didCrash", null)
+
+        val activeContext = context ?: hostContext
+        val now = System.currentTimeMillis()
+
+        // 1. Anti-crash-loop circuit breaker (max 3 crashes within 15 seconds)
+        if (now - lastCrashTimestamp < CRASH_WINDOW_MS) {
+            consecutiveCrashCount++
+        } else {
+            consecutiveCrashCount = 1
+        }
+        lastCrashTimestamp = now
+
+        if (consecutiveCrashCount > MAX_CONSECUTIVE_CRASHES) {
+            Log.e(TAG, "Renderer crash loop detected ($consecutiveCrashCount crashes in ${CRASH_WINDOW_MS}ms). Disarming auto-rehydration.")
+            onError?.invoke("Renderer crash loop detected for mini-app '$currentAppId'")
+            return
+        }
+
+        // 2. Snapshot current session state
+        val snapshot = currentSessionSnapshot ?: saveSessionState()
+        val restoreUrl = snapshot.resolveRestoreUrl()
+
+        // 3. Clean teardown of dead reference
+        val oldWv = webView
+        if (oldWv != null) {
+            try {
+                (oldWv.parent as? ViewGroup)?.removeView(oldWv)
+                oldWv.destroy()
+            } catch (_: Throwable) {}
+            webView = null
+        }
+        dismissFindOverlayIfPresent()
+        cachedFindAdapter = null
+        cachedFindAdapterWebView = null
+
+        // 4. Acquire fresh surface from GoatFastPool
+        val freshWv = GoatFastPool.acquire(activeContext, currentAppId).apply {
+            // Multi-Profile tenant isolation
+            try {
+                if (WebViewFeature.isFeatureSupported(WebViewFeature.MULTI_PROFILE)) {
+                    val profileName = GoatCookieManager.getProfileName(currentAppId)
+                    val profile = ProfileStore.getInstance().getOrCreateProfile(profileName)
+                    if (profile != null) {
+                        if (profileName != Profile.DEFAULT_PROFILE_NAME) {
+                            try {
+                                WebViewCompat.setProfile(this, profile.name)
+                            } catch (e: Throwable) {
+                                Log.w(TAG, "Failed setting profile '$profileName': ${e.message}")
+                            }
+                        }
+                        tenantProfile = profile
+                        tenantCookieManager = try { profile.cookieManager } catch (_: Throwable) { null }
+                        tenantWebStorage = try { profile.webStorage } catch (_: Throwable) { null }
+                        tenantGeolocationPermissions = try { profile.geolocationPermissions } catch (_: Throwable) { null }
+                        tenantServiceWorkerController = try { profile.serviceWorkerController } catch (_: Throwable) { null }
+                    }
+                }
+            } catch (e: Throwable) {
+                Log.w(TAG, "MULTI_PROFILE rehydration setup skipped: ${e.message}")
+            }
+
+            layoutParams = LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+            )
+            setBackgroundColor(Color.TRANSPARENT)
+
+            val urlMode = currentAssetDir == null
+            val needsFileAccess = urlMode && restoreUrl.startsWith("file:")
+            try {
+                settings.apply {
+                    javaScriptEnabled = true
+                    domStorageEnabled = !incognito
+                    try {
+                        setSupportMultipleWindows(true)
+                    } catch (_: Throwable) {}
+                    try {
+                        javaScriptCanOpenWindowsAutomatically = true
+                    } catch (_: Throwable) {}
+                    cacheMode = if (incognito) WebSettings.LOAD_NO_CACHE else WebSettings.LOAD_DEFAULT
+                    allowFileAccess = needsFileAccess
+                    allowContentAccess = false
+                    allowFileAccessFromFileURLs = needsFileAccess
+                    allowUniversalAccessFromFileURLs = false
+                    setSupportZoom(false)
+                    builtInZoomControls = false
+                    displayZoomControls = false
+                    useWideViewPort = true
+                    loadWithOverviewMode = true
+                    textZoom = snapshot.textZoom
+                }
+            } catch (_: Throwable) {}
+
+            // Algorithmic Darkening Sync
+            try {
+                if (WebViewFeature.isFeatureSupported(WebViewFeature.ALGORITHMIC_DARKENING)) {
+                    val isDark = isNightMode(activeContext.resources?.configuration?.uiMode ?: 0)
+                    WebSettingsCompat.setAlgorithmicDarkeningAllowed(settings, isDark)
+                }
+            } catch (_: Throwable) {}
+
+            // Re-bind WebMessageListener & GoatFastPool router
+            val bridgeWebView = this
+            GoatFastPool.bindRouter(bridgeWebView) { action, payload ->
+                onBridgeAction?.invoke(action, payload)
+                    ?: requireActionHandler()?.executeAction(action, payload)
+                    ?: Result.failure(IllegalStateException("Action handler not initialized"))
+            }
+
+            val clientDomain = GoatWebViewClient.resolveDomain(currentAppId)
+            val allowedOrigins = if (urlMode) {
+                WILDCARD_ORIGIN_SET
+            } else {
+                setOf("https://$clientDomain", "https://appassets.androidplatform.net")
+            }
+
+            try {
+                if (WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) {
+                    WebViewCompat.addWebMessageListener(
+                        this,
+                        BRIDGE_NAME,
+                        allowedOrigins,
+                        GoatWebMessageListener(viewScope, currentSenderOrigins) { action, payload ->
+                            GoatFastPool.routeBridge(bridgeWebView, action, payload)
+                        }
+                    )
+                }
+            } catch (_: Throwable) {}
+
+            // Re-inject Document Start Scripts
+            try {
+                if (WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT)) {
+                    WebViewCompat.addDocumentStartJavaScript(
+                        this,
+                        com.goat.webview.design.GoatDesignBootstrap.buildScript(
+                            com.goat.webview.design.GoatThemeManager.current,
+                            com.goat.webview.design.GoatDesignManager.current
+                        ),
+                        allowedOrigins
+                    )
+                    if (web3ProvidersEnabled) {
+                        WebViewCompat.addDocumentStartJavaScript(
+                            this,
+                            com.goat.webview.web3.GoatWeb3Bootstrap.buildScript(),
+                            allowedOrigins
+                        )
+                    }
+                    val scripts = initialUserScripts
+                    if (scripts.isNotEmpty()) {
+                        for (source in scripts) {
+                            if (source.isNotEmpty()) {
+                                WebViewCompat.addDocumentStartJavaScript(this, source, allowedOrigins)
+                            }
+                        }
+                    }
+                }
+            } catch (_: Throwable) {}
+
+            // Download Listener
+            setDownloadListener { url, _, contentDisposition, mimetype, _ ->
+                viewScope.launch {
+                    val guessedName = URLUtil.guessFileName(url, contentDisposition, mimetype)
+                    val payload = buildJsonObject {
+                        put("url", url)
+                        put("fileName", guessedName)
+                        put("title", guessedName)
+                    }
+                    requireActionHandler()?.executeAction("DOWNLOAD_FILE", payload)
+                }
+            }
+
+            webViewClient = GoatWebViewClient(
+                context = activeContext,
+                extractedDir = currentAssetDir,
+                appId = currentAppId,
+                manifestDomainAllowlist = currentDomainAllowlist.takeIf { it.isNotEmpty() },
+                onPageStarted = {
+                    com.goat.webview.ui.GoatClosingBehaviorController.resetForNewRoute()
+                    val curUrl = webView?.url
+                    if (!curUrl.isNullOrBlank() && curUrl != "about:blank") {
+                        lastKnownUrl = curUrl
+                        extractRouteHash(curUrl)?.let { lastKnownRouteHash = it }
+                    }
+                    saveSessionState()
+                    onPageStarted?.invoke()
+                },
+                onPageLoaded = {
+                    swipeRefreshLayout?.isRefreshing = false
+                    val curUrl = webView?.url
+                    if (!curUrl.isNullOrBlank() && curUrl != "about:blank") {
+                        lastKnownUrl = curUrl
+                        extractRouteHash(curUrl)?.let { lastKnownRouteHash = it }
+                    }
+                    val curTitle = webView?.title
+                    if (!curTitle.isNullOrBlank()) {
+                        lastKnownTitle = curTitle
+                    }
+                    saveSessionState()
+                    onPageFinished?.invoke()
+                },
+                onRenderCrashed = { crashed ->
+                    // Handled in onRehydrationHandler
+                },
+                compatExternalSchemeResolver = compatExternalSchemeResolver,
+                compatExternalLinkHosts = compatExternalLinkHosts,
+                onExternalNavigation = { url -> onExternalNavigation?.invoke(url) },
+                onReceivedErrorCompat = { url, code, desc -> onReceivedErrorCompat?.invoke(url, code, desc) },
+                onReceivedHttpErrorCompat = { url, status -> onReceivedHttpErrorCompat?.invoke(url, status) },
+                onPageCommitVisibleCompat = { url -> onPageCommitVisibleCompat?.invoke(url) },
+                onLoadResourceCompat = { url -> onLoadResourceCompat?.invoke(url) },
+                onUpdateVisitedHistoryCompat = { url, isReload ->
+                    if (url.isNotBlank() && url != "about:blank") {
+                        lastKnownUrl = url
+                        extractRouteHash(url)?.let { lastKnownRouteHash = it }
+                        saveSessionState()
+                    }
+                    onUpdateVisitedHistoryCompat?.invoke(url, isReload)
+                },
+                onRehydrationHandler = { crashed ->
+                    rehydrateAfterCrash(crashed)
+                }
+            )
+
+            webChromeClient = createWebChromeClient(activeContext, currentAppId)
+        }
+
+        // 5. Re-attach to View Hierarchy
+        webView = freshWv
+        attachWebViewToHierarchy(freshWv)
+
+        // 6. Restore Navigation State
+        val restored = snapshot.navigationBundle?.let { bundle ->
+            try { freshWv.restoreState(bundle) != null } catch (_: Throwable) { false }
+        } ?: false
+
+        val freshUrl = try { freshWv.url } catch (_: Throwable) { null }
+        if (!restored || freshUrl != restoreUrl) {
+            if (restoreUrl.isNotBlank()) {
+                freshWv.loadUrl(restoreUrl)
+            }
+        }
+
+        Log.i(TAG, "Transparent renderer crash session recovery succeeded for '$currentAppId' -> $restoreUrl (didCrash=$didCrash)")
     }
 
     /**
@@ -1249,7 +1762,19 @@ class GoatView @JvmOverloads constructor(
         }
         actionHandler = null
         webView = null
+        tenantProfile = null
+        tenantCookieManager = null
+        tenantWebStorage = null
+        tenantGeolocationPermissions = null
+        tenantServiceWorkerController = null
         swipeRefreshLayout = null
+        currentSessionSnapshot = null
+        initialEntryUrl = null
+        lastKnownUrl = null
+        lastKnownTitle = null
+        lastKnownRouteHash = null
+        consecutiveCrashCount = 0
+        lastCrashTimestamp = 0L
         removeAllViews()
     }
 }

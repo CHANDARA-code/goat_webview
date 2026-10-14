@@ -11,7 +11,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * T16 (`TASK_GOAT_BRIDGE_WALLET_PASSKEY_ADAPTERS.md` §9): bridge round-trip warm path < 5 ms.
+ * Bridge round-trip latency verification: bridge round-trip warm path < 5 ms.
  *
  * Measures `BRIDGE_PING`, the engine's zero-dispatch probe — it is the first branch of
  * `GoatBridgeActionHandler.executeAction` and returns the payload before any manager access,

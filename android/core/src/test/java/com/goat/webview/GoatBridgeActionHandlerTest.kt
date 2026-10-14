@@ -1734,9 +1734,9 @@ class GoatBridgeActionHandlerTest {
 
     @Test
     fun `test 100 percent of SUPPORTED_ACTIONS have active handler branches and do not throw Unsupported native action`() = runTest {
-        // 177 -> 179: SET_ORIENTATION_LOCK / GET_ORIENTATION_LOCK added for Task 10175.
-        // 179 -> 181: SETUP_CLOSING_BEHAVIOR / SETUP_SWIPE_BEHAVIOR added for Task 10173.
-        // 181 -> 182: STOP_COMPASS added for TASK_PORTABLE_MINIAPP_DSL_ADAPTERS T5.
+        // 177 -> 179: SET_ORIENTATION_LOCK / GET_ORIENTATION_LOCK added for orientation lock support.
+        // 179 -> 181: SETUP_CLOSING_BEHAVIOR / SETUP_SWIPE_BEHAVIOR added for closing/swipe behavior.
+        // 181 -> 182: STOP_COMPASS added for mini-app DSL adapter support.
         // 182 -> 171: the 11 Domain-6 sensor actions moved to :feature-sensors (GoatSensorsPlugin).
         // 171 -> 167: the 4 Domain-13b Web3 actions moved to :feature-web3 (GoatWeb3Plugin).
         assertEquals("Total supported actions count must be 167", 167, GoatBridgeActionHandler.SUPPORTED_ACTIONS.size)

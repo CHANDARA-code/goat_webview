@@ -5,6 +5,8 @@ import android.util.Log
 import android.webkit.CookieManager
 import android.webkit.ValueCallback
 import androidx.webkit.CookieManagerCompat
+import androidx.webkit.Profile
+import androidx.webkit.ProfileStore
 import androidx.webkit.WebViewFeature
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -49,14 +51,85 @@ object GoatCookieManager {
             timeZone = gmtTimeZone
         }
 
+    const val PROFILE_PREFIX = "goat_tenant_"
+
     @Volatile
     var coroutineDispatcher: kotlinx.coroutines.CoroutineDispatcher = Dispatchers.IO
 
     @Volatile
     var mockCookieManager: CookieManager? = null
 
-    // In-memory cookie store fallback for JVM Unit Test environments
+    @Volatile
+    var mockProfileStore: ProfileStore? = null
+
+    // Tenant-isolated in-memory fallback for JVM Unit Test environments:
+    // profileName -> (domainKey -> (cookieName -> GoatCookie))
+    private val tenantInMemoryCookies =
+        ConcurrentHashMap<String, ConcurrentHashMap<String, ConcurrentHashMap<String, GoatCookie>>>()
+
+    // Global in-memory fallback for legacy default profile
     private val inMemoryCookies = ConcurrentHashMap<String, ConcurrentHashMap<String, GoatCookie>>()
+
+    /**
+     * Resolves the profile name for a given mini-app tenant.
+     */
+    fun getProfileName(appId: String?): String {
+        if (appId.isNullOrBlank() || appId == GoatAssetManager.DEFAULT_APP_ID || appId == "default") {
+            return Profile.DEFAULT_PROFILE_NAME
+        }
+        val safeAppId = appId.replace(Regex("[^a-zA-Z0-9]"), "_").trim('_')
+        return if (safeAppId.isBlank() || safeAppId.equals("default", ignoreCase = true)) {
+            Profile.DEFAULT_PROFILE_NAME
+        } else {
+            val truncated = if (safeAppId.length > 50) safeAppId.substring(0, 50) else safeAppId
+            "$PROFILE_PREFIX$truncated"
+        }
+    }
+
+    /**
+     * Retrieves or allocates the dedicated AndroidX Profile for a given tenant appId.
+     */
+    fun getProfileForAppId(appId: String): Profile? {
+        mockProfileStore?.let {
+            return it.getOrCreateProfile(getProfileName(appId))
+        }
+        try {
+            if (!WebViewFeature.isFeatureSupported(WebViewFeature.MULTI_PROFILE)) {
+                return null
+            }
+            val profileName = getProfileName(appId)
+            return ProfileStore.getInstance().getOrCreateProfile(profileName)
+        } catch (e: Throwable) {
+            Log.e(TAG, "Failed to get/create profile for '$appId'", e)
+            return null
+        }
+    }
+
+    /**
+     * Retrieves the CookieManager for a specific tenant, respecting MULTI_PROFILE when supported.
+     */
+    fun getCookieManagerForTenant(appId: String? = null): CookieManager? {
+        if (!appId.isNullOrBlank() && appId != GoatAssetManager.DEFAULT_APP_ID && appId != "default") {
+            try {
+                if (mockProfileStore != null || WebViewFeature.isFeatureSupported(WebViewFeature.MULTI_PROFILE)) {
+                    val profile = getProfileForAppId(appId)
+                    if (profile != null) {
+                        return try {
+                            profile.cookieManager
+                        } catch (e: Throwable) {
+                            null
+                        }
+                    }
+                }
+            } catch (e: Throwable) {
+                // MULTI_PROFILE not supported
+            }
+            // Multi-profile is unsupported on this runtime for this tenant.
+            // Return null so callers fall back to tenant-isolated in-memory storage.
+            return null
+        }
+        return mockCookieManager ?: getSystemCookieManager()
+    }
 
     /**
      * Safely retrieves the system CookieManager instance with exception guards.
@@ -114,16 +187,25 @@ object GoatCookieManager {
     }
 
     /**
-     * Sets a cookie on the specified URL.
+     * Sets a cookie on the specified URL with tenant scoping.
      */
     // Dispatchers.Main, not coroutineDispatcher (IO): android.webkit.CookieManager's write methods
     // (setCookie/removeSessionCookies/removeAllCookies) throw IllegalStateException off a thread
     // without a Looper - IO-pool threads don't have one, so every mutation silently failed.
-    suspend fun setCookie(url: String, cookie: GoatCookie): Boolean = withContext(Dispatchers.Main) {
-        val manager = getSystemCookieManager()
+    @JvmOverloads
+    suspend fun setCookie(url: String, cookie: GoatCookie, appId: String? = null): Boolean = withContext(Dispatchers.Main) {
+        val manager = getCookieManagerForTenant(appId)
         if (manager == null) {
-            val domainKey = cookie.domain ?: getTenantDomain("default")
-            inMemoryCookies.computeIfAbsent(domainKey) { ConcurrentHashMap() }[cookie.name] = cookie
+            val profileKey = getProfileName(appId)
+            val uriHost = try { java.net.URI(url).host } catch (_: Throwable) { null }
+            val domainKey = cookie.domain ?: uriHost ?: getTenantDomain(appId ?: "default")
+            tenantInMemoryCookies
+                .computeIfAbsent(profileKey) { ConcurrentHashMap() }
+                .computeIfAbsent(domainKey) { ConcurrentHashMap() }[cookie.name] = cookie
+
+            if (profileKey == Profile.DEFAULT_PROFILE_NAME || appId == null) {
+                inMemoryCookies.computeIfAbsent(domainKey) { ConcurrentHashMap() }[cookie.name] = cookie
+            }
             return@withContext true
         }
 
@@ -148,6 +230,7 @@ object GoatCookieManager {
     /**
      * Convenience method to set a cookie with explicit parameters.
      */
+    @JvmOverloads
     suspend fun setCookie(
         url: String,
         name: String,
@@ -158,7 +241,8 @@ object GoatCookieManager {
         maxAge: Long? = null,
         isSecure: Boolean = true,
         isHttpOnly: Boolean = false,
-        sameSite: String? = "Lax"
+        sameSite: String? = "Lax",
+        appId: String? = null
     ): Boolean {
         val cookie = GoatCookie(
             name = name,
@@ -171,16 +255,18 @@ object GoatCookieManager {
             isHttpOnly = isHttpOnly,
             sameSite = sameSite
         )
-        return setCookie(url, cookie)
+        return setCookie(url, cookie, appId = appId)
     }
 
     /**
      * Sets a cookie scoped directly to a specific mini-app tenant.
      */
+    @JvmOverloads
     suspend fun setCookieForTenant(
         appId: String,
         name: String,
         value: String,
+        domain: String? = null,
         path: String = "/",
         expiresDate: Long? = null,
         maxAge: Long? = null,
@@ -189,12 +275,11 @@ object GoatCookieManager {
         sameSite: String? = "Lax"
     ): Boolean {
         val origin = getTenantOrigin(appId)
-        val domain = getTenantDomain(appId)
-        return setCookie(
-            url = origin,
+        val targetDomain = domain ?: getTenantDomain(appId)
+        val cookie = GoatCookie(
             name = name,
             value = value,
-            domain = domain,
+            domain = targetDomain,
             path = path,
             expiresDate = expiresDate,
             maxAge = maxAge,
@@ -202,15 +287,48 @@ object GoatCookieManager {
             isHttpOnly = isHttpOnly,
             sameSite = sameSite
         )
+        return setCookie(origin, cookie, appId = appId)
     }
 
     /**
-     * Retrieves all parsed cookies for a given URL.
+     * Retrieves all parsed cookies for a given URL, optionally scoped to a tenant profile.
      */
-    fun getCookies(url: String): List<GoatCookie> {
-        val manager = getSystemCookieManager()
+    @JvmOverloads
+    fun getCookies(url: String, appId: String? = null): List<GoatCookie> {
+        val manager = getCookieManagerForTenant(appId)
         if (manager == null) {
-            return inMemoryCookies.values.flatMap { it.values }.toList()
+            val uriHost = try { java.net.URI(url).host } catch (_: Throwable) { null }
+            if (appId != null) {
+                val profileKey = getProfileName(appId)
+                val profileCookies = tenantInMemoryCookies[profileKey] ?: return emptyList()
+                return if (uriHost != null && profileCookies.containsKey(uriHost)) {
+                    profileCookies[uriHost]?.values?.toList() ?: emptyList()
+                } else if (uriHost != null) {
+                    emptyList()
+                } else {
+                    profileCookies.values.flatMap { it.values }.toList()
+                }
+            } else {
+                if (uriHost != null && uriHost.endsWith(".appassets.androidplatform.net")) {
+                    val subdomain = uriHost.substringBefore(".appassets.androidplatform.net")
+                    if (subdomain != "appassets" && subdomain.isNotBlank()) {
+                        val profileKey = getProfileName(subdomain)
+                        val profileCookies = tenantInMemoryCookies[profileKey]
+                        if (profileCookies != null) {
+                            return profileCookies[uriHost]?.values?.toList()
+                                ?: profileCookies.values.flatMap { it.values }.toList()
+                        }
+                    }
+                }
+                val defaultCookies = tenantInMemoryCookies[Profile.DEFAULT_PROFILE_NAME]
+                if (defaultCookies != null && uriHost != null && defaultCookies.containsKey(uriHost)) {
+                    return defaultCookies[uriHost]?.values?.toList() ?: emptyList()
+                }
+                if (uriHost != null && inMemoryCookies.containsKey(uriHost)) {
+                    return inMemoryCookies[uriHost]?.values?.toList() ?: emptyList()
+                }
+                return inMemoryCookies.values.flatMap { it.values }.toList()
+            }
         }
 
         val cookieList = mutableListOf<GoatCookie>()
@@ -297,18 +415,20 @@ object GoatCookieManager {
     /**
      * Retrieves all cookies scoped to a specific mini-app tenant.
      */
-    fun getCookiesForTenant(appId: String): List<GoatCookie> {
-        val origin = getTenantOrigin(appId)
-        return getCookies(origin)
+    @JvmOverloads
+    fun getCookiesForTenant(appId: String, url: String? = null): List<GoatCookie> {
+        val origin = url ?: getTenantOrigin(appId)
+        return getCookies(origin, appId = appId)
     }
 
     /**
      * Retrieves raw cookie header string for a URL.
      */
-    fun getCookieHeader(url: String): String? {
-        val manager = getSystemCookieManager()
+    @JvmOverloads
+    fun getCookieHeader(url: String, appId: String? = null): String? {
+        val manager = getCookieManagerForTenant(appId)
         if (manager == null) {
-            val cookies = getCookies(url)
+            val cookies = getCookies(url, appId = appId)
             return if (cookies.isEmpty()) null else cookies.joinToString("; ") { "${it.name}=${it.value}" }
         }
         return try {
@@ -322,10 +442,30 @@ object GoatCookieManager {
     /**
      * Deletes a single cookie by name and path on a URL.
      */
-    suspend fun deleteCookie(url: String, name: String, domain: String? = null, path: String = "/"): Boolean = withContext(Dispatchers.Main) {
-        val manager = getSystemCookieManager()
+    @JvmOverloads
+    suspend fun deleteCookie(
+        url: String,
+        name: String,
+        domain: String? = null,
+        path: String = "/",
+        appId: String? = null
+    ): Boolean = withContext(Dispatchers.Main) {
+        val manager = getCookieManagerForTenant(appId)
         if (manager == null) {
-            inMemoryCookies.values.forEach { it.remove(name) }
+            val profileKey = getProfileName(appId)
+            val profileCookies = tenantInMemoryCookies[profileKey]
+            val uriHost = try { java.net.URI(url).host } catch (_: Throwable) { null }
+            val targetDomain = domain ?: uriHost
+            if (targetDomain != null && profileCookies != null) {
+                profileCookies[targetDomain]?.remove(name)
+            } else {
+                profileCookies?.values?.forEach { it.remove(name) }
+            }
+            if (targetDomain != null) {
+                inMemoryCookies[targetDomain]?.remove(name)
+            } else {
+                inMemoryCookies.values.forEach { it.remove(name) }
+            }
             return@withContext true
         }
         // isSecure defaults to true on GoatCookie, but Chromium silently refuses to set a
@@ -342,7 +482,7 @@ object GoatCookieManager {
             expiresDate = 0L,
             isSecure = false
         )
-        setCookie(url, expiredCookie)
+        setCookie(url, expiredCookie, appId = appId)
     }
 
     /**
@@ -351,7 +491,7 @@ object GoatCookieManager {
     suspend fun deleteCookieForTenant(appId: String, name: String, path: String = "/"): Boolean {
         val origin = getTenantOrigin(appId)
         val domain = getTenantDomain(appId)
-        return deleteCookie(origin, name, domain, path)
+        return deleteCookie(origin, name, domain, path, appId = appId)
     }
 
     /**
@@ -360,16 +500,43 @@ object GoatCookieManager {
     suspend fun clearTenantCookies(appId: String): Boolean = withContext(Dispatchers.Main) {
         val origin = getTenantOrigin(appId)
         val domain = getTenantDomain(appId)
-        if (getSystemCookieManager() == null) {
-            inMemoryCookies.remove(domain)
+        val profileKey = getProfileName(appId)
+
+        tenantInMemoryCookies.remove(profileKey)
+        inMemoryCookies.remove(domain)
+        if (profileKey == Profile.DEFAULT_PROFILE_NAME) {
             inMemoryCookies.remove(getTenantDomain("default"))
+        }
+
+        try {
+            if (mockProfileStore != null || WebViewFeature.isFeatureSupported(WebViewFeature.MULTI_PROFILE)) {
+                val manager = getCookieManagerForTenant(appId)
+                if (manager != null) {
+                    return@withContext suspendCancellableCoroutine { continuation ->
+                        try {
+                            manager.removeAllCookies { success ->
+                                manager.flush()
+                                if (continuation.isActive) continuation.resume(success)
+                            }
+                        } catch (e: Exception) {
+                            if (continuation.isActive) continuation.resume(false)
+                        }
+                    }
+                }
+            }
+        } catch (_: Throwable) {
+            // MULTI_PROFILE not supported
+        }
+
+        if (getSystemCookieManager() == null) {
             return@withContext true
         }
-        val cookies = getCookies(origin)
+
+        val cookies = getCookies(origin, appId = appId)
         var allCleared = true
 
         for (cookie in cookies) {
-            val cleared = deleteCookie(origin, cookie.name, domain, cookie.path)
+            val cleared = deleteCookie(origin, cookie.name, domain, cookie.path, appId = appId)
             if (!cleared) allCleared = false
         }
         flush()
@@ -377,10 +544,18 @@ object GoatCookieManager {
     }
 
     /**
+     * Purges all in-memory tenant and default cookie caches synchronously.
+     */
+    fun purgeAllInMemoryCookies() {
+        tenantInMemoryCookies.clear()
+        inMemoryCookies.clear()
+    }
+
+    /**
      * Purges all cookies in the system CookieManager.
      */
     suspend fun clearAllCookies(): Boolean = withContext(Dispatchers.Main) {
-        inMemoryCookies.clear()
+        purgeAllInMemoryCookies()
         val manager = getSystemCookieManager() ?: return@withContext true
         suspendCancellableCoroutine { continuation ->
             try {

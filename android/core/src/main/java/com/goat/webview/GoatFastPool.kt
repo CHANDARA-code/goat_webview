@@ -56,6 +56,37 @@ object GoatFastPool {
      *  can no longer render; [acquire]/[acquireHot] must drop it and hand back a fresh one. */
     private val deadRenderers = java.util.Collections.newSetFromMap(WeakHashMap<WebView, Boolean>())
 
+    /** Map of WebView instances to their bound tenant appId for multi-profile tenant affinity */
+    private val tenantAffinity = WeakHashMap<WebView, String>()
+
+    /** Binds a WebView instance to a specific tenant appId */
+    fun tagTenant(webView: WebView, appId: String) {
+        synchronized(tenantAffinity) {
+            tenantAffinity[webView] = appId
+        }
+    }
+
+    /** Retrieves the bound tenant appId for a WebView instance, if any */
+    fun getTenant(webView: WebView): String? {
+        return synchronized(tenantAffinity) {
+            tenantAffinity[webView]
+        }
+    }
+
+    /** Checks whether a WebView has tenant affinity */
+    fun hasTenantAffinity(webView: WebView): Boolean {
+        return synchronized(tenantAffinity) {
+            tenantAffinity.containsKey(webView)
+        }
+    }
+
+    /** Clears tenant affinity when a WebView is destroyed */
+    fun clearTenantTag(webView: WebView) {
+        synchronized(tenantAffinity) {
+            tenantAffinity.remove(webView)
+        }
+    }
+
     /**
      * Marks a WebView's renderer as reclaimable: `RENDERER_PRIORITY_WAIVED` while it is not
      * visible (i.e. while it sits in the pool or is parked, detached from any window), restored to
@@ -139,6 +170,10 @@ object GoatFastPool {
     @JvmOverloads
     @Synchronized
     fun parkHot(webView: WebView, hotKey: String, payload: Any? = null): Boolean {
+        val tenant = hotKey.substringBefore('|')
+        if (tenant.isNotEmpty()) {
+            tagTenant(webView, tenant)
+        }
         if (hotPool.containsKey(hotKey)) {
             hotPool.remove(hotKey)?.let { destroySafely(it.webView) }
         }
@@ -218,19 +253,31 @@ object GoatFastPool {
     /**
      * Acquires a pre-warmed WebView instance from the pool or creates a fresh warm instance.
      * Rebinds the MutableContextWrapper base context to the active Activity context.
+     * Respects multi-profile tenant affinity by discarding mismatched instances on cross-tenant reuse.
      *
      * @param context The active Android context (typically an Activity).
+     * @param appId Optional tenant appId to match or bind tenant affinity.
      * @return A ready-to-use warm [WebView] instance.
      */
+    @JvmOverloads
     @Synchronized
-    fun acquire(context: Context): WebView {
+    fun acquire(context: Context, appId: String? = null): WebView {
         while (true) {
             val pooled = pool.removeFirstOrNull() ?: break
             if (synchronized(deadRenderers) { deadRenderers.remove(pooled) }) {
                 destroySafely(pooled); continue          // renderer was reclaimed while idle
             }
+            val boundTenant = getTenant(pooled)
+            if (boundTenant != null && appId != null && boundTenant != appId) {
+                Log.d(TAG, "Discarding pooled WebView bound to tenant '$boundTenant' for new tenant '$appId'")
+                destroySafely(pooled)
+                continue
+            }
             (pooled.context as? MutableContextWrapper)?.baseContext = context
             try { pooled.setRendererPriorityPolicy(WebView.RENDERER_PRIORITY_IMPORTANT, false) } catch (_: Throwable) {}
+            if (appId != null) {
+                tagTenant(pooled, appId)
+            }
             Log.d(TAG, "Acquired pre-warmed WebView from pool (remaining=${pool.size})")
             return pooled
         }
@@ -240,6 +287,9 @@ object GoatFastPool {
         val fresh = createWarmWebView(context, warmNavigate = false)
         try { fresh.setRendererPriorityPolicy(WebView.RENDERER_PRIORITY_IMPORTANT, false) } catch (_: Throwable) {}
         (fresh.context as? MutableContextWrapper)?.baseContext = context
+        if (appId != null) {
+            tagTenant(fresh, appId)
+        }
         return fresh
     }
 
@@ -347,6 +397,7 @@ object GoatFastPool {
 
             // 5. Purge Cookies (session and persistent)
             try {
+                GoatCookieManager.purgeAllInMemoryCookies()
                 val cookieManager = CookieManager.getInstance()
                 cookieManager.removeAllCookies(null)
                 cookieManager.flush()
@@ -373,7 +424,7 @@ object GoatFastPool {
 
             // 8. Detach client delegates and reset styling
             try {
-                webViewClient = WebViewClient()
+                applyLowMemoryRendererPolicy(this)
                 webChromeClient = null
                 setDownloadListener(null)
                 removeAllViews()
@@ -478,7 +529,7 @@ object GoatFastPool {
      *   followed by the real document) rather than one.
      */
     @JvmOverloads
-    fun createWarmWebView(context: Context, warmNavigate: Boolean = true): WebView {
+    fun createWarmWebView(context: Context, warmNavigate: Boolean = false): WebView {
         val appContext = context.applicationContext ?: context
         val mutableContext = MutableContextWrapper(appContext)
         anyInstanceCreated = true
@@ -524,7 +575,7 @@ object GoatFastPool {
         val target = if (hotPool.isNotEmpty()) 0 else upTo.coerceIn(0, MAX_POOL_SIZE)
         while (pool.size < target) {
             try {
-                pool.addLast(createWarmWebView(context))
+                pool.addLast(createWarmWebView(context, warmNavigate = false))
             } catch (e: Exception) {
                 Log.e(TAG, "Failed prewarming WebView pool instance", e)
                 break
@@ -540,6 +591,7 @@ object GoatFastPool {
     }
 
     private fun destroySafely(webView: WebView) {
+        clearTenantTag(webView)
         try {
             webView.apply {
                 stopLoading()
