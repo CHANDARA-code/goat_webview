@@ -124,8 +124,8 @@ repositories {
 
 // app/build.gradle.kts
 dependencies {
-    implementation("com.goat.webview:core:1.0.0")
-    implementation("com.goat.webview:features-all-in:1.0.0") // optional: BLE/NFC/Location/Media/Scanner/Biometrics/Payments
+    implementation("com.goat.webview:core:1.0.0-alpha.2")
+    implementation("com.goat.webview:features-all-in:1.0.0-alpha.2") // optional: BLE/NFC/Location/Media/Scanner/Biometrics/Payments
 }
 ```
 
@@ -168,8 +168,8 @@ pod 'GoatWebView/Scanner'   # optional capability subspecs: Media, Scanner, Loca
 ```yaml
 # pubspec.yaml
 dependencies:
-  goat_webview: ^1.0.0
-  goat_webview_biometrics: ^1.0.0  # optional companions: payments, location, scanner, media, bluetooth, network
+  goat_webview: ^1.0.0-alpha.2
+  goat_webview_biometrics: ^1.0.0-alpha.2  # optional companions: payments, location, scanner, media, bluetooth, network
 ```
 
 ```dart
@@ -201,12 +201,11 @@ import { GoatWebView } from 'react-native-goat-webview';
 
 ### Web Mini-App Runtime
 
-The web-side SDK ships inside every mini-app bundle (`miniapp-web/dist/miniapp-bridge.min.js`): mini-apps talk to the host through the injected `window.nativeBridge` object. The TypeScript source (`miniapp-web/src/miniapp-bridge.ts`) wraps it for bundler-based mini-apps:
+The web-side SDK ships inside every mini-app bundle (`miniapp-web/dist/miniapp-bridge.min.js`): mini-apps talk to the host through the injected `window.nativeBridge` object and access the bridge via the global `window.goatBridge`:
 
 ```ts
-import { GoatBridge } from 'miniapp-web/src/miniapp-bridge';
-
-const bridge = new GoatBridge();
+// Inside a mini-app web bundle:
+const bridge = window.goatBridge;
 const deviceInfo = await bridge.callNative('GET_DEVICE_INFO');
 ```
 
@@ -285,6 +284,7 @@ For complete technical specifications, sequence diagrams, and interface contract
 - 🧩 [**@goat/adapter-dsl**](./packages/adapter-dsl/README.md) — Portable WeChat / Alipay / uni-app / Taro `wx.*` · `my.*` shims.
 - 🔌 [**goat_webview_compat**](./goat_webview_compat/MIGRATION.md) — Drop-in replacement for `flutter_inappwebview`.
 - 🔌 [**react-native-goat-webview-compat**](./react-native-goat-webview-compat/MIGRATION.md) — Drop-in replacement for `react-native-webview`.
+- 🔄 [**Universal Migration Guide**](./MIGRATION.md) — Comprehensive guide for migrating from `flutter_inappwebview`, `react-native-webview`, and Mini-App DSLs.
 - 🎮 [**tests/games**](./tests/games/) — 2D/3D web-games embeddability suite + 4-tier E2E harness.
 - 🔐 [**Wallet, Passkey & Vault**](./docs-site/docs/security/wallet-passkey-vault.md) — Web3 signer SPI, passkey engine, and hardware vault security model.
 

@@ -5,7 +5,7 @@ title: Vue 3.5 Template Guide
 
 # Vue 3.5 Template Guide
 
-The **Goat Vue 3.5 Template** provides an ultra-fast, reactive framework for developing mini-apps utilizing Vue 3.5's Composition API, `<script setup>`, Pinia global state management, and `@goat/sdk` native bridge bindings.
+The **Goat Vue 3.5 Template** provides an ultra-fast, reactive framework for developing mini-apps utilizing Vue 3.5's Composition API, `<script setup>`, Pinia global state management, and native bridge bindings.
 
 ---
 
@@ -28,7 +28,7 @@ goat dev
 my-vue-miniapp/
 ├── goat.config.json       # Mini-app manifest and permissions
 ├── index.html             # HTML entry point
-├── package.json           # Vue 3.5, @goat/sdk, Vite 6, Pinia
+├── package.json           # Vue 3.5, Vite 6, Pinia
 ├── tsconfig.json          # TypeScript strict configuration
 ├── vite.config.ts         # Vite 6 config with @vitejs/plugin-vue
 └── src/
@@ -67,9 +67,9 @@ app.mount('#root');
 
 ```typescript
 import { ref } from 'vue';
-import { MiniAppBridge } from '@goat/sdk';
 
-const bridge = new MiniAppBridge();
+// mini-apps invoke native actions via the injected window.goatBridge
+const bridge = typeof window !== 'undefined' ? (window as any).goatBridge : null;
 
 export function useBridge() {
   const loading = ref(false);
@@ -79,8 +79,9 @@ export function useBridge() {
     loading.value = true;
     error.value = null;
     try {
-      const res = await bridge.callNative<T>(action, payload);
-      return res;
+      if (!bridge) throw new Error('Native bridge not available');
+      const res = await bridge.callNative(action, payload);
+      return res as T;
     } catch (err: any) {
       error.value = err.message || 'Native bridge call failed';
       throw err;
@@ -103,7 +104,6 @@ export function useBridge() {
 
 ```typescript
 import { reactive, onMounted, onUnmounted } from 'vue';
-import { MiniAppBridge } from '@goat/sdk';
 
 export interface InsetsState {
   top: number;
@@ -228,7 +228,7 @@ async function startScan() {
    const { title, threshold = 100 } = defineProps<{ title: string; threshold?: number }>();
    ```
 2. **Keep Stores Sandboxed:**
-   When persisting auth tokens in Pinia, use a plugin that synchronizes with `@goat/sdk`'s `STORAGE_ENCRYPTED` domain rather than `localStorage`.
+   When persisting auth tokens in Pinia, use a plugin that synchronizes with Goat's `STORAGE_ENCRYPTED` domain rather than `localStorage`.
 3. **Use CSS Custom Properties for Safe Insets:**
    Avoid calculating padding in JavaScript templates. Set CSS properties `--safe-top` and `--safe-bottom` globally and reference them:
    ```css

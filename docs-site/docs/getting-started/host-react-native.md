@@ -5,7 +5,7 @@ title: React Native Host Integration (Fabric)
 
 # React Native Host Integration (Fabric & TurboModules)
 
-The **Goat React Native SDK** (`@goat/react-native-goat-webview`) integrates the Goat WebView Engine into React Native applications using the **New Architecture (Fabric Native Components and TurboModules)**. It eliminates legacy React Native bridge serialization bottlenecks, providing direct C++ JSI event dispatching and hardware synchronization.
+The **Goat React Native SDK** (`react-native-goat-webview`) integrates the Goat WebView Engine into React Native applications using the **New Architecture (Fabric Native Components and TurboModules)**. It eliminates legacy React Native bridge serialization bottlenecks, providing direct C++ JSI event dispatching and hardware synchronization.
 
 ---
 
@@ -14,9 +14,9 @@ The **Goat React Native SDK** (`@goat/react-native-goat-webview`) integrates the
 Install the package in your React Native project:
 
 ```bash
-npm install @goat/react-native-goat-webview
+npm install react-native-goat-webview
 # or
-yarn add @goat/react-native-goat-webview
+yarn add react-native-goat-webview
 ```
 
 For iOS projects with CocoaPods:
@@ -31,7 +31,7 @@ cd ios && pod install
 ```tsx
 import React, { useRef } from 'react';
 import { StyleSheet, View, SafeAreaView, Alert } from 'react-native';
-import { GoatWebView, useGoatBridge } from '@goat/react-native-goat-webview';
+import { GoatWebView, useGoatBridge } from 'react-native-goat-webview';
 
 export function MiniAppScreen() {
   const webViewRef = useRef(null);
@@ -143,7 +143,7 @@ export interface NativeProps extends ViewProps {
 The package exports a helper hook `useGoatBridge` for issuing native calls or listening for telemetry events outside the JSX tree:
 
 ```tsx
-import { useGoatBridge } from '@goat/react-native-goat-webview';
+import { useGoatBridge } from 'react-native-goat-webview';
 
 export function CustomActionBar() {
   const { callBridgeAction } = useGoatBridge();
@@ -162,4 +162,4 @@ export function CustomActionBar() {
 
 ## Backward Compatibility (Legacy Architecture Fallback)
 
-While optimized for Fabric and TurboModules, `@goat/react-native-goat-webview` automatically falls back to `UIManager.getViewManagerConfig('GoatWebView')` on React Native applications still running the legacy Paper architecture.
+While optimized for Fabric and TurboModules, `react-native-goat-webview` automatically falls back to `UIManager.getViewManagerConfig('GoatWebView')` on React Native applications still running the legacy Paper architecture.

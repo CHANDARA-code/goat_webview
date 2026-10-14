@@ -21,7 +21,7 @@ export const ExternalLinkWarningPlayground: React.FC = () => {
   };
 
   const codeSnippets = {
-    ts: `import { goat } from '@goat/sdk';
+    ts: `const goat = window.goatBridge;
 
 // 1. Open Out-of-App External Link with Anti-Phishing Interstitial
 await goat.security.openExternalLink({

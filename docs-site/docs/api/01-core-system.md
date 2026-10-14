@@ -94,9 +94,8 @@ _No input parameters required (`{}`)._
   <TabItem value="ts" label="TypeScript (Mini-App SDK)" default>
 
 ```typescript
-import { goatBridge } from '@goat/sdk';
-
-const info = await goatBridge.callNative('GET_DEVICE_INFO', {});
+// Mini-apps invoke native actions via the injected window.goatBridge
+const info = await window.goatBridge.callNative('GET_DEVICE_INFO', {});
 console.log(`Device: ${info.manufacturer} ${info.model}, Battery: ${info.batteryLevel}%`);
 ```
 

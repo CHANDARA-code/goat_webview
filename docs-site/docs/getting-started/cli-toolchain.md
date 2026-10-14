@@ -73,7 +73,7 @@ Output:
 
 ### 1. `goat init` — Project Scaffolding
 
-Scaffolds a clean, production-ready mini-app project configured with TypeScript, Vite 6, `@goat/sdk`, and manifest descriptors.
+Scaffolds a clean, production-ready mini-app project configured with TypeScript, Vite 6, native bridge integration, and manifest descriptors.
 
 ```bash
 goat init <name> [--template=react|vue|svelte] [--typescript] [--out-dir=<path>]

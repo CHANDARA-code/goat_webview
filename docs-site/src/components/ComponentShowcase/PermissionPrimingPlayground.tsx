@@ -31,7 +31,7 @@ export const PermissionPrimingPlayground: React.FC = () => {
   };
 
   const codeSnippets = {
-    ts: `import { goat } from '@goat/sdk';
+    ts: `const goat = window.goatBridge;
 
 // 1. Request Permission with Pre-flight Rationale Priming
 const result = await goat.permissions.requestWithPriming({

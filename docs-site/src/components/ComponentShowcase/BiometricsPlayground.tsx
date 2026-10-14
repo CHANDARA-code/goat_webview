@@ -22,7 +22,7 @@ export const BiometricsPlayground: React.FC = () => {
   };
 
   const codeSnippets = {
-    ts: `import { goat } from '@goat/sdk';
+    ts: `const goat = window.goatBridge;
 
 // 1. Check Hardware Biometric Availability
 const support = await goat.biometrics.checkSupport();

@@ -75,7 +75,7 @@ export const NavigationBarPlayground: React.FC = () => {
 
   // Multi-Language Code Snippets
   const codeSnippets = {
-    ts: `import { goat } from '@goat/sdk';
+    ts: `const goat = window.goatBridge;
 
 // 1. Configure Navigation Bar Title & Subtitle
 await goat.navigation.setTitle({

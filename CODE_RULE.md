@@ -141,7 +141,7 @@ All code contributions must strictly adhere to the **OWASP Mobile Application Se
 
 ### 3.3 `goat_webview_compat`: Zero-Retention Migration Config (Lint-Enforced)
 
-The `flutter_inappwebview`-compat adapter (`goat_webview_compat`, a staged-migration aid — see `TASK_PORTABLE_PLUG_AND_PLAY_ADAPTER.md` G1) accepts config/options value types that a consumer coming from `flutter_inappwebview` is used to constructing once and keeping around. Doing that here defeats the adapter's zero-retention guarantee: these types must be built inline at the call site and handed straight to `InAppWebView`/its controller, never stored past that call.
+The `flutter_inappwebview`-compat adapter (`goat_webview_compat`, a staged-migration aid — see plug-and-play adapter architecture) accepts config/options value types that a consumer coming from `flutter_inappwebview` is used to constructing once and keeping around. Doing that here defeats the adapter's zero-retention guarantee: these types must be built inline at the call site and handed straight to `InAppWebView`/its controller, never stored past that call.
 
 1. **Rule**: `tools/goat_compat_lint` (a `custom_lint` plugin, rule id `goat_compat_retained_config`) flags a field, top-level variable, `static` variable, or generic state holder (`ValueNotifier<T>`, `StateController<T>`, etc.) whose type is `InAppWebViewSettings`, `InAppWebViewGroupOptions`, `InAppWebViewOptions`, `URLRequest`, `PullToRefreshSettings`, or `LoadedResource`.
 2. **Exemptions** (not retention, so not flagged): a `Widget` subclass's own constructor-parameter field (discarded with the widget, not state) and a field inside one of the package's own `@immutable` value types (the type's definition, not a consumer holding config).
@@ -150,7 +150,7 @@ The `flutter_inappwebview`-compat adapter (`goat_webview_compat`, a staged-migra
 
 ### 3.4 `react-native-goat-webview-compat`: Zero-Retention Migration Config (Lint-Enforced)
 
-The React Native twin of §3.3, and the same guarantee for the same reason (`TASK_PORTABLE_PLUG_AND_PLAY_RN_ADAPTER.md` G1). A consumer coming from `react-native-webview` habitually hoists a `source` object or a props bag to module scope and reuses it; holding it there keeps it alive for the process lifetime, which is exactly the RAM regression the adapter exists to avoid. Compat props are built inline and handed to `<WebView>`.
+The React Native twin of §3.3, and the same guarantee for the same reason (plug-and-play React Native adapter architecture). A consumer coming from `react-native-webview` habitually hoists a `source` object or a props bag to module scope and reuses it; holding it there keeps it alive for the process lifetime, which is exactly the RAM regression the adapter exists to avoid. Compat props are built inline and handed to `<WebView>`.
 
 1. **Rule**: `react-native-goat-webview-compat/eslint-plugin`, rule id `no-retained-compat-config`, flags a module-scope binding, class field, or `useRef` whose type annotation is `WebViewProps`, `WebViewSource`, `WebViewSourceUri`, `WebViewSourceHtml`, or `CreationProps`, or whose initialiser is a call to the `toCreationProps` factory.
 2. **Exemption** (not retention, so not flagged): the intended shape — config constructed inline inside a component and passed straight to `<WebView>`.

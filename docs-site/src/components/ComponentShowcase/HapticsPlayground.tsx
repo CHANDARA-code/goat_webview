@@ -13,7 +13,7 @@ export const HapticsPlayground: React.FC = () => {
   };
 
   const codeSnippets = {
-    ts: `import { goat } from '@goat/sdk';
+    ts: `const goat = window.goatBridge;
 
 // 1. Impact Feedback Triggers
 await goat.haptics.impact({ style: 'light' });  // 10ms light pulse

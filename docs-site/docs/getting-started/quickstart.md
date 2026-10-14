@@ -26,7 +26,7 @@ Choose your development path:
         │ Build lightweight web apps     │       │ Embed native container engine  │
         │ using React 19, Vue 3.5, or    │       │ in Android (Kotlin / Compose), │
         │ Svelte 5 powered by @goat/cli  │       │ iOS (Swift / SwiftUI), React   │
-        │ and the @goat/sdk bridge.      │       │ Native Fabric, or Flutter.     │
+        │ and the injected bridge.       │       │ Native Fabric, or Flutter.     │
         └───────────────┬────────────────┘       └───────────────┬────────────────┘
                         │                                        │
                         ▼                                        ▼
@@ -37,7 +37,7 @@ Choose your development path:
 
 ## Track A: Mini-App Developer Quickstart
 
-Mini-apps are single-page web applications packaged into secure, sandboxed bundles with zero-overhead access to native device hardware (biometrics, secure storage, camera, sensors, haptics, and payments) via `@goat/sdk`.
+Mini-apps are single-page web applications packaged into secure, sandboxed bundles with zero-overhead access to native device hardware (biometrics, secure storage, camera, sensors, haptics, and payments) via the injected native bridge.
 
 ### 1. Install the Goat CLI
 
@@ -175,7 +175,7 @@ struct MiniAppScreen: View {
 Install the React Native Fabric TurboModule package:
 
 ```bash
-npm install @goat/react-native-goat-webview
+npm install react-native-goat-webview
 ```
 
 Embed `GoatWebView` in your React Native app:
@@ -183,7 +183,7 @@ Embed `GoatWebView` in your React Native app:
 ```tsx
 import React from 'react';
 import { StyleSheet, SafeAreaView } from 'react-native';
-import { GoatWebView } from '@goat/react-native-goat-webview';
+import { GoatWebView } from 'react-native-goat-webview';
 
 export function MiniAppContainer() {
   return (

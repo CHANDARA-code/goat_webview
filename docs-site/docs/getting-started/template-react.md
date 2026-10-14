@@ -5,7 +5,7 @@ title: React 19 Template Guide
 
 # React 19 Template Guide
 
-The **Goat React 19 Template** provides a robust, high-performance foundation for authoring mini-apps with modern React 19, strict TypeScript, Vite 6, and full `@goat/sdk` native bridge integration.
+The **Goat React 19 Template** provides a robust, high-performance foundation for authoring mini-apps with modern React 19, strict TypeScript, Vite 6, and full native bridge integration.
 
 ---
 
@@ -28,7 +28,7 @@ goat dev
 my-react-miniapp/
 ├── goat.config.json       # Mini-app manifest and bridge configuration
 ├── index.html             # HTML entry point with viewport meta tags
-├── package.json           # React 19, @goat/sdk, Vite 6 dependencies
+├── package.json           # React 19, Vite 6 dependencies
 ├── tsconfig.json          # Strict TypeScript configuration (react-jsx)
 ├── vite.config.ts         # Vite 6 ESM build configuration with React plugin
 ├── public/                # Static assets (icons, images)
@@ -77,9 +77,9 @@ root.render(
 
 ```typescript
 import { useState, useCallback } from 'react';
-import { MiniAppBridge } from '@goat/sdk';
 
-const bridge = new MiniAppBridge();
+// mini-apps invoke native actions via the injected window.goatBridge
+const bridge = typeof window !== 'undefined' ? (window as any).goatBridge : null;
 
 export function useGoatBridge() {
   const [loading, setLoading] = useState(false);
@@ -89,8 +89,9 @@ export function useGoatBridge() {
     setLoading(true);
     setError(null);
     try {
-      const result = await bridge.callNative<T>(action, payload);
-      return result;
+      if (!bridge) throw new Error('Native bridge not available');
+      const result = await bridge.callNative(action, payload);
+      return result as T;
     } catch (err: any) {
       const msg = err.message || 'Bridge execution failed';
       setError(msg);
@@ -108,7 +109,6 @@ export function useGoatBridge() {
 
 ```typescript
 import { useState, useEffect } from 'react';
-import { MiniAppBridge } from '@goat/sdk';
 
 export interface Insets {
   top: number;
@@ -219,4 +219,4 @@ export function BiometricAuth() {
    }
    ```
 4. **Sandboxed Local Storage:**
-   Always use `@goat/sdk` hardware storage (`STORAGE_SET` / `STORAGE_GET`) rather than standard DOM `localStorage` when storing sensitive authentication tokens, as it is encrypted using hardware security keys (Android KeyStore / Apple Keychain).
+   Always use Goat hardware storage (`STORAGE_SET` / `STORAGE_GET`) rather than standard DOM `localStorage` when storing sensitive authentication tokens, as it is encrypted using hardware security keys (Android KeyStore / Apple Keychain).

@@ -25,7 +25,7 @@ export const BottomSheetPlayground: React.FC = () => {
   };
 
   const codeSnippets = {
-    ts: `import { goat } from '@goat/sdk';
+    ts: `const goat = window.goatBridge;
 
 // 1. Open Draggable Native Bottom Sheet
 await goat.ui.openBottomSheet({

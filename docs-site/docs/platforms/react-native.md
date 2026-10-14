@@ -10,7 +10,7 @@ Goat WebView provides first-class React Native support using modern TurboModules
 ## Installation
 
 ```bash
-npm install @goat/react-native-goat-webview
+npm install react-native-goat-webview
 ```
 
 ## Usage
@@ -18,7 +18,7 @@ npm install @goat/react-native-goat-webview
 ```tsx
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { GoatWebView } from '@goat/react-native-goat-webview';
+import { GoatWebView } from 'react-native-goat-webview';
 
 export function App() {
   return (

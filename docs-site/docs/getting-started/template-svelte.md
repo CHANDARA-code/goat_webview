@@ -28,7 +28,7 @@ goat dev
 my-svelte-miniapp/
 ├── goat.config.json       # Mini-app manifest & capability claims
 ├── index.html             # HTML entry point
-├── package.json           # Svelte 5, @goat/sdk, Vite 6, TypeScript
+├── package.json           # Svelte 5, Vite 6, TypeScript
 ├── tsconfig.json          # Strict TypeScript configuration
 ├── vite.config.ts         # Vite 6 ESM build with @sveltejs/vite-plugin-svelte
 └── src/
@@ -68,9 +68,8 @@ export default app;
 ### 2. Reactive Bridge Module using Runes (`src/lib/bridge.svelte.ts`)
 
 ```typescript
-import { MiniAppBridge } from '@goat/sdk';
-
-const bridge = new MiniAppBridge();
+// mini-apps invoke native actions via the injected window.goatBridge
+const bridge = typeof window !== 'undefined' ? (window as any).goatBridge : null;
 
 export class BridgeState {
   loading = $state(false);
@@ -80,8 +79,9 @@ export class BridgeState {
     this.loading = true;
     this.error = null;
     try {
-      const response = await bridge.callNative<T>(action, payload);
-      return response;
+      if (!bridge) throw new Error('Native bridge not available');
+      const response = await bridge.callNative(action, payload);
+      return response as T;
     } catch (err: any) {
       this.error = err.message || 'IPC call failed';
       throw err;
@@ -99,8 +99,6 @@ export const nativeBridge = new BridgeState();
 ### 3. Dynamic Safe Area Insets (`src/lib/insets.svelte.ts`)
 
 ```typescript
-import { MiniAppBridge } from '@goat/sdk';
-
 export class InsetsTracker {
   top = $state(0);
   bottom = $state(0);
