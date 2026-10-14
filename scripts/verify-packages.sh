@@ -131,8 +131,7 @@ else
 fi
 
 # --- 11. @goat/adapter-dsl ---
-# The WeChat/Alipay/uni-app/Taro DSL compatibility layer. No gate ran this suite before
-# 2026-09-07 even though it is the core of TASK_PORTABLE_MINIAPP_DSL_ADAPTERS, and it is the
+# The WeChat/Alipay/uni-app/Taro DSL compatibility layer. It is the
 # suite that parses the real Kotlin/Swift sources to prove every DSL method maps to an action
 # both platforms dispatch -- i.e. the one most likely to catch a regression in that mapping.
 echo ""

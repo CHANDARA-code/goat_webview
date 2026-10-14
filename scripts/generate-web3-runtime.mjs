@@ -27,11 +27,12 @@ const KOTLIN_OUT = join(
 const SWIFT_OUT = join(ROOT, "ios/Sources/GoatWebView/Web3/GoatWeb3Bootstrap.swift");
 
 function buildBundle() {
-  const esbuild = join(ROOT, "miniapp-web/node_modules/.bin/esbuild");
-  if (!existsSync(esbuild)) {
-    throw new Error(
-      "esbuild not found at miniapp-web/node_modules/.bin/esbuild — run `npm install` in miniapp-web first."
-    );
+  const esbuild = [
+    join(ROOT, "miniapp-web/node_modules/.bin/esbuild"),
+    join(ROOT, "node_modules/.bin/esbuild")
+  ].find(existsSync);
+  if (!esbuild) {
+    throw new Error("esbuild not found — run `npm install` first.");
   }
   mkdirSync(dirname(BUNDLE), { recursive: true });
   execFileSync(

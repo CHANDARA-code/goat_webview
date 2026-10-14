@@ -1,15 +1,14 @@
 #!/usr/bin/env bash
 set -uo pipefail
 
-# T16 (TASK_GOAT_BRIDGE_WALLET_PASSKEY_ADAPTERS.md §9) — the latency budgets for the wallet,
-# passkey and vault vertical:
+# Latency budgets for the wallet, passkey and vault vertical:
 #
 #   1. WebAuthn ArrayBuffer serialization  < 1 ms  for a 10 KB payload
 #   2. TON BOC parsing                     < 3 ms  for a 1 KB cell slice
 #   3. Bridge round-trip (warm path)       < 5 ms
 #
 # Deliberately separate from scripts/benchmark-bridge-latency.sh, which belongs to the compat
-# adapter spec (TASK_PORTABLE_PLUG_AND_PLAY_ADAPTER T12), measures a different thing, and needs a
+# adapter benchmark, measures a different thing, and needs a
 # Flutter APK on a device.
 #
 # (1) and (2) run off-device against the real implementations. (3) needs a device and SKIPS LOUDLY
