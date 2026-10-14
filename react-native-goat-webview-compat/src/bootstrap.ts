@@ -1,5 +1,5 @@
 /**
- * T4 (`TASK_PORTABLE_PLUG_AND_PLAY_RN_ADAPTER.md`): the `window.ReactNativeWebView` shim.
+ * The `window.ReactNativeWebView` shim for react-native-webview compatibility.
  *
  * Per G9 this is a single `const string`, built once at module load — never rebuilt per call,
  * per handler, or per navigation.

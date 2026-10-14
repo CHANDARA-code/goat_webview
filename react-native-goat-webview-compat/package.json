@@ -1,7 +1,7 @@
 {
   "name": "react-native-goat-webview-compat",
-  "version": "0.1.0",
-  "description": "react-native-webview-compatible drop-in adapter over react-native-goat-webview, for staged migration spikes only (TASK_PORTABLE_PLUG_AND_PLAY_RN_ADAPTER.md).",
+  "version": "1.0.0-alpha.2",
+  "description": "Drop-in compatibility adapter for react-native-webview backed by Goat WebView.",
   "main": "lib/commonjs/index.js",
   "module": "lib/module/index.js",
   "types": "lib/typescript/index.d.ts",
@@ -9,9 +9,11 @@
   "source": "src/index.tsx",
   "sideEffects": false,
   "files": [
-    "src",
     "lib",
-    "README.md"
+    "src",
+    "!src/__tests__",
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
     "test": "jest",
@@ -21,6 +23,7 @@
     "build:cjs": "tsc -p tsconfig.build.json",
     "build:esm": "tsc -p tsconfig.esm.json",
     "build:types": "tsc -p tsconfig.types.json",
+    "typecheck": "npm run build:types",
     "build": "npm run build:cjs && npm run build:esm && npm run build:types",
     "prepare": "npm run build"
   },

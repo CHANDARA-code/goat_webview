@@ -1,8 +1,7 @@
 /**
  * react-native-webview-compatible drop-in adapter over react-native-goat-webview.
  *
- * Staged-migration aid only, mirroring the Flutter sibling package `goat_webview_compat` (see
- * `TASK_PORTABLE_PLUG_AND_PLAY_RN_ADAPTER.md`) -- not a general-purpose WebView replacement.
+ * Staged-migration aid only, mirroring the Flutter sibling package `goat_webview_compat` (plug-and-play adapter) -- not a general-purpose WebView replacement.
  */
 export { WebView, WebView as default } from './WebView';
 export { compatBootstrapScript } from './bootstrap';

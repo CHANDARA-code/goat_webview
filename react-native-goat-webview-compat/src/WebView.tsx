@@ -94,7 +94,7 @@ const syntheticEvent = <E,>(nativeEvent: unknown): E =>
 type NativeEvent<T> = { nativeEvent: T };
 
 /**
- * T2 (`TASK_PORTABLE_PLUG_AND_PLAY_RN_ADAPTER.md`): `react-native-webview`-compatible `<WebView>`
+ * `react-native-webview`-compatible `<WebView>`
  * over `<GoatWebViewNativeComponent>`. Per G1, this component holds no field/state of type
  * `WebViewProps`/`WebViewSource` — `toCreationProps` is called fresh each render (memoised on its
  * primitive inputs per G4) and the caller's own props object is never retained past that call.

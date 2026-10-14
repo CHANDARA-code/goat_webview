@@ -1,8 +1,14 @@
 {
   "name": "@goat-webview/network",
   "version": "1.0.0",
-  "description": "Modular Network Security Capability Companion Package for React Native Goat WebView (Task 10202)",
+  "description": "Modular Network Security Capability Companion Package for React Native Goat WebView",
+  "license": "MIT",
   "main": "src/index.ts",
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
   "peerDependencies": {
     "react-native-goat-webview": "^1.0.0"
   }

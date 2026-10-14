@@ -7,7 +7,7 @@ import { goatCapabilityRegistry, GoatWebViewNativeModule } from 'react-native-go
  * Pairs with Android's `:feature-web3` (`GoatWeb3Plugin`) and iOS's `GoatWeb3Plugin`. Marshals
  * every action to the native engine via `GoatWebViewNativeModule.executeAction` and holds no
  * wallet logic of its own — in particular it never synthesises a signature or an account. The
- * Flutter side has had a `goat_webview_web3` companion since Task 10202; this closes the gap on
+ * Flutter side has had a `goat_webview_web3` companion; this closes the gap on
  * the React Native side.
  */
 

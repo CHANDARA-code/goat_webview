@@ -9,6 +9,7 @@
   "source": "src/index.tsx",
   "files": [
     "src",
+    "!src/__tests__",
     "lib",
     "android/build.gradle",
     "android/gradle.properties",
@@ -16,7 +17,8 @@
     "android/src",
     "ios",
     "react-native-goat-webview.podspec",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
     "test": "jest",

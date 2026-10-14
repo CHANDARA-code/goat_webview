@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import type { NativeSyntheticEvent, StyleProp, ViewProps, ViewStyle } from 'react-native';
 
 /**
- * T1 (`TASK_PORTABLE_PLUG_AND_PLAY_RN_ADAPTER.md`): `react-native-webview`-identical shapes,
+ * `react-native-webview`-identical shapes,
  * copied field-for-field from `react-native-webview@16`'s `WebViewTypes.ts` (see
  * `learn_use_case/react-native-webview-16.0.0/src/WebViewTypes.ts` in this repo) so a migrating
  * consumer's existing `WebViewNavigation`/`WebViewMessageEvent`/etc. call sites type-check

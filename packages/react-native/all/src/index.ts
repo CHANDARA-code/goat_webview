@@ -15,7 +15,7 @@ export { default as paymentsCapabilityPlugin } from '@goat-webview/payments';
 export { default as scannerCapabilityPlugin } from '@goat-webview/scanner';
 
 /**
- * Option B of the dual-distribution model in TASK_PORTABLE_MINIAPP_DSL_ADAPTERS.md §1: one
+ * Option B of the dual-distribution model: one
  * dependency that pulls every capability companion. Option A remains depending on the individual
  * `@goat-webview/*` packages.
  *

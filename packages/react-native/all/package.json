@@ -2,7 +2,13 @@
   "name": "@goat-webview/all",
   "version": "1.0.0",
   "description": "Option B umbrella \u2014 every Goat WebView React Native capability companion in one dependency.",
+  "license": "MIT",
   "main": "src/index.ts",
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
   "peerDependencies": {
     "react-native-goat-webview": "^1.0.0"
   },
