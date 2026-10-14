@@ -1,3 +1,4 @@
+#if os(iOS)
 import XCTest
 @testable import GoatWebView
 
@@ -50,3 +51,4 @@ final class GoatPaymentReturnLinkVerifierTests: XCTestCase {
         XCTAssertNil(GoatPaymentReturnLinkVerifier.extractQueryParam(url, name: "intentId"))
     }
 }
+#endif // os(iOS)

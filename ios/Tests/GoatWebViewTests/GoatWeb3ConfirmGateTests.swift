@@ -1,3 +1,4 @@
+#if os(iOS)
 import XCTest
 @testable import GoatWebView
 
@@ -137,3 +138,4 @@ final class GoatWeb3ConfirmGateTests: XCTestCase {
         XCTAssertFalse(window.dedicated)
     }
 }
+#endif // os(iOS)

@@ -1,3 +1,4 @@
+#if os(iOS)
 import XCTest
 import WebKit
 @testable import GoatWebView
@@ -64,3 +65,4 @@ final class GoatHeadlessWebViewTests: XCTestCase {
         headlessB.destroy()
     }
 }
+#endif // os(iOS)

@@ -1,3 +1,4 @@
+#if os(iOS)
 import XCTest
 @testable import GoatWebView
 
@@ -39,3 +40,4 @@ final class GoatApiRequestAllowlistTests: XCTestCase {
         XCTAssertFalse(GoatScriptMessageHandler.isHostAllowed("api.example.com", allowlist: []))
     }
 }
+#endif // os(iOS)

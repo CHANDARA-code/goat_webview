@@ -1,6 +1,9 @@
+#if os(iOS)
 import XCTest
 #if canImport(UIKit) && !os(watchOS)
+#if canImport(UIKit)
 import UIKit
+#endif
 #endif
 @testable import GoatWebView
 
@@ -92,3 +95,4 @@ final class GoatOrientationControllerTests: XCTestCase {
     }
     #endif
 }
+#endif // os(iOS)

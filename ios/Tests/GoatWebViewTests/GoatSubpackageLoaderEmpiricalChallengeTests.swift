@@ -1,3 +1,4 @@
+#if os(iOS)
 import XCTest
 import Foundation
 @testable import GoatWebView
@@ -280,3 +281,4 @@ final class GoatSubpackageLoaderEmpiricalChallengeTests: XCTestCase {
         XCTAssertFalse(subpackageLoader.isSubpackageCached(appId: "tenant_corrupt", subpackageName: "truncated_pkg"))
     }
 }
+#endif // os(iOS)

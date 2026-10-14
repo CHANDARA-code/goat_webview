@@ -1,3 +1,4 @@
+#if os(iOS)
 import XCTest
 @testable import GoatWebView
 
@@ -81,3 +82,4 @@ final class GoatHapticFeedbackTests: XCTestCase {
         XCTAssertTrue(hadThrottling, "Immediate burst within 100ms interval must trigger throttling")
     }
 }
+#endif // os(iOS)

@@ -18,45 +18,234 @@ public final class GoatView: UIView {
 
     public static let bridgeName = "nativeBridge"
 
-    /// JS shim injected at document start so the shared `miniapp-bridge.ts` SDK (which looks for
-    /// `window.nativeBridge`) works unmodified against `WKScriptMessageHandlerWithReply` on iOS,
-    /// exactly as `WebViewCompat.addWebMessageListener` auto-injects `window.nativeBridge` on Android.
-    private static let bridgeShimSource = """
+    /// Dedicated, isolated WKContentWorld for Goat WebView bridge communication (Firefox parity).
+    /// Conceals native script message handlers from the untrusted webpage JavaScript execution context.
+    public static let bridgeWorld = WKContentWorld.world(name: "GoatBridgeIsolatedWorld")
+
+    /// Trampoline script injected into `bridgeWorld` providing privileged native call wrappers.
+    /// Listens for sanitized DOM request events and routes them to WKScriptMessageHandlerWithReply.
+    internal static let bridgeTrampolineSource = """
     (function () {
-      if (window.nativeBridge) { return; }
-      var listeners = [];
-      window.nativeBridge = {
-        postMessage: function (payloadString) {
-          var payload;
-          var rawId = '';
+      'use strict';
+      if (window.__goatBridgeTrampolineActive) { return; }
+      window.__goatBridgeTrampolineActive = true;
+
+      var _JSON_parse = JSON.parse;
+      var _JSON_stringify = JSON.stringify;
+      var _CustomEvent = typeof CustomEvent === 'function' ? CustomEvent : null;
+      var _addEventListener = window.addEventListener ? window.addEventListener.bind(window) : null;
+      var _dispatchEvent = window.dispatchEvent ? window.dispatchEvent.bind(window) : null;
+      var _hasOwnProperty = Object.prototype.hasOwnProperty;
+
+      if (_addEventListener) {
+        _addEventListener('__goat_bridge_req__', function (event) {
           try {
-            payload = JSON.parse(payloadString);
-            rawId = payload.id || '';
-          } catch (e) {
-            var match = payloadString.match(/"id"\\s*:\\s*"([^"]+)"/);
-            rawId = match ? match[1] : '';
-            payload = { id: rawId, action: '', payload: {} };
-          }
-          window.webkit.messageHandlers.\(bridgeName).postMessage(payload)
-            .then(function (response) {
-              var evt = { data: typeof response === 'string' ? response : JSON.stringify(response) };
-              listeners.forEach(function (fn) { try { fn(evt); } catch (e) {} });
-            })
-            .catch(function (err) {
+            if (event.stopImmediatePropagation) { event.stopImmediatePropagation(); }
+            var detail = event.detail;
+            var req = typeof detail === 'string' ? _JSON_parse(detail) : detail;
+            if (!req || typeof req !== 'object') { return; }
+
+            var rawId = (req && _hasOwnProperty.call(req, 'id')) ? String(req.id) : '';
+            var action = (req && _hasOwnProperty.call(req, 'action')) ? String(req.action) : '';
+            var payload = (req && _hasOwnProperty.call(req, 'payload') && typeof req.payload === 'object' && req.payload !== null) ? req.payload : {};
+
+            var bridgeHandler = window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.\(bridgeName);
+            if (!bridgeHandler || typeof bridgeHandler.postMessage !== 'function') {
               var errResponse = {
                 id: rawId,
                 success: false,
                 data: null,
-                error: (err && err.message) ? err.message : String(err)
+                error: 'Native bridge handler unavailable in isolated world'
               };
-              var evt = { data: JSON.stringify(errResponse) };
-              listeners.forEach(function (fn) { try { fn(evt); } catch (e) {} });
-            });
-        },
-        addEventListener: function (type, fn) {
-          if (type === 'message') { listeners.push(fn); }
+              if (_CustomEvent && _dispatchEvent) {
+                _dispatchEvent(new _CustomEvent('__goat_bridge_res__', { detail: _JSON_stringify(errResponse) }));
+              }
+              return;
+            }
+
+            bridgeHandler.postMessage({ id: rawId, action: action, payload: payload })
+              .then(function (response) {
+                var resString = typeof response === 'string' ? response : _JSON_stringify(response);
+                if (_CustomEvent && _dispatchEvent) {
+                  _dispatchEvent(new _CustomEvent('__goat_bridge_res__', { detail: resString }));
+                }
+              })
+              .catch(function (err) {
+                var errMsg = (err && err.message) ? err.message : String(err);
+                var errResponse = {
+                  id: rawId,
+                  success: false,
+                  data: null,
+                  error: errMsg
+                };
+                if (_CustomEvent && _dispatchEvent) {
+                  _dispatchEvent(new _CustomEvent('__goat_bridge_res__', { detail: _JSON_stringify(errResponse) }));
+                }
+              });
+          } catch (e) {}
+        }, true);
+
+        // Relay for T8 console compat
+        _addEventListener('__goat_console_relay__', function (event) {
+          try {
+            if (event.stopImmediatePropagation) { event.stopImmediatePropagation(); }
+            var detail = event.detail;
+            var data = typeof detail === 'string' ? _JSON_parse(detail) : detail;
+            var consoleHandler = window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.\(consoleMessageHandlerName);
+            if (consoleHandler && typeof consoleHandler.postMessage === 'function') {
+              consoleHandler.postMessage(data);
+            }
+          } catch (e) {}
+        }, true);
+      }
+    })();
+    """
+
+    /// Immutable, frozen proxy script injected into `.page` execution context at document start.
+    /// Encapsulates listeners and dispatches sanitized primitive strings across the world boundary.
+    internal static let pageProxySource = """
+    (function () {
+      'use strict';
+      if (window.__goatPageProxyActive) { return; }
+      window.__goatPageProxyActive = true;
+
+      // Capture pristine references at document-start before any page scripts execute
+      var _JSON_parse = JSON.parse;
+      var _JSON_stringify = JSON.stringify;
+      var _Object_freeze = Object.freeze;
+      var _Object_defineProperty = Object.defineProperty;
+      var _Object_create = Object.create;
+      var _hasOwnProperty = Object.prototype.hasOwnProperty;
+      var _CustomEvent = typeof CustomEvent === 'function' ? CustomEvent : null;
+      var _addEventListener = window.addEventListener ? window.addEventListener.bind(window) : null;
+      var _dispatchEvent = window.dispatchEvent ? window.dispatchEvent.bind(window) : null;
+
+      var listeners = [];
+
+      if (_addEventListener) {
+        _addEventListener('__goat_bridge_res__', function (event) {
+          try {
+            if (event.stopImmediatePropagation) { event.stopImmediatePropagation(); }
+            var rawData = event.detail;
+            var responseString = typeof rawData === 'string' ? rawData : _JSON_stringify(rawData);
+            var msgEvt = { data: responseString };
+            var currentListeners = [];
+            for (var k = 0; k < listeners.length; k++) {
+              currentListeners[k] = listeners[k];
+            }
+            for (var i = 0; i < currentListeners.length; i++) {
+              try { currentListeners[i](msgEvt); } catch (e) {}
+            }
+          } catch (e) {}
+        }, true);
+      }
+
+      function postMessage(payloadString) {
+        var payload;
+        var rawId = '';
+        try {
+          payload = typeof payloadString === 'string' ? _JSON_parse(payloadString) : payloadString;
+          rawId = (payload && _hasOwnProperty.call(payload, 'id')) ? String(payload.id) : '';
+        } catch (e) {
+          var match = typeof payloadString === 'string' ? payloadString.match(/"id"\\s*:\\s*"([^"]+)"/) : null;
+          rawId = match ? match[1] : '';
+          payload = { id: rawId, action: '', payload: {} };
         }
+
+        var action = (payload && _hasOwnProperty.call(payload, 'action')) ? String(payload.action) : '';
+        var innerPayload = (payload && _hasOwnProperty.call(payload, 'payload') && typeof payload.payload === 'object' && payload.payload !== null) ? payload.payload : {};
+
+        var safeObj = _Object_create ? _Object_create(null) : {};
+        safeObj.id = rawId;
+        safeObj.action = action;
+        safeObj.payload = innerPayload;
+        var safeEnvelope = _JSON_stringify(safeObj);
+
+        if (_CustomEvent && _dispatchEvent) {
+          _dispatchEvent(new _CustomEvent('__goat_bridge_req__', { detail: safeEnvelope }));
+        }
+      }
+
+      function addEventListener(type, fn) {
+        if (type === 'message' && typeof fn === 'function') {
+          var found = false;
+          for (var i = 0; i < listeners.length; i++) {
+            if (listeners[i] === fn) { found = true; break; }
+          }
+          if (!found) {
+            listeners[listeners.length] = fn;
+          }
+        }
+      }
+
+      function removeEventListener(type, fn) {
+        if (type === 'message') {
+          var newListeners = [];
+          for (var i = 0; i < listeners.length; i++) {
+            if (listeners[i] !== fn) {
+              newListeners[newListeners.length] = listeners[i];
+            }
+          }
+          listeners = newListeners;
+        }
+      }
+
+      function call(action, payload) {
+        return new Promise(function (resolve, reject) {
+          var callId = 'req_' + Date.now().toString(36) + '_' + Math.random().toString(36).substring(2, 8);
+          function handler(event) {
+            try {
+              var res = typeof event.data === 'string' ? _JSON_parse(event.data) : event.data;
+              if (res && _hasOwnProperty.call(res, 'id') && res.id === callId) {
+                removeEventListener('message', handler);
+                if (res.success) {
+                  resolve(res.data);
+                } else {
+                  reject(new Error(res.error || 'Bridge action failed'));
+                }
+              }
+            } catch (e) {}
+          }
+          addEventListener('message', handler);
+          var reqBody = _Object_create ? _Object_create(null) : {};
+          reqBody.id = callId;
+          reqBody.action = action;
+          reqBody.payload = (payload && typeof payload === 'object' && payload !== null) ? payload : {};
+          postMessage(_JSON_stringify(reqBody));
+        });
+      }
+
+      var proxy = {
+        postMessage: _Object_freeze(postMessage),
+        addEventListener: _Object_freeze(addEventListener),
+        removeEventListener: _Object_freeze(removeEventListener),
+        call: _Object_freeze(call),
+        callNative: _Object_freeze(call)
       };
+      _Object_freeze(proxy);
+
+      // Mount immutable, frozen proxies on window
+      try {
+        _Object_defineProperty(window, 'GoatBridge', {
+          value: proxy,
+          writable: false,
+          configurable: false,
+          enumerable: true
+        });
+      } catch (e) {
+        try { window.GoatBridge = proxy; } catch (e2) {}
+      }
+
+      try {
+        _Object_defineProperty(window, 'nativeBridge', {
+          value: proxy,
+          writable: false,
+          configurable: false,
+          enumerable: true
+        });
+      } catch (e) {
+        try { window.nativeBridge = proxy; } catch (e2) {}
+      }
     })();
     """
 
@@ -68,14 +257,21 @@ public final class GoatView: UIView {
     (function () {
       if (window.__goatConsoleOverridden) { return; }
       window.__goatConsoleOverridden = true;
+      var _CustomEvent = typeof CustomEvent === 'function' ? CustomEvent : null;
+      var _dispatchEvent = window.dispatchEvent ? window.dispatchEvent.bind(window) : null;
+      var _JSON_stringify = JSON.stringify;
+
       ['log', 'warn', 'error', 'info', 'debug'].forEach(function (level) {
         var original = console[level] ? console[level].bind(console) : function () {};
         console[level] = function () {
           try {
             var msg = Array.prototype.slice.call(arguments).map(function (a) {
-              try { return typeof a === 'string' ? a : JSON.stringify(a); } catch (e) { return String(a); }
+              try { return typeof a === 'string' ? a : (_JSON_stringify ? _JSON_stringify(a) : String(a)); } catch (e) { return String(a); }
             }).join(' ');
-            window.webkit.messageHandlers.\(consoleMessageHandlerName).postMessage({ message: msg, level: level });
+            if (_CustomEvent && _dispatchEvent) {
+              var payload = _JSON_stringify ? _JSON_stringify({ message: msg, level: level }) : { message: msg, level: level };
+              _dispatchEvent(new _CustomEvent('__goat_console_relay__', { detail: payload }));
+            }
           } catch (e) {}
           original.apply(console, arguments);
         };
@@ -83,7 +279,7 @@ public final class GoatView: UIView {
     })();
     """
 
-    private var webView: GoatWKWebView?
+    internal var webView: GoatWKWebView?
     private var messageRouter: MessageRouter?
     private var consoleMessageRouter: ConsoleMessageRouter?
     /// internal rather than private so the manifest-policy wiring can be asserted in tests --
@@ -181,10 +377,9 @@ public final class GoatView: UIView {
     public var compatExternalLinkHosts: Set<String> = ["t.me"]
     public var onExternalNavigation: ((String) -> Void)?
 
-    /// T8 compat: each fires only when set — off by default, no extra native work when the
+    /// Compat event handlers: each fires only when set — off by default, no extra native work when the
     /// embedder didn't ask for that event. `onLoadResource`/`onUpdateVisitedHistory` have no
-    /// WKWebView primitive on iOS (Android-only for now — see
-    /// TASK_PORTABLE_PLUG_AND_PLAY_ADAPTER.md T8).
+    /// WKWebView primitive on iOS (Android-only for now — see compat adapter error mapping).
     public var onReceivedErrorCompat: ((String, Int, String) -> Void)?
     public var onReceivedHttpErrorCompat: ((String, Int) -> Void)?
     public var onPageCommitVisibleCompat: ((String) -> Void)?
@@ -552,8 +747,25 @@ public final class GoatView: UIView {
             )
         )
 
-        let shim = WKUserScript(source: Self.bridgeShimSource, injectionTime: .atDocumentStart, forMainFrameOnly: true)
-        userContentController.addUserScript(shim)
+        // 1. Inject isolated world trampoline
+        userContentController.addUserScript(
+            WKUserScript(
+                source: Self.bridgeTrampolineSource,
+                injectionTime: .atDocumentStart,
+                forMainFrameOnly: true,
+                in: Self.bridgeWorld
+            )
+        )
+
+        // 2. Inject page-world frozen proxy
+        userContentController.addUserScript(
+            WKUserScript(
+                source: Self.pageProxySource,
+                injectionTime: .atDocumentStart,
+                forMainFrameOnly: true,
+                in: .page
+            )
+        )
         // Adapter-supplied shims (e.g. window.flutter_inappwebview) — injected after goat's own
         // bridge shim, still at document-start, so they see window.nativeBridge and run before the
         // page's scripts. Nothing is added when the list is empty.
@@ -575,7 +787,7 @@ public final class GoatView: UIView {
         }
 
         let router = MessageRouter(owner: self)
-        userContentController.addScriptMessageHandler(router, contentWorld: .page, name: Self.bridgeName)
+        userContentController.addScriptMessageHandler(router, contentWorld: Self.bridgeWorld, name: Self.bridgeName)
         messageRouter = router
 
         // T8 compat: WKWebView has no native console API (unlike Android's onConsoleMessage) --
@@ -583,10 +795,16 @@ public final class GoatView: UIView {
         // (G7): a page that never has this enabled pays nothing.
         if onConsoleMessageCompat != nil {
             let consoleRouter = ConsoleMessageRouter(owner: self)
-            userContentController.add(consoleRouter, contentWorld: .page, name: Self.consoleMessageHandlerName)
+            userContentController.add(consoleRouter, contentWorld: Self.bridgeWorld, name: Self.consoleMessageHandlerName)
             consoleMessageRouter = consoleRouter
             userContentController.addUserScript(
-                WKUserScript(source: Self.consoleOverrideSource, injectionTime: .atDocumentStart, forMainFrameOnly: true))
+                WKUserScript(
+                    source: Self.consoleOverrideSource,
+                    injectionTime: .atDocumentStart,
+                    forMainFrameOnly: true,
+                    in: .page
+                )
+            )
         }
 
         // Register controller for declarative content blocking and compile initial manifest rules (Task 10205)
@@ -709,9 +927,9 @@ public final class GoatView: UIView {
         // Fresh message router bound to this view; the injected window.nativeBridge shim persists
         // in the page (WKUserScript at documentStart), so re-adding the handler re-connects it.
         let ucc = wv.configuration.userContentController
-        ucc.removeScriptMessageHandler(forName: Self.bridgeName, contentWorld: .page)
+        ucc.removeScriptMessageHandler(forName: Self.bridgeName, contentWorld: Self.bridgeWorld)
         let router = MessageRouter(owner: self)
-        ucc.addScriptMessageHandler(router, contentWorld: .page, name: Self.bridgeName)
+        ucc.addScriptMessageHandler(router, contentWorld: Self.bridgeWorld, name: Self.bridgeName)
         messageRouter = router
 
         wv.navigationDelegate = navigationRouter
@@ -929,6 +1147,10 @@ public final class GoatView: UIView {
         wv.uiDelegate = nil
         GoatContentBlocker.unregister(userContentController: wv.configuration.userContentController, for: wv.appId)
         wv.stopLoading()
+        wv.configuration.userContentController.removeScriptMessageHandler(forName: Self.bridgeName, contentWorld: Self.bridgeWorld)
+        if #available(iOS 14.0, *) {
+            wv.configuration.userContentController.removeAllScriptMessageHandlers(from: Self.bridgeWorld)
+        }
         wv.configuration.userContentController.removeAllScriptMessageHandlers()
         wv.load(URLRequest(url: URL(string: "about:blank")!))
         wv.navigationDelegate = nil

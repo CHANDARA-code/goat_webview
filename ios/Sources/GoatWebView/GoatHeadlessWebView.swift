@@ -1,3 +1,4 @@
+#if os(iOS)
 import Foundation
 import WebKit
 #if canImport(UIKit)
@@ -15,44 +16,6 @@ public class GoatHeadlessWebView {
 
     public static let bridgeName = "nativeBridge"
 
-    private static let bridgeShimSource = """
-    (function () {
-      if (window.nativeBridge) { return; }
-      var listeners = [];
-      window.nativeBridge = {
-        postMessage: function (payloadString) {
-          var payload;
-          var rawId = '';
-          try {
-            payload = JSON.parse(payloadString);
-            rawId = payload.id || '';
-          } catch (e) {
-            var match = payloadString.match(/"id"\\s*:\\s*"([^"]+)"/);
-            rawId = match ? match[1] : '';
-            payload = { id: rawId, action: '', payload: {} };
-          }
-          window.webkit.messageHandlers.\(bridgeName).postMessage(payload)
-            .then(function (response) {
-              var evt = { data: typeof response === 'string' ? response : JSON.stringify(response) };
-              listeners.forEach(function (fn) { try { fn(evt); } catch (e) {} });
-            })
-            .catch(function (err) {
-              var errResponse = {
-                id: rawId,
-                success: false,
-                data: null,
-                error: (err && err.message) ? err.message : String(err)
-              };
-              var evt = { data: JSON.stringify(errResponse) };
-              listeners.forEach(function (fn) { try { fn(evt); } catch (e) {} });
-            });
-        },
-        addEventListener: function (type, fn) {
-          if (type === 'message') { listeners.push(fn); }
-        }
-      };
-    })();
-    """
 
     public let appId: String
     public private(set) var isDestroyed: Bool = false
@@ -86,20 +49,30 @@ public class GoatHeadlessWebView {
         let schemeHandler = GoatURLSchemeHandler(appId: safeAppId, baseBundlePath: baseBundlePath)
         config.setURLSchemeHandler(schemeHandler, forURLScheme: "goat")
 
-        // 3. User Content Controller & Bridge Shim
+        // 3. User Content Controller & Bridge Trampoline / Proxy
         let userContentController = WKUserContentController()
-        let shim = WKUserScript(
-            source: Self.bridgeShimSource,
-            injectionTime: .atDocumentStart,
-            forMainFrameOnly: true
+        userContentController.addUserScript(
+            WKUserScript(
+                source: GoatView.bridgeTrampolineSource,
+                injectionTime: .atDocumentStart,
+                forMainFrameOnly: true,
+                in: GoatView.bridgeWorld
+            )
         )
-        userContentController.addUserScript(shim)
+        userContentController.addUserScript(
+            WKUserScript(
+                source: GoatView.pageProxySource,
+                injectionTime: .atDocumentStart,
+                forMainFrameOnly: true,
+                in: .page
+            )
+        )
 
         let msgHandler = GoatScriptMessageHandler(appId: safeAppId)
         self.scriptMessageHandler = msgHandler
 
         let router = HeadlessMessageRouter(owner: self)
-        userContentController.addScriptMessageHandler(router, contentWorld: .page, name: Self.bridgeName)
+        userContentController.addScriptMessageHandler(router, contentWorld: GoatView.bridgeWorld, name: Self.bridgeName)
         self.messageRouter = router
         config.userContentController = userContentController
 
@@ -209,7 +182,8 @@ public class GoatHeadlessWebView {
             wv?.removeFromSuperview()
             wv?.stopLoading()
             if #available(iOS 14.0, *) {
-                wv?.configuration.userContentController.removeScriptMessageHandler(forName: Self.bridgeName, contentWorld: .page)
+                wv?.configuration.userContentController.removeScriptMessageHandler(forName: Self.bridgeName, contentWorld: GoatView.bridgeWorld)
+                wv?.configuration.userContentController.removeAllScriptMessageHandlers(from: GoatView.bridgeWorld)
             }
             wv?.configuration.userContentController.removeAllScriptMessageHandlers()
             wv?.navigationDelegate = nil
@@ -218,7 +192,8 @@ public class GoatHeadlessWebView {
                 wv?.removeFromSuperview()
                 wv?.stopLoading()
                 if #available(iOS 14.0, *) {
-                    wv?.configuration.userContentController.removeScriptMessageHandler(forName: Self.bridgeName, contentWorld: .page)
+                    wv?.configuration.userContentController.removeScriptMessageHandler(forName: Self.bridgeName, contentWorld: GoatView.bridgeWorld)
+                    wv?.configuration.userContentController.removeAllScriptMessageHandlers(from: GoatView.bridgeWorld)
                 }
                 wv?.configuration.userContentController.removeAllScriptMessageHandlers()
                 wv?.navigationDelegate = nil
@@ -227,11 +202,19 @@ public class GoatHeadlessWebView {
         #else
         if Thread.isMainThread {
             wv?.stopLoading()
+            if #available(iOS 14.0, *) {
+                wv?.configuration.userContentController.removeScriptMessageHandler(forName: Self.bridgeName, contentWorld: GoatView.bridgeWorld)
+                wv?.configuration.userContentController.removeAllScriptMessageHandlers(from: GoatView.bridgeWorld)
+            }
             wv?.configuration.userContentController.removeAllScriptMessageHandlers()
             wv?.navigationDelegate = nil
         } else {
             DispatchQueue.main.async { [weak wv] in
                 wv?.stopLoading()
+                if #available(iOS 14.0, *) {
+                    wv?.configuration.userContentController.removeScriptMessageHandler(forName: Self.bridgeName, contentWorld: GoatView.bridgeWorld)
+                    wv?.configuration.userContentController.removeAllScriptMessageHandlers(from: GoatView.bridgeWorld)
+                }
                 wv?.configuration.userContentController.removeAllScriptMessageHandlers()
                 wv?.navigationDelegate = nil
             }
@@ -283,3 +266,4 @@ public class GoatHeadlessWebView {
         }
     }
 }
+#endif // os(iOS)

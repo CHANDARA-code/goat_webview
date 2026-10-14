@@ -1,6 +1,9 @@
+#if os(iOS)
 import XCTest
 #if canImport(UIKit)
+#if canImport(UIKit)
 import UIKit
+#endif
 #endif
 @testable import GoatWebView
 
@@ -448,3 +451,4 @@ final class GoatNavigationCoordinatorTests: XCTestCase {
     }
     #endif
 }
+#endif // os(iOS)

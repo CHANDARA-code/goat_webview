@@ -1,3 +1,4 @@
+#if os(iOS)
 import XCTest
 @testable import GoatWebView
 
@@ -370,3 +371,4 @@ final class GoatWeb3DecoderTests: XCTestCase {
         XCTAssertEqual(SolanaTxDecoder.formatUnits(nil, decimals: 9), "0")
     }
 }
+#endif // os(iOS)

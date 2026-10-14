@@ -1,7 +1,10 @@
+#if os(iOS)
 import XCTest
 @testable import GoatWebView
 #if canImport(UIKit)
+#if canImport(UIKit)
 import UIKit
+#endif
 #endif
 
 /**
@@ -295,3 +298,4 @@ final class GoatMilestone1Tests: XCTestCase {
     }
 
 }
+#endif // os(iOS)

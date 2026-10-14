@@ -1,3 +1,4 @@
+#if os(iOS)
 import Foundation
 #if canImport(Combine)
 import Combine
@@ -440,3 +441,4 @@ public final class GoatTelemetryManager: ObservableObject, @unchecked Sendable {
         }
     }
 }
+#endif // os(iOS)

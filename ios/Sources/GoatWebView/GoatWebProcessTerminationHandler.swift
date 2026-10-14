@@ -1,3 +1,4 @@
+#if os(iOS)
 import Foundation
 import WebKit
 
@@ -48,3 +49,4 @@ public class GoatWebProcessTerminationHandler: NSObject, WKNavigationDelegate {
         reloadAttempts = 0
     }
 }
+#endif // os(iOS)

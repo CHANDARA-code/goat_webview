@@ -1,3 +1,4 @@
+#if os(iOS)
 import SwiftUI
 #if canImport(UIKit)
 import UIKit
@@ -849,3 +850,4 @@ public struct GoatDebugInspectorView: View {
         }
     }
 }
+#endif // os(iOS)

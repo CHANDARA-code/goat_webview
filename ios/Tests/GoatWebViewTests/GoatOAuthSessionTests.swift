@@ -1,3 +1,4 @@
+#if os(iOS)
 import XCTest
 @testable import GoatWebView
 
@@ -99,3 +100,4 @@ final class GoatOAuthSessionTests: XCTestCase {
         XCTAssertEqual(result["sessionId"] as? String, sessionId)
     }
 }
+#endif // os(iOS)

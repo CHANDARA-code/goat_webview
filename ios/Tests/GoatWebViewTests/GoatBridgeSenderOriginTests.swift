@@ -1,3 +1,4 @@
+#if os(iOS)
 import XCTest
 @testable import GoatWebView
 
@@ -64,3 +65,4 @@ final class GoatBridgeSenderOriginTests: XCTestCase {
         XCTAssertFalse(permitted(nil, mainFrame: true))
     }
 }
+#endif // os(iOS)

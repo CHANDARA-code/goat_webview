@@ -1,3 +1,4 @@
+#if os(iOS)
 import XCTest
 @testable import GoatWebView
 
@@ -98,3 +99,4 @@ final class GoatNavigationBarTests: XCTestCase {
         XCTAssertEqual(clicked, .close)
     }
 }
+#endif // os(iOS)

@@ -1,3 +1,4 @@
+#if os(iOS)
 import XCTest
 @testable import GoatWebView
 
@@ -148,3 +149,4 @@ final class GoatThemeManagerTests: XCTestCase {
         XCTAssertTrue(js.contains("__applyTokens"))
     }
 }
+#endif // os(iOS)

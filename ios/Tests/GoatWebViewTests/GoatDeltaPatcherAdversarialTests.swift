@@ -1,3 +1,4 @@
+#if os(iOS)
 import XCTest
 import Foundation
 import CryptoKit
@@ -480,3 +481,4 @@ final class GoatDeltaPatcherAdversarialTests: XCTestCase {
         XCTAssertEqual(tmpFiles.count, 0, "All temporary files must be cleaned up on exception")
     }
 }
+#endif // os(iOS)

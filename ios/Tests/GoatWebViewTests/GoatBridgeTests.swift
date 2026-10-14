@@ -1,6 +1,9 @@
+#if os(iOS)
 import XCTest
 import WebKit
+#if canImport(UIKit)
 import UIKit
+#endif
 import Security
 @testable import GoatWebView
 
@@ -2422,4 +2425,4 @@ final class GoatBridgeTests: XCTestCase {
         XCTAssertTrue(progressReports.allSatisfy { $0.1 >= 0 && $0.2 >= 0 })
     }
 }
-
+#endif // os(iOS)

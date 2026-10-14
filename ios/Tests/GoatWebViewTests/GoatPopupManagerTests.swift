@@ -1,8 +1,11 @@
+#if os(iOS)
 import XCTest
 import Foundation
 import WebKit
 #if canImport(UIKit)
+#if canImport(UIKit)
 import UIKit
+#endif
 #endif
 @testable import GoatWebView
 
@@ -378,3 +381,4 @@ final class GoatPopupManagerTests: XCTestCase {
         XCTAssertTrue(receivedEvent)
     }
 }
+#endif // os(iOS)

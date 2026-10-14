@@ -1,3 +1,4 @@
+#if os(iOS)
 import XCTest
 @testable import GoatWebView
 
@@ -376,3 +377,4 @@ final class GoatPasskeyTests: XCTestCase {
         }
     }
 }
+#endif // os(iOS)

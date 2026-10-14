@@ -1,3 +1,4 @@
+#if os(iOS)
 import XCTest
 import WebKit
 @testable import GoatWebView
@@ -15,4 +16,4 @@ final class GoatAssetHandlerTests: XCTestCase {
         XCTAssertNotNil(webView, "GoatWKWebView initializes cleanly")
     }
 }
-
+#endif // os(iOS)

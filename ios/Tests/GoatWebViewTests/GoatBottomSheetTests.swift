@@ -1,3 +1,4 @@
+#if os(iOS)
 import XCTest
 @testable import GoatWebView
 
@@ -79,3 +80,4 @@ final class GoatBottomSheetTests: XCTestCase {
         XCTAssertEqual(config.cornerRadius, 16.0)
     }
 }
+#endif // os(iOS)

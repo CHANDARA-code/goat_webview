@@ -1,3 +1,4 @@
+#if os(iOS)
 import XCTest
 import Foundation
 @testable import GoatWebView
@@ -313,3 +314,4 @@ final class GoatMultiAccountAndIdentityAdversarialTests: XCTestCase {
         XCTAssertEqual(readScopedRestored, "SCOPED_USER_1")
     }
 }
+#endif // os(iOS)

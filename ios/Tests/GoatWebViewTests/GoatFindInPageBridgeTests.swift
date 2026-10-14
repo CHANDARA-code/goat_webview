@@ -1,3 +1,4 @@
+#if os(iOS)
 import XCTest
 @testable import GoatWebView
 
@@ -100,3 +101,4 @@ final class GoatFindInPageBridgeTests: XCTestCase {
         XCTAssertEqual(clearedCount, 5)
     }
 }
+#endif // os(iOS)

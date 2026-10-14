@@ -1,3 +1,4 @@
+#if os(iOS)
 import XCTest
 import Foundation
 @testable import GoatWebView
@@ -358,3 +359,4 @@ final class GoatEventCoalescerTests: XCTestCase {
         XCTAssertEqual(dispatches.last?["val"] as? Int, 2)
     }
 }
+#endif // os(iOS)

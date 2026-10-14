@@ -1,6 +1,9 @@
+#if os(iOS)
 import XCTest
 import Foundation
+#if canImport(UIKit)
 import UIKit
+#endif
 @testable import GoatWebView
 
 final class GoatStorageManagerTests: XCTestCase {
@@ -280,3 +283,4 @@ final class GoatStorageManagerTests: XCTestCase {
         XCTAssertThrowsError(try GoatSecureStorageManager.getServiceName(appId: "../../hacker"))
     }
 }
+#endif // os(iOS)

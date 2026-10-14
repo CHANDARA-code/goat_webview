@@ -1,3 +1,4 @@
+#if os(iOS)
 import XCTest
 import Foundation
 @testable import GoatWebView
@@ -184,3 +185,4 @@ final class GoatSubpackageLoaderTests: XCTestCase {
         XCTAssertTrue(contentB.contains("light"))
     }
 }
+#endif // os(iOS)

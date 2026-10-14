@@ -1,3 +1,4 @@
+#if os(iOS)
 import XCTest
 import CoreGraphics
 @testable import GoatWebView
@@ -174,3 +175,4 @@ final class GoatSameLayerCompositorTests: XCTestCase {
         XCTAssertEqual(emptyList["totalActive"] as? Int, 0)
     }
 }
+#endif // os(iOS)

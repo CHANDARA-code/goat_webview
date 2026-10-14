@@ -1,3 +1,4 @@
+#if os(iOS)
 import Foundation
 import Metal
 import QuartzCore
@@ -166,4 +167,4 @@ public class GoatVisualRenderer {
     }
     #endif
 }
-
+#endif // os(iOS)

@@ -5,7 +5,7 @@ import UIKit
 #endif
 @testable import GoatWebView
 
-/// T12 (`TASK_PORTABLE_PLUG_AND_PLAY_ADAPTER.md` §4): the iOS half of the perf/RAM contract's
+/// The iOS half of the compat adapter perf/RAM contract's
 /// locally-verifiable pieces. This SPM test target has no companion "Runner.app" host project
 /// (unlike the Android side's `bench/compat_size_check`), so a true cold/warm *app launch*
 /// comparison across an engine-only vs. adapter-used variant — the literal "physical device in

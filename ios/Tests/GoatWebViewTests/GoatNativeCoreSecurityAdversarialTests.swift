@@ -1,3 +1,4 @@
+#if os(iOS)
 import XCTest
 import Foundation
 import WebKit
@@ -381,3 +382,4 @@ final class GoatNativeCoreSecurityAdversarialTests: XCTestCase {
         XCTAssertEqual(cred?.password, "secret_password")
     }
 }
+#endif // os(iOS)

@@ -1,3 +1,4 @@
+#if os(iOS)
 import XCTest
 @testable import GoatWebView
 
@@ -172,4 +173,4 @@ final class GoatLifecycleManagerTests: XCTestCase {
         XCTAssertTrue(evaluatedScripts[1].contains("onAppHide"))
     }
 }
-
+#endif // os(iOS)

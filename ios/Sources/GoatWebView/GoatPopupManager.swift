@@ -1,3 +1,4 @@
+#if os(iOS)
 import Foundation
 import WebKit
 #if canImport(UIKit)
@@ -327,3 +328,4 @@ public final class GoatPopupManager: NSObject, WKUIDelegate {
         #endif
     }
 }
+#endif // os(iOS)

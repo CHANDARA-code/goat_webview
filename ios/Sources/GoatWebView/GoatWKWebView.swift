@@ -1,3 +1,4 @@
+#if os(iOS)
 import Foundation
 import WebKit
 #if canImport(UIKit)
@@ -91,3 +92,4 @@ public class GoatWKWebView: WKWebView {
         }
     }
 }
+#endif // os(iOS)

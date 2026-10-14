@@ -1,3 +1,4 @@
+#if os(iOS)
 import XCTest
 @testable import GoatWebView
 
@@ -109,3 +110,4 @@ final class GoatManifestPolicyWiringTests: XCTestCase {
     }
 
 }
+#endif // os(iOS)

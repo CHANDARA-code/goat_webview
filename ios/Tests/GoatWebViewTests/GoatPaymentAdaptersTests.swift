@@ -1,3 +1,4 @@
+#if os(iOS)
 import XCTest
 import Foundation
 @testable import GoatWebView
@@ -164,3 +165,4 @@ private final class FixedQueryProxyClient: GoatPaymentServerProxyClient, @unchec
     func cancelIntent(_ intentId: String) async throws -> GoatPaymentOutcome { GoatPaymentOutcome(status: .cancelled, intentId: intentId) }
     func queryIntent(_ intentId: String) async throws -> GoatPaymentOutcome { result }
 }
+#endif // os(iOS)

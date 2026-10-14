@@ -1,3 +1,4 @@
+#if os(iOS)
 import XCTest
 import Foundation
 import CryptoKit
@@ -213,3 +214,4 @@ final class GoatDeltaPatcherTests: XCTestCase {
         XCTAssertFalse(FileManager.default.fileExists(atPath: output.path))
     }
 }
+#endif // os(iOS)

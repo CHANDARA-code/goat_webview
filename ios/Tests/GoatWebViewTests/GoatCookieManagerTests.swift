@@ -1,3 +1,4 @@
+#if os(iOS)
 import XCTest
 import WebKit
 @testable import GoatWebView
@@ -75,3 +76,4 @@ final class GoatCookieManagerTests: XCTestCase {
         XCTAssertTrue(cleared)
     }
 }
+#endif // os(iOS)

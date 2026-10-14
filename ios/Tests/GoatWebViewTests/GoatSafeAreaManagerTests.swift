@@ -1,3 +1,4 @@
+#if os(iOS)
 import XCTest
 @testable import GoatWebView
 
@@ -80,3 +81,4 @@ final class GoatSafeAreaManagerTests: XCTestCase {
         XCTAssertEqual(resetState.heightPx, 0)
     }
 }
+#endif // os(iOS)

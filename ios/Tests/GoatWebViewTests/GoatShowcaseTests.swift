@@ -1,3 +1,4 @@
+#if os(iOS)
 import XCTest
 import SwiftUI
 @testable import GoatWebView
@@ -326,3 +327,4 @@ final class GoatShowcaseTests: XCTestCase {
         XCTAssertNotNil(appView)
     }
 }
+#endif // os(iOS)

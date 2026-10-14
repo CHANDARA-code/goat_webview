@@ -1,3 +1,4 @@
+#if os(iOS)
 import XCTest
 @testable import GoatWebView
 
@@ -124,3 +125,4 @@ final class GoatFindInPageControllerTests: XCTestCase {
         XCTAssertEqual(result.activeMatchIndex, 0)
     }
 }
+#endif // os(iOS)

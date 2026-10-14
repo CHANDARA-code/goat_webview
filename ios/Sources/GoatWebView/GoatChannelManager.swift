@@ -1,5 +1,7 @@
 import Foundation
+#if canImport(CryptoKit)
 import CryptoKit
+#endif
 
 /**
  * Release channels for staged mini-app deployments (Task 10125 / Pillar 1).
@@ -89,15 +91,22 @@ public final class GoatChannelManager: @unchecked Sendable {
 
         // Compute deterministic bucket using SHA-256 matching Android GoatChannelManager.kt
         let input = "\(cleanUserId):\(manifest.appId):\(manifest.version)"
-        let digest = SHA256.hash(data: Data(input.utf8))
-        let hashBytes = Array(digest)
-
-        let rawVal = (Int32(hashBytes[0]) << 24) |
-                     (Int32(hashBytes[1]) << 16) |
-                     (Int32(hashBytes[2]) << 8)  |
-                     Int32(hashBytes[3])
-
-        let bucket = abs(Int(rawVal)) % 100
+        let bucket: Int
+        #if canImport(CryptoKit)
+        if #available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *) {
+            let digest = SHA256.hash(data: Data(input.utf8))
+            let hashBytes = Array(digest)
+            let rawVal = (Int32(hashBytes[0]) << 24) |
+                         (Int32(hashBytes[1]) << 16) |
+                         (Int32(hashBytes[2]) << 8)  |
+                         Int32(hashBytes[3])
+            bucket = abs(Int(rawVal)) % 100
+        } else {
+            bucket = abs(input.hashValue) % 100
+        }
+        #else
+        bucket = abs(input.hashValue) % 100
+        #endif
         return bucket < manifest.rolloutPercentage
     }
 

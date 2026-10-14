@@ -26,31 +26,37 @@ Goat WebView is a blazing-fast, sandboxed, modular Mini-App and Web3 runtime eng
 
   s.subspec 'Media' do |media|
     media.dependency 'GoatWebView/Core'
+    media.source_files = 'Sources/GoatWebViewMedia/**/*.{swift}'
     media.frameworks = 'AVFoundation', 'MediaPlayer'
   end
 
   s.subspec 'Scanner' do |scanner|
     scanner.dependency 'GoatWebView/Core'
+    scanner.source_files = 'Sources/GoatWebViewScanner/**/*.{swift}'
     scanner.frameworks = 'Vision', 'AVFoundation'
   end
 
   s.subspec 'Location' do |loc|
     loc.dependency 'GoatWebView/Core'
+    loc.source_files = 'Sources/GoatWebViewLocation/**/*.{swift}'
     loc.frameworks = 'CoreLocation', 'MapKit'
   end
 
   s.subspec 'Biometrics' do |bio|
     bio.dependency 'GoatWebView/Core'
+    bio.source_files = 'Sources/GoatWebViewBiometrics/**/*.{swift}'
     bio.frameworks = 'LocalAuthentication', 'Security'
   end
 
   s.subspec 'Bluetooth' do |bt|
     bt.dependency 'GoatWebView/Core'
+    bt.source_files = 'Sources/GoatWebViewBluetooth/**/*.{swift}'
     bt.frameworks = 'CoreBluetooth', 'CoreNFC'
   end
 
   s.subspec 'Network' do |net|
     net.dependency 'GoatWebView/Core'
+    net.source_files = 'Sources/GoatWebViewNetwork/**/*.{swift}'
     net.frameworks = 'Network'
   end
 end

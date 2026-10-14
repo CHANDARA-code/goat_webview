@@ -80,14 +80,16 @@ public final class GoatPasskeyPlugin: GoatBridgePlugin, @unchecked Sendable {
         hasEnrolled = context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error)
         hasHardware = hasEnrolled || error?.code == LAError.biometryNotEnrolled.rawValue
         if hasHardware {
-            switch context.biometryType {
-            case .faceID: biometryType = "faceID"
-            case .touchID: biometryType = "touchID"
-            default:
-                if #available(iOS 17.0, *), context.biometryType == .opticID {
-                    biometryType = "opticID"
-                } else {
-                    biometryType = "none"
+            if #available(macOS 10.13.2, iOS 11.0, *) {
+                switch context.biometryType {
+                case .faceID: biometryType = "faceID"
+                case .touchID: biometryType = "touchID"
+                default:
+                    if #available(iOS 17.0, macOS 14.0, *), context.biometryType == .opticID {
+                        biometryType = "opticID"
+                    } else {
+                        biometryType = "none"
+                    }
                 }
             }
         }

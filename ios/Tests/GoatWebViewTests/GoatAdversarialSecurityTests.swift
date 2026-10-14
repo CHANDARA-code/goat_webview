@@ -1,6 +1,9 @@
+#if os(iOS)
 import XCTest
 import Foundation
+#if canImport(UIKit)
 import UIKit
+#endif
 import WebKit
 @testable import GoatWebView
 
@@ -198,3 +201,4 @@ final class GoatAdversarialSecurityTests: XCTestCase {
         XCTAssertEqual(terminationNotified, 5)
     }
 }
+#endif // os(iOS)

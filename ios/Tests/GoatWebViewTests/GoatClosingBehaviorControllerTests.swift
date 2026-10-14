@@ -1,3 +1,4 @@
+#if os(iOS)
 import XCTest
 @testable import GoatWebView
 
@@ -53,3 +54,4 @@ final class GoatClosingBehaviorControllerTests: XCTestCase {
         XCTAssertFalse(GoatClosingBehaviorController.shared.allowVerticalSwipe)
     }
 }
+#endif // os(iOS)

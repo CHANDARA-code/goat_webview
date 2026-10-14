@@ -1,3 +1,4 @@
+#if os(iOS)
 import SwiftUI
 #if canImport(UIKit)
 import UIKit
@@ -394,3 +395,4 @@ private extension Color {
         }
     }
 }
+#endif // os(iOS)

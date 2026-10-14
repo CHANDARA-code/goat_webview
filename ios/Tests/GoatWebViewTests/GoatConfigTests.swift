@@ -1,3 +1,4 @@
+#if os(iOS)
 import XCTest
 import Foundation
 @testable import GoatWebView
@@ -112,3 +113,4 @@ final class GoatConfigTests: XCTestCase {
         XCTAssertEqual(waitResult, .success, "Concurrent access completed without deadlock or crash")
     }
 }
+#endif // os(iOS)

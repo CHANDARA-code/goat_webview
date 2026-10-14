@@ -1,3 +1,4 @@
+#if os(iOS)
 import SwiftUI
 
 /**
@@ -12,3 +13,4 @@ public struct GoatShowcaseAppView: View {
         GoatShowcaseMainView()
     }
 }
+#endif // os(iOS)

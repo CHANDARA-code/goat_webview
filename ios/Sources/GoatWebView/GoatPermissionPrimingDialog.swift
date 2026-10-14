@@ -1,3 +1,4 @@
+#if os(iOS)
 import Foundation
 #if canImport(UIKit)
 import UIKit
@@ -359,3 +360,4 @@ public final class GoatPermissionPrimingDialog {
     }
     #endif
 }
+#endif // os(iOS)

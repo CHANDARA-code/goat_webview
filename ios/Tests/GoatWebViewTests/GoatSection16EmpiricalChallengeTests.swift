@@ -1,3 +1,4 @@
+#if os(iOS)
 import XCTest
 import Foundation
 import WebKit
@@ -398,3 +399,4 @@ final class GoatSection16EmpiricalChallengeTests: XCTestCase {
         XCTAssertNil(purged)
     }
 }
+#endif // os(iOS)

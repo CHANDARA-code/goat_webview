@@ -1,3 +1,4 @@
+#if os(iOS)
 import Foundation
 #if canImport(UIKit)
 import UIKit
@@ -362,3 +363,4 @@ internal struct RoundedCornerShape: Shape {
 }
 #endif
 #endif
+#endif // os(iOS)

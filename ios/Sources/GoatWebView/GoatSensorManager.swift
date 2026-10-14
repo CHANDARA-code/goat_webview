@@ -1,3 +1,4 @@
+#if os(iOS)
 import Foundation
 import CoreMotion
 
@@ -339,3 +340,4 @@ public class GoatSensorManager {
         GoatEventCoalescer.shared.cancel(eventKey: "ON_DEVICE_MOTION_CHANGE")
     }
 }
+#endif // os(iOS)

@@ -1,3 +1,4 @@
+#if os(iOS)
 import Foundation
 import AVFoundation
 #if canImport(UIKit)
@@ -330,3 +331,4 @@ extension GoatAudioManager: UIImagePickerControllerDelegate, UINavigationControl
     }
 }
 #endif
+#endif // os(iOS)

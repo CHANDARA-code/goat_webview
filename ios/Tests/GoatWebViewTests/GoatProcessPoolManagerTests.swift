@@ -1,3 +1,4 @@
+#if os(iOS)
 import WebKit
 import XCTest
 @testable import GoatWebView
@@ -52,4 +53,4 @@ final class GoatProcessPoolManagerTests: XCTestCase {
         XCTAssertTrue(config.websiteDataStore === ephemeral, "an explicit store must survive")
     }
 }
-
+#endif // os(iOS)

@@ -1,3 +1,4 @@
+#if os(iOS)
 import XCTest
 @testable import GoatWebView
 
@@ -62,3 +63,4 @@ final class GoatPrintPageBridgeTests: XCTestCase {
         XCTAssertTrue(GoatScriptMessageHandler.supportedActions.contains("PRINT_PAGE"))
     }
 }
+#endif // os(iOS)

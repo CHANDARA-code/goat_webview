@@ -1,3 +1,4 @@
+#if os(iOS)
 import XCTest
 import Foundation
 import CryptoKit
@@ -504,3 +505,4 @@ private final class FakeAdapter: GoatPaymentAdapter, @unchecked Sendable {
         .cancelled
     }
 }
+#endif // os(iOS)

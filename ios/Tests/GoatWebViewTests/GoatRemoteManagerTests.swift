@@ -1,3 +1,4 @@
+#if os(iOS)
 import XCTest
 import Foundation
 import CryptoKit
@@ -435,3 +436,4 @@ final class GoatRemoteManagerTests: XCTestCase {
         XCTAssertTrue(error.contains("SHA-256 checksum mismatch"))
     }
 }
+#endif // os(iOS)

@@ -1,3 +1,4 @@
+#if os(iOS)
 import XCTest
 import CoreMotion
 import CoreLocation
@@ -452,4 +453,4 @@ final class GoatNativeDomainsTests: XCTestCase {
         XCTAssertNotNil(scan["result"])
     }
 }
-
+#endif // os(iOS)

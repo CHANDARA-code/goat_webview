@@ -1,3 +1,4 @@
+#if os(iOS)
 import Foundation
 import WebKit
 #if canImport(UIKit)
@@ -137,3 +138,4 @@ public final class GoatWebViewPool {
         }
     }
 }
+#endif // os(iOS)

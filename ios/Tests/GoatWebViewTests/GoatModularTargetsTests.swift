@@ -1,3 +1,4 @@
+#if os(iOS)
 import XCTest
 import GoatWebViewBiometrics
 import GoatWebViewBluetooth
@@ -31,3 +32,4 @@ final class GoatModularTargetsTests: XCTestCase {
         XCTAssertNotNil(handler)
     }
 }
+#endif // os(iOS)

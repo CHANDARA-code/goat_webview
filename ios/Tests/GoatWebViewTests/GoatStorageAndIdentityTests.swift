@@ -1,6 +1,9 @@
+#if os(iOS)
 import XCTest
 import Foundation
+#if canImport(UIKit)
 import UIKit
+#endif
 @testable import GoatWebView
 
 final class GoatStorageAndIdentityTests: XCTestCase {
@@ -283,3 +286,4 @@ final class GoatStorageAndIdentityTests: XCTestCase {
         XCTAssertEqual(result["appId"] as? String, "test_device_info_app")
     }
 }
+#endif // os(iOS)

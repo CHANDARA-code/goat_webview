@@ -1,6 +1,9 @@
+#if os(iOS)
 import XCTest
 import Foundation
+#if canImport(UIKit)
 import UIKit
+#endif
 import WebKit
 @testable import GoatWebView
 
@@ -74,3 +77,4 @@ extension GoatWebViewTests {
         XCTAssertEqual(manager.getPushToken()["token"] as? String, "apns_real_token_42")
     }
 }
+#endif // os(iOS)

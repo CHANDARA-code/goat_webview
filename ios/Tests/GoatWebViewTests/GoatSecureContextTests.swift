@@ -1,3 +1,4 @@
+#if os(iOS)
 import WebKit
 import XCTest
 @testable import GoatWebView
@@ -112,3 +113,4 @@ private final class InlineHTMLSchemeHandler: NSObject, WKURLSchemeHandler {
 
     func webView(_ webView: WKWebView, stop urlSchemeTask: WKURLSchemeTask) {}
 }
+#endif // os(iOS)

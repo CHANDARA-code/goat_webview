@@ -1,7 +1,10 @@
+#if os(iOS)
 import XCTest
 @testable import GoatWebView
 #if canImport(UIKit)
+#if canImport(UIKit)
 import UIKit
+#endif
 #endif
 
 /**
@@ -152,3 +155,4 @@ final class GoatAppServiceHostIntegrationTests: XCTestCase {
         XCTAssertTrue(supported.contains("CONCURRENT_ACTION_99"))
     }
 }
+#endif // os(iOS)

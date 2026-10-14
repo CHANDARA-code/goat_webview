@@ -24,6 +24,7 @@ public protocol VaultPrfEvaluator: Sendable {
     func evaluate(appId: String, vaultId: String, salt: Data) throws -> Data
 }
 
+@available(macOS 10.15, iOS 15, tvOS 13, watchOS 6, *)
 public struct KeychainVaultSecretSource: VaultKeychainSecretSource {
 
     public let isHardwareBacked = true
@@ -95,6 +96,7 @@ public struct KeychainVaultSecretSource: VaultKeychainSecretSource {
 /// `VaultKey = HKDF-SHA256(IKM = prfOutput ?? deviceSecret, salt = deviceSecret XOR clientSalt,
 /// info = "goat-vault-v1")`. Mixing the Keychain secret into the salt is what makes an off-device
 /// PRF evaluation insufficient on its own. Only ciphertext or plaintext crosses the bridge.
+@available(macOS 10.15, iOS 15, tvOS 13, watchOS 6, *)
 public struct GoatVaultEngine: Sendable {
 
     public static let envelopeVersion = 1

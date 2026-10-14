@@ -1,3 +1,4 @@
+#if os(iOS)
 import Foundation
 import Security
 import CryptoKit
@@ -210,3 +211,4 @@ private final class GoatServerTrustCaptureSession: NSObject, URLSessionTaskDeleg
         completionHandler(.performDefaultHandling, nil)
     }
 }
+#endif // os(iOS)

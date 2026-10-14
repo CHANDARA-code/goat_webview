@@ -1,3 +1,4 @@
+#if os(iOS)
 import Foundation
 import WebKit
 #if canImport(Darwin)
@@ -13,40 +14,7 @@ import LocalAuthentication
 import MessageUI
 #endif
 
-/**
- * Standard error enumeration for Native-Web IPC Bridge operations.
- */
-public enum GoatBridgeError: Error, LocalizedError, Equatable {
-    case unsupportedAction(String)
-    case invalidPayload(String)
-    case viewDisposed
-    case securityViolation(String)
-    /// Thrown when biometric / device-passcode authentication fails or is cancelled.
-    case authFailed(String)
-    /// Thrown when an outbound URL is blocked by SSRF-protection rules.
-    case ssrfBlocked(String)
-    /// Thrown when a feature is not supported on the current OS version.
-    case notSupported(String)
-
-    public var errorDescription: String? {
-        switch self {
-        case .unsupportedAction(let action):
-            return "Unsupported native action: \(action)"
-        case .invalidPayload(let msg):
-            return "Invalid payload: \(msg)"
-        case .viewDisposed:
-            return "WebView instance disposed"
-        case .securityViolation(let reason):
-            return "Security violation: \(reason)"
-        case .authFailed(let code):
-            return "Authentication failed: \(code)"
-        case .ssrfBlocked(let reason):
-            return "SSRF blocked: \(reason)"
-        case .notSupported(let msg):
-            return "Not supported: \(msg)"
-        }
-    }
-}
+// GoatBridgeError is defined in GoatBridgeError.swift (platform-agnostic).
 
 /**
  * Swift IPC Bridge Handler implementing WKScriptMessageHandlerWithReply (Task 10116 & 10188 / Pillar 3).
@@ -3234,3 +3202,4 @@ final class GoatNativeUiPresenter {
     }
 }
 #endif
+#endif // os(iOS)
