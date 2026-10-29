@@ -35,7 +35,11 @@ CLI_VER=$(node -p "require('${WORKSPACE_DIR}/packages/cli/package.json').version
 APPSERVICE_VER=$(node -p "require('${WORKSPACE_DIR}/packages/appservice/package.json').version")
 SERVER_VER=$(node -p "require('${WORKSPACE_DIR}/packages/server/package.json').version")
 IOS_POD_VER=$(grep "s.version[[:space:]]*=" "${WORKSPACE_DIR}/ios/GoatWebView.podspec" | head -1 | sed 's/.*=[[:space:]]*//' | tr -d "'" | tr -d '"')
-ANDROID_VER=$(grep 'version = "' "${WORKSPACE_DIR}/android/core/build.gradle.kts" | head -1 | sed 's/.*version = "//' | sed 's/".*//')
+if grep -q 'version = "' "${WORKSPACE_DIR}/android/core/build.gradle.kts" 2>/dev/null; then
+  ANDROID_VER=$(grep 'version = "' "${WORKSPACE_DIR}/android/core/build.gradle.kts" | head -1 | sed 's/.*version = "//' | sed 's/".*//')
+else
+  ANDROID_VER=$(grep '?: "' "${WORKSPACE_DIR}/android/publish-maven.gradle.kts" | head -1 | sed 's/.*?: "//' | sed 's/".*//')
+fi
 
 if [ "${CHECK_MODE}" -eq 1 ]; then
   echo "Flutter Engine (goat_webview):   ${ROOT_PUB_VER}"

@@ -1,6 +1,6 @@
 {
   "name": "@goat/devtools",
-  "version": "1.0.0",
+  "version": "1.0.0-alpha.2",
   "description": "Goat Mini-App DevTools Studio IDE — High-performance desktop and browser IDE for mini-app development, simulation, and debugging",
   "type": "module",
   "files": [
@@ -28,9 +28,14 @@
   ],
   "author": "Goat Engineering Team",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/CHANDARA-code/goat_webview.git",
+    "directory": "packages/devtools"
+  },
   "dependencies": {
-    "@goat/appservice": "^1.0.0",
-    "@goat/bridge-mock": "^1.4.0",
+    "@goat/appservice": "^1.0.0-alpha.2",
+    "@goat/bridge-mock": "^1.0.0-alpha.2",
     "@monaco-editor/react": "^4.6.0",
     "clsx": "^2.1.1",
     "lucide-react": "^0.475.0",

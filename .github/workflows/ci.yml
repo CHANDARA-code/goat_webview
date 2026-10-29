@@ -86,3 +86,7 @@ jobs:
       - name: Execute Multi-Ecosystem Release Pre-Flight Dry-Run
         run: |
           ./scripts/publish-dry-run.sh
+
+      - name: Execute NPM Package Pre-Publish Master Gate
+        run: |
+          node scripts/validate-npm-publish.mjs --offline

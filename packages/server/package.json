@@ -1,6 +1,6 @@
 {
   "name": "@goat/server",
-  "version": "1.4.0",
+  "version": "1.0.0-alpha.2",
   "description": "Tooling Backend Service, CDP Relay, Trace Persistence & Telemetry Gateway for Goat WebView",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -33,6 +33,11 @@
   ],
   "author": "Goat Engineering Team",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/CHANDARA-code/goat_webview.git",
+    "directory": "packages/server"
+  },
   "dependencies": {
     "@types/express": "^4.17.21",
     "better-sqlite3": "^11.8.1",

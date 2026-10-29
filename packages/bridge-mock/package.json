@@ -1,6 +1,6 @@
 {
   "name": "@goat/bridge-mock",
-  "version": "1.4.0",
+  "version": "1.0.0-alpha.2",
   "type": "module",
   "description": "Zero-dependency hermetic browser simulation engine, in-memory state machine, DOM modals, and CDP trace client for Goat WebView",
   "main": "dist/src/index.js",
@@ -34,6 +34,11 @@
   ],
   "author": "Goat Engineering Team",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/CHANDARA-code/goat_webview.git",
+    "directory": "packages/bridge-mock"
+  },
   "dependencies": {},
   "devDependencies": {
     "@types/node": "^22.13.4",

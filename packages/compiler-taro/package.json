@@ -1,6 +1,6 @@
 {
   "name": "@goat/compiler-taro",
-  "version": "0.1.0",
+  "version": "1.0.0-alpha.2",
   "description": "Taro Compiler Adapter & Runtime JSAPI Bridge Plugin for Goat WebView",
   "type": "module",
   "main": "dist/src/index.js",
@@ -54,6 +54,11 @@
   ],
   "author": "Goat Engineering Team",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/CHANDARA-code/goat_webview.git",
+    "directory": "packages/compiler-taro"
+  },
   "dependencies": {},
   "devDependencies": {
     "@types/node": "^22.13.4",

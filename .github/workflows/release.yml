@@ -128,11 +128,34 @@ jobs:
           path: dist/
 
   # ============================================================================
-  # 2. Publish NPM Packages (React Native, CLI, AppService, Server, etc.)
+  # 2. Validate NPM Packages Before Publish (Master Quality Gate)
+  # ============================================================================
+  validate-npm:
+    name: Validate NPM Packages Before Publish
+    needs: [resolve-channel, build-and-verify]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Run NPM Release Gate Validator
+        run: |
+          node scripts/validate-npm-publish.mjs
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  # ============================================================================
+  # 3. Publish NPM Packages (React Native, CLI, AppService, Server, etc.)
   # ============================================================================
   publish-npm:
     name: Publish NPM Packages
-    needs: [resolve-channel, build-and-verify]
+    needs: [resolve-channel, build-and-verify, validate-npm]
     if: github.event.inputs.dry_run != 'true' && needs.resolve-channel.outputs.channel == 'public'
     runs-on: ubuntu-latest
     steps:
@@ -147,23 +170,26 @@ jobs:
 
       - name: Publish all npm packages to public registry
         run: |
-          NPM_PACKAGES=(
-            "react-native-goat-webview"
-            "packages/cli"
-            "packages/appservice"
-            "packages/bridge-mock"
-            "packages/devtools"
-            "packages/server"
-            "packages/core"
-            "packages/compiler-taro"
-            "packages/compiler-uniapp"
-            "packages/playground"
-          )
-
           set -euo pipefail
-          for pkg in "${NPM_PACKAGES[@]}"; do
-            echo "🚀 Publishing ${pkg} to npm..."
+          while IFS= read -r pkg || [ -n "$pkg" ]; do
+            [[ "$pkg" =~ ^#.*$ ]] && continue
+            [ -z "$pkg" ] && continue
+            echo "🚀 Processing ${pkg}..."
             cd "${GITHUB_WORKSPACE}/${pkg}"
+
+            PKG_NAME=$(node -e "process.stdout.write(require('./package.json').name)")
+            PKG_VERSION=$(node -e "process.stdout.write(require('./package.json').version)")
+
+            # Skip package if exact version is already published (idempotent re-run)
+            if npm view "${PKG_NAME}@${PKG_VERSION}" version >/dev/null 2>&1; then
+              echo "  ⏭️  ${PKG_NAME}@${PKG_VERSION} already published on npm. Skipping."
+              continue
+            fi
+
+            # Clean install dependencies if lockfile exists
+            if [ -f package-lock.json ]; then
+              npm ci --workspaces=false
+            fi
 
             # A failed build must abort the release, not silently publish stale or
             # empty artifacts. Only run the script when the package defines one.
@@ -174,17 +200,17 @@ jobs:
             fi
 
             # A prerelease must never land on the "latest" dist-tag.
-            PKG_VERSION=$(node -e "process.stdout.write(require('./package.json').version)")
+            EXTRA_ARGS=()
             case "${PKG_VERSION}" in
-              *-alpha*) NPM_TAG_ARGS="--tag alpha" ;;
-              *-beta*)  NPM_TAG_ARGS="--tag beta"  ;;
-              *-rc*)    NPM_TAG_ARGS="--tag rc"    ;;
-              *-*)      NPM_TAG_ARGS="--tag next"  ;;
-              *)        NPM_TAG_ARGS="" ;;
+              *-alpha*) EXTRA_ARGS=(--tag alpha) ;;
+              *-beta*)  EXTRA_ARGS=(--tag beta)  ;;
+              *-rc*)    EXTRA_ARGS=(--tag rc)    ;;
+              *-*)      EXTRA_ARGS=(--tag next)  ;;
             esac
 
-            npm publish --access public ${NPM_TAG_ARGS}
-          done
+            echo "  🚀 Publishing ${PKG_NAME}@${PKG_VERSION} with provenance..."
+            npm publish --access public --provenance "${EXTRA_ARGS[@]}"
+          done < "${GITHUB_WORKSPACE}/scripts/npm-packages.txt"
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 

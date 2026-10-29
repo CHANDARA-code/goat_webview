@@ -1,6 +1,6 @@
 {
   "name": "@goat/core",
-  "version": "1.0.0",
+  "version": "1.0.0-alpha.2",
   "description": "Goat WebView Core — Zero-Trust Security, SSRF Defenses, Network Policies & Universal Types",
   "type": "module",
   "main": "dist/index.js",
@@ -20,7 +20,6 @@
   },
   "files": [
     "dist",
-    "src",
     "README.md",
     "LICENSE"
   ],
@@ -38,6 +37,11 @@
   ],
   "author": "Goat Engineering Team",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/CHANDARA-code/goat_webview.git",
+    "directory": "packages/core"
+  },
   "devDependencies": {
     "@types/node": "^26.4.0",
     "typescript": "^5.7.3"

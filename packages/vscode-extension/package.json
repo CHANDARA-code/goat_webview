@@ -1,5 +1,6 @@
 {
   "name": "vscode-goat",
+  "private": true,
   "displayName": "Goat Mini-App Studio",
   "description": "Official VSCode extension for Goat WebView Mini-App Development — Simulator, IntelliSense, Mock Hardware & Diagnostics",
   "version": "1.0.0",

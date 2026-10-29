@@ -1,6 +1,6 @@
 {
   "name": "@goat/playground",
-  "version": "1.0.0",
+  "version": "1.0.0-alpha.2",
   "description": "Interactive Web Playground for Goat Mini-App Developers — Expo Snack-style with live bridge simulation",
   "type": "module",
   "files": [
@@ -18,6 +18,11 @@
   "keywords": ["goat", "miniapp", "playground", "webview", "devtools", "bridge"],
   "author": "Goat Engineering Team",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/CHANDARA-code/goat_webview.git",
+    "directory": "packages/playground"
+  },
   "dependencies": {
     "@monaco-editor/react": "^4.6.0",
     "react": "^18.3.1",

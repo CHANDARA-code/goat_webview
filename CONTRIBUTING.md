@@ -179,6 +179,26 @@ Before submitting a Pull Request, ensure every step of this checklist is complet
 4. Register the new test suite in `scripts/verify-packages.sh` (incrementing package counter and adding test check block)
 5. Update `package.json` at root if needed
 
+### 8. Validating Before Publishing to NPM
+
+Before proposing changes to published package manifests or releasing to npm, run the pre-publish master validation gate locally:
+
+```bash
+node scripts/validate-npm-publish.mjs --offline
+```
+
+Flags:
+- `--offline`: Runs hermetically without querying the remote npm registry (skips registry version existence checks and external `@goat/*` lookups).
+- `--allow-existing`: Skips already-published package versions on the registry instead of failing (used for idempotent runs).
+
+This gate enforces:
+- Manifest sanity (`name`, semver `version`, `license`, `repository`, `files` or `.npmignore`, not `private: true`, and build targets exist).
+- Monorepo version synchronization across all listed packages in `scripts/npm-packages.txt`.
+- Dependency hygiene (no `file:`, `link:`, or `workspace:` specifiers; internal `@goat/*` version alignment; all `.d.ts` imports present in `dependencies` or `peerDependencies`).
+- Builds, test suites, and typechecks across every package.
+- Tarball hygiene via `npm pack --dry-run --json` (ensures README, LICENSE, and built entrypoints are present; blocks test files, unbundled TypeScript sources, `.env*`, `TASK_*.md`, `.agents/`, oversized files > 5 MB, and absolute local sourcemaps).
+- Clean-room consumer smoke test: packs tarballs into a temporary location outside the workspace, installs them together into a fresh consumer project, and verifies CJS/ESM module loading and consumer `tsc --noEmit` type resolution.
+
 ---
 
 ## 🛡️ Security & Code Quality Standards
