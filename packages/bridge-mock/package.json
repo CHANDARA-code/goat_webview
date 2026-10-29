@@ -1,6 +1,6 @@
 {
   "name": "@goat/bridge-mock",
-  "version": "1.0.0-alpha.2",
+  "version": "1.4.0",
   "type": "module",
   "description": "Zero-dependency hermetic browser simulation engine, in-memory state machine, DOM modals, and CDP trace client for Goat WebView",
   "main": "dist/src/index.js",

@@ -193,7 +193,7 @@ Flags:
 
 This gate enforces:
 - Manifest sanity (`name`, semver `version`, `license`, `repository`, `files` or `.npmignore`, not `private: true`, and build targets exist).
-- Monorepo version synchronization across all listed packages in `scripts/npm-packages.txt`.
+- Monorepo version synchronization across the packages listed in `scripts/npm-packages.txt`, except those in `INDEPENDENT_VERSION_PACKAGES` (`@goat/bridge-mock` and `@goat/server`), which carry their own version line.
 - Dependency hygiene (no `file:`, `link:`, or `workspace:` specifiers; internal `@goat/*` version alignment; all `.d.ts` imports present in `dependencies` or `peerDependencies`).
 - Builds, test suites, and typechecks across every package.
 - Tarball hygiene via `npm pack --dry-run --json` (ensures README, LICENSE, and built entrypoints are present; blocks test files, unbundled TypeScript sources, `.env*`, `TASK_*.md`, `.agents/`, oversized files > 5 MB, and absolute local sourcemaps).

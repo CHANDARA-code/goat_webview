@@ -1,6 +1,6 @@
 {
   "name": "@goat/server",
-  "version": "1.0.0-alpha.2",
+  "version": "1.4.0",
   "description": "Tooling Backend Service, CDP Relay, Trace Persistence & Telemetry Gateway for Goat WebView",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

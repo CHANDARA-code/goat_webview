@@ -56,6 +56,9 @@ function formatBytes(bytes) {
   return `${(bytes / Math.pow(k, i)).toFixed(1)} ${sizes[i]}`;
 }
 
+// Versioned independently of the monorepo release; excluded from the version-sync check.
+const INDEPENDENT_VERSION_PACKAGES = new Set(['@goat/bridge-mock', '@goat/server']);
+
 const tagRef = process.env.GITHUB_REF_NAME;
 const expectedTagVersion = tagRef && tagRef.startsWith('v') ? tagRef.slice(1) : null;
 
@@ -70,7 +73,7 @@ for (const relDir of packageDirs) {
     process.exit(1);
   }
   const pkgJson = JSON.parse(fs.readFileSync(pkgJsonPath, 'utf8'));
-  if (!sharedReleaseVersion) {
+  if (!sharedReleaseVersion && !INDEPENDENT_VERSION_PACKAGES.has(pkgJson.name)) {
     sharedReleaseVersion = pkgJson.version;
   }
   packageDataList.push({ relDir, fullDir, pkgJsonPath, pkgJson });
@@ -208,13 +211,16 @@ for (const pkgItem of packageDataList) {
   }
 
   // Check b: version consistency
-  if (pkgJson.version !== sharedReleaseVersion) {
-    pkgErrors.push(`Version mismatch: package has ${pkgJson.version}, expected ${sharedReleaseVersion}`);
-    checks.version = false;
-  }
-  if (expectedTagVersion && pkgJson.version !== expectedTagVersion) {
-    pkgErrors.push(`Version ${pkgJson.version} does not match tag version ${expectedTagVersion}`);
-    checks.version = false;
+  const versionIsIndependent = INDEPENDENT_VERSION_PACKAGES.has(pkgJson.name);
+  if (!versionIsIndependent) {
+    if (pkgJson.version !== sharedReleaseVersion) {
+      pkgErrors.push(`Version mismatch: package has ${pkgJson.version}, expected ${sharedReleaseVersion}`);
+      checks.version = false;
+    }
+    if (expectedTagVersion && pkgJson.version !== expectedTagVersion) {
+      pkgErrors.push(`Version ${pkgJson.version} does not match tag version ${expectedTagVersion}`);
+      checks.version = false;
+    }
   }
   const isPrerelease = pkgJson.version.includes('-');
   const computedTag = computeDistTag(pkgJson.version);
