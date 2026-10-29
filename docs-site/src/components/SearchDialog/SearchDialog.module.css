@@ -1,0 +1,133 @@
+.dialog :global(.ant-modal-content) {
+  padding: 0;
+  overflow: hidden;
+}
+
+.inputRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--goat-split);
+}
+
+.inputIcon {
+  color: var(--goat-text-tertiary);
+  font-size: 16px;
+  flex: none;
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--goat-text);
+  font-size: 16px;
+  font-family: inherit;
+}
+
+.input::placeholder {
+  color: var(--goat-text-placeholder);
+}
+
+.escHint {
+  flex: none;
+  font-size: 11px;
+  color: var(--goat-text-tertiary);
+  border: 1px solid var(--goat-border);
+  border-radius: 5px;
+  padding: 2px 6px;
+}
+
+.results {
+  max-height: 58vh;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+.hit {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: 1px solid transparent;
+  background: transparent;
+  border-radius: 8px;
+  padding: 10px 12px;
+  cursor: pointer;
+  color: inherit;
+}
+
+.hit:hover {
+  background: var(--goat-fill-tertiary);
+  text-decoration: none;
+  color: inherit;
+}
+
+.hitActive {
+  background: var(--goat-primary-bg);
+  border-color: var(--goat-primary-border);
+}
+
+.hitActive:hover {
+  background: var(--goat-primary-bg);
+}
+
+.hitTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--goat-text-heading);
+  line-height: 1.35;
+}
+
+.hitKind {
+  flex: none;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--goat-primary-text);
+  border: 1px solid var(--goat-primary-border);
+  border-radius: 4px;
+  padding: 1px 5px;
+}
+
+.hitPath {
+  margin-top: 3px;
+  font-size: 12px;
+  color: var(--goat-text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.status {
+  padding: 28px 18px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--goat-text-secondary);
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 9px 18px;
+  border-top: 1px solid var(--goat-split);
+  font-size: 11px;
+  color: var(--goat-text-tertiary);
+  background: var(--goat-bg-elevated);
+}
+
+.footer kbd {
+  font-family: inherit;
+  border: 1px solid var(--goat-border);
+  border-radius: 4px;
+  padding: 1px 5px;
+  margin-right: 4px;
+  background: var(--goat-bg-container);
+}
