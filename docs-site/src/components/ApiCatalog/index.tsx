@@ -32,10 +32,11 @@ const ApiCatalogInner: React.FC = () => {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault();
-        setIsQuickSearchOpen((prev) => !prev);
-      }
+      if (e.key !== '/' || e.metaKey || e.ctrlKey || e.altKey) return;
+      const target = e.target as HTMLElement | null;
+      if (target?.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target?.tagName ?? '')) return;
+      e.preventDefault();
+      setIsQuickSearchOpen((prev) => !prev);
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
@@ -64,7 +65,7 @@ const ApiCatalogInner: React.FC = () => {
           <div style={{ flex: 1 }}>
             <Input
               prefix={<SearchOutlined />}
-              placeholder="Search across all 197 native bridge actions..."
+              placeholder="Search across all 210 native bridge actions..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               allowClear
@@ -75,9 +76,9 @@ const ApiCatalogInner: React.FC = () => {
             size="large"
             icon={<AimOutlined />}
             onClick={() => setIsQuickSearchOpen(true)}
-            title="Global Quick Search (Cmd+K)"
+            title="Search the 210 bridge actions on this page (/)"
           >
-            <kbd className={styles.kbdBadge}>⌘K</kbd> Quick Search
+            <kbd className={styles.kbdBadge}>/</kbd> Action Search
           </Button>
         </div>
 

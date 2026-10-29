@@ -41,7 +41,7 @@ const config: Config = {
         highlightSearchTermsOnTargetPage: true,
         explicitSearchResultPath: true,
         searchResultLimits: 10,
-        searchBarShortcutKeymap: "/",
+        searchBarShortcutKeymap: "mod+k",
         searchBarShortcutHint: true,
       },
     ],

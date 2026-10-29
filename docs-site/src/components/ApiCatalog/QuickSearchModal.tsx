@@ -55,14 +55,14 @@ export const QuickSearchModal: React.FC<QuickSearchModalProps> = ({
       open={isOpen}
       onCancel={onClose}
       footer={null}
-      title="Global Quick Search (Cmd+K)"
+      title="Bridge Action Search (/)"
       width={640}
     >
       <div style={{ marginTop: 12 }}>
         <Input
           ref={inputRef}
           prefix={<SearchOutlined />}
-          placeholder="Search all 197 native actions... (e.g. biometrics, storage, camera, BLE)"
+          placeholder="Search all 210 native actions... (e.g. biometrics, storage, camera, BLE)"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={handleKeyDown}
