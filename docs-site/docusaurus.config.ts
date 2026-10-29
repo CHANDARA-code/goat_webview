@@ -1,3 +1,4 @@
+import path from "path";
 import { Config } from "@docusaurus/types";
 import type * as Preset from "@docusaurus/preset-classic";
 import { themes as prismThemes } from "prism-react-renderer";
@@ -44,6 +45,30 @@ const config: Config = {
         searchBarShortcutHint: true,
       },
     ],
+  ],
+
+  plugins: [
+    function bridgeMockPlugin() {
+      return {
+        name: "docusaurus-bridge-mock-plugin",
+        configureWebpack() {
+          return {
+            resolve: {
+              alias: {
+                "@goat/bridge-mock": path.resolve(
+                  __dirname,
+                  "../packages/bridge-mock/src"
+                ),
+              },
+              extensionAlias: {
+                ".js": [".ts", ".tsx", ".js"],
+                ".mjs": [".mts", ".mjs"],
+              },
+            },
+          };
+        },
+      };
+    },
   ],
 
   presets: [

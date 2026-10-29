@@ -1,36 +1,62 @@
 import React from 'react';
-import { AndroidMockup, IPhoneMockup } from 'react-device-mockup';
+import { MockFrame, DeviceOptions, DeviceName } from 'react-mockframe';
+import 'react-mockframe/styles/mockframe.css';
 import { useSimulator } from '../../context/SimulatorContext';
 import { DeviceScreenContent } from './DeviceScreenContent';
 import styles from './DeviceSimulator.module.css';
 
-// react-device-mockup's `screenWidth` is the screen area only (bezel is added on top of
-// it), so these are smaller than the old hand-rolled chassis widths (290/340/380) which
-// included the bezel border. Chosen to preserve the same relative compact/normal/large
-// proportions.
-const SCREEN_WIDTH_BY_SCALE: Record<'compact' | 'normal' | 'large', number> = {
-  compact: 270,
-  normal: 315,
-  large: 350,
-};
+export const DEVICE_OPTIONS = DeviceOptions;
 
-const FRAME_COLOR = '#232733';
+export const AVAILABLE_DEVICES: Array<{ name: DeviceName; label: string; platform: 'ios' | 'android' | 'web' }> = [
+  { name: 'iPhone 18 Pro', label: 'iPhone 18 Pro (Dynamic Island)', platform: 'ios' },
+  { name: 'iPhone 17', label: 'iPhone 17', platform: 'ios' },
+  { name: 'iPhone X', label: 'iPhone X', platform: 'ios' },
+  { name: 'Pixel 10', label: 'Google Pixel 10 (Punch Hole)', platform: 'android' },
+  { name: 'Galaxy S25', label: 'Samsung Galaxy S25', platform: 'android' },
+  { name: 'iPad Pro', label: 'iPad Pro (12.9")', platform: 'ios' },
+  { name: 'MacBook Pro', label: 'MacBook Pro Container', platform: 'web' },
+];
 
-export const DeviceFrame: React.FC = () => {
-  const { hardware, isHapticRippling, frameScale } = useSimulator();
+export interface DeviceFrameProps {
+  device?: DeviceName;
+  deviceColor?: string;
+  landscape?: boolean;
+  zoom?: number;
+  children?: React.ReactNode;
+}
+
+export const DeviceFrame: React.FC<DeviceFrameProps> = ({
+  device: propDevice,
+  deviceColor: propColor,
+  landscape: propLandscape,
+  zoom: propZoom,
+  children,
+}) => {
+  const { hardware, isHapticRippling } = useSimulator();
   const isIos = hardware.platform === 'ios';
-  const screenWidth = SCREEN_WIDTH_BY_SCALE[frameScale];
 
-  // The real device notch/Dynamic Island/punch-hole cutout is now drawn by the mockup
-  // library itself (via `screenType` / the Android camera cutout) instead of our old
-  // hand-drawn `.dynamicIsland`/`.punchHole` divs. `hideStatusBar` folds that top strip
-  // into the screen area so our own time/network/battery row can render there instead of
-  // a blank placeholder bar — it deliberately leaves the center empty (`space-between`)
-  // since that's where the real cutout sits.
+  const selectedDevice: DeviceName =
+    propDevice || (isIos ? ('iPhone 18 Pro' as DeviceName) : ('Pixel 10' as DeviceName));
+
+  const validColors = (DeviceOptions[selectedDevice]?.colors as readonly string[]) || [];
+  const selectedColor =
+    propColor && validColors.includes(propColor)
+      ? propColor
+      : validColors[0] || undefined;
+
+  const isLandscape = !!propLandscape;
+  const zoom = propZoom ?? 0.82;
+
   const screenContent = (
     <div
       className={`${styles.screen} ${hardware.theme === 'dark' ? styles.darkTheme : styles.lightTheme}`}
-      style={{ width: '100%', height: '100%' }}
+      style={{
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden',
+      }}
     >
       <div className={styles.statusBar}>
         <span className={styles.statusTime}>9:41</span>
@@ -63,7 +89,9 @@ export const DeviceFrame: React.FC = () => {
         </div>
       </div>
 
-      <DeviceScreenContent />
+      <div style={{ flex: 1, minHeight: 0, overflow: 'hidden' }}>
+        {children || <DeviceScreenContent />}
+      </div>
     </div>
   );
 
@@ -72,19 +100,26 @@ export const DeviceFrame: React.FC = () => {
       className={`${styles.frameWrapper} ${isHapticRippling ? styles.hapticVibration : ''}`}
       data-testid="device-frame"
       data-platform={hardware.platform}
+      style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: '12px 0',
+      }}
     >
-      {/* Visual Ripple Rings on Haptic Feedback */}
       {isHapticRippling && <div className={styles.rippleRing} />}
 
-      {isIos ? (
-        <IPhoneMockup screenWidth={screenWidth} screenType="island" hideStatusBar frameColor={FRAME_COLOR}>
-          {screenContent}
-        </IPhoneMockup>
-      ) : (
-        <AndroidMockup screenWidth={screenWidth} navBar="swipe" hideStatusBar frameColor={FRAME_COLOR}>
-          {screenContent}
-        </AndroidMockup>
-      )}
+      <MockFrame
+        device={selectedDevice as any}
+        color={selectedColor as any}
+        landscape={isLandscape}
+        zoom={zoom}
+        animated={true}
+      >
+        {screenContent}
+      </MockFrame>
     </div>
   );
 };
+
+export default DeviceFrame;

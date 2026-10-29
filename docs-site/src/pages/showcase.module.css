@@ -1,0 +1,108 @@
+.page {
+  padding: 28px 20px 56px;
+  max-width: 1500px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.headerText {
+  min-width: 0;
+  max-width: 760px;
+}
+
+.title {
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1.2;
+  margin: 0 0 6px 0;
+  color: var(--goat-text-heading);
+}
+
+.subtitle {
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--goat-text-secondary);
+  margin: 0;
+}
+
+.workspaceLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--goat-primary-border);
+  background: var(--goat-primary-bg);
+  color: var(--goat-primary-text);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: background-color 150ms ease-out;
+}
+
+.workspaceLink:hover {
+  background: var(--goat-primary-bg-hover);
+  color: var(--goat-primary-text-hover);
+  text-decoration: none;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 440px;
+  gap: 24px;
+  align-items: start;
+}
+
+.content {
+  min-width: 0;
+}
+
+.aside {
+  min-width: 0;
+  position: sticky;
+  top: 72px;
+}
+
+.asideLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--goat-text-tertiary);
+  margin-bottom: 10px;
+}
+
+@media (max-width: 1280px) {
+  .grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .aside {
+    position: static;
+    order: -1;
+    max-width: 440px;
+    margin-inline: auto;
+  }
+}
+
+@media (max-width: 996px) {
+  .page {
+    padding: 20px 16px 40px;
+  }
+
+  .title {
+    font-size: 23px;
+  }
+}

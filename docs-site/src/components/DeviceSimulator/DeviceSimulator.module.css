@@ -1,17 +1,26 @@
 .simulatorContainer {
   display: flex;
-  flex-direction: row;
-  gap: 24px;
+  flex-direction: column;
+  gap: 16px;
   width: 100%;
-  align-items: flex-start;
-  justify-content: center;
+  min-width: 0;
+  align-items: stretch;
   box-sizing: border-box;
 }
 
-@media (max-width: 1024px) {
-  .simulatorContainer {
-    flex-direction: column;
-    align-items: center;
+.frameScaleBox {
+  zoom: 0.78;
+}
+
+@media (max-width: 575px) {
+  .frameScaleBox {
+    zoom: 0.62;
+  }
+}
+
+@media (max-width: 440px) {
+  .frameScaleBox {
+    zoom: 0.5;
   }
 }
 
@@ -97,9 +106,8 @@
   border: 1px solid var(--goat-border);
   border-radius: 12px;
   padding: 16px;
-  flex: 1;
-  max-width: 480px;
-  min-width: 320px;
+  width: 100%;
+  min-width: 0;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
   box-sizing: border-box;
 }

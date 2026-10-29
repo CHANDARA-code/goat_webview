@@ -1,7 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Tabs } from 'antd';
 import {
-  CodeOutlined,
   VerticalAlignTopOutlined,
   InboxOutlined,
   BellOutlined,
@@ -10,7 +9,6 @@ import {
   LockOutlined,
 } from '@ant-design/icons';
 import { useSimulator, ActiveWidgetTab } from '../../context/SimulatorContext';
-import { CodePlaygroundPanel } from '../CodePlayground';
 import { NavigationBarPlayground } from './NavigationBarPlayground';
 import { BottomSheetPlayground } from './BottomSheetPlayground';
 import { PermissionPrimingPlayground } from './PermissionPrimingPlayground';
@@ -20,17 +18,22 @@ import { BiometricsPlayground } from './BiometricsPlayground';
 import styles from './ComponentShowcase.module.css';
 
 const SHOWCASE_TABS: Array<{ id: ActiveWidgetTab; label: string; icon: React.ReactNode }> = [
-  { id: 'playground', label: 'Live Code Playground', icon: <CodeOutlined /> },
-  { id: 'navbar', label: 'GoatNavigationBar', icon: <VerticalAlignTopOutlined /> },
-  { id: 'bottomsheet', label: 'GoatBottomSheet', icon: <InboxOutlined /> },
-  { id: 'permission', label: 'GoatPermissionPriming', icon: <BellOutlined /> },
-  { id: 'externallink', label: 'GoatExternalLinkWarning', icon: <SafetyCertificateOutlined /> },
-  { id: 'haptics', label: 'GoatHaptics', icon: <MobileOutlined /> },
-  { id: 'biometrics', label: 'GoatBiometrics', icon: <LockOutlined /> },
+  { id: 'navbar', label: 'Navigation Bar', icon: <VerticalAlignTopOutlined /> },
+  { id: 'bottomsheet', label: 'Bottom Sheet', icon: <InboxOutlined /> },
+  { id: 'permission', label: 'Permission Priming', icon: <BellOutlined /> },
+  { id: 'externallink', label: 'External Link', icon: <SafetyCertificateOutlined /> },
+  { id: 'haptics', label: 'Haptics', icon: <MobileOutlined /> },
+  { id: 'biometrics', label: 'Biometrics', icon: <LockOutlined /> },
 ];
 
 export const ComponentShowcase: React.FC = () => {
   const { activeWidgetTab, setActiveWidgetTab, triggerHaptic } = useSimulator();
+
+  useEffect(() => {
+    if (!SHOWCASE_TABS.some((tab) => tab.id === activeWidgetTab)) {
+      setActiveWidgetTab('navbar');
+    }
+  }, [activeWidgetTab, setActiveWidgetTab]);
 
   const handleTabChange = (key: string) => {
     triggerHaptic('selection');
@@ -51,7 +54,6 @@ export const ComponentShowcase: React.FC = () => {
         aria-labelledby={`showcase-tab-${tab.id}`}
         data-testid={`active-playground-${tab.id}`}
       >
-        {tab.id === 'playground' && <CodePlaygroundPanel />}
         {tab.id === 'navbar' && <NavigationBarPlayground />}
         {tab.id === 'bottomsheet' && <BottomSheetPlayground />}
         {tab.id === 'permission' && <PermissionPrimingPlayground />}

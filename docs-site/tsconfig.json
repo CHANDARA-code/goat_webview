@@ -2,7 +2,11 @@
   "extends": "@docusaurus/tsconfig",
   "compilerOptions": {
     "baseUrl": ".",
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "paths": {
+      "@goat/bridge-mock": ["../packages/bridge-mock/src/index.ts"],
+      "@goat/bridge-mock/*": ["../packages/bridge-mock/src/*"]
+    }
   },
   "include": [
     "src/**/*",

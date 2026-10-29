@@ -11,36 +11,42 @@ interface PreviewFrameProps {
  * `goatBridge.callNative` shim to the real `SimulatorContext.callBridge`, so calls from
  * inside the iframe drive the same nav bar / bottom sheet / permission / biometrics state
  * that `DeviceScreenContent` renders as native chrome around this frame.
- *
- * The parent remounts this component (via a changing `key`) on every "Run" — so `srcDoc`
- * is captured once per mount via a lazy initializer and deliberately ignores later `code`
- * prop changes from continued typing. That remount is also the only way to stop a hung or
- * looping script, since there is no execution-timeout mechanism.
  */
 export const PreviewFrame: React.FC<PreviewFrameProps> = ({ code }) => {
-  const { callBridge } = useSimulator();
+  const { callBridge, addConsoleLog } = useSimulator();
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const callBridgeRef = useRef(callBridge);
   callBridgeRef.current = callBridge;
+  const addConsoleLogRef = useRef(addConsoleLog);
+  addConsoleLogRef.current = addConsoleLog;
 
   const [srcDoc] = useState(() => buildSrcDoc(code));
 
   useEffect(() => {
     function handleMessage(evt: MessageEvent) {
       const data = evt.data;
-      if (!data || data.__goatBridge !== true || data.type !== 'CALL') return;
-      // A srcDoc iframe's origin is the opaque string "null", shared by every sandboxed
-      // frame — event.origin can't authenticate the sender. event.source is the actual
-      // WindowProxy of the frame that posted this, which can't be forged.
+      if (!data || data.__goatBridge !== true) return;
       if (evt.source !== iframeRef.current?.contentWindow) return;
 
-      const { id, action, payload } = data;
-      callBridgeRef.current(action, payload).then((trace) => {
-        iframeRef.current?.contentWindow?.postMessage(
-          { __goatBridge: true, type: 'RESPONSE', id, response: trace.response },
-          '*'
-        );
-      });
+      if (data.type === 'CONSOLE') {
+        addConsoleLogRef.current({
+          id: `log-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+          level: data.level || 'log',
+          messages: data.messages || [],
+          timestamp: data.timestamp || Date.now(),
+        });
+        return;
+      }
+
+      if (data.type === 'CALL') {
+        const { id, action, payload } = data;
+        callBridgeRef.current(action, payload).then((trace) => {
+          iframeRef.current?.contentWindow?.postMessage(
+            { __goatBridge: true, type: 'RESPONSE', id, response: trace.response },
+            '*'
+          );
+        });
+      }
     }
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
@@ -50,9 +56,6 @@ export const PreviewFrame: React.FC<PreviewFrameProps> = ({ code }) => {
     <iframe
       ref={iframeRef}
       title="Goat Mini-App Preview"
-      // Deliberately no "allow-same-origin" — combined with "allow-scripts" that pairing
-      // lets a sandboxed frame re-derive its parent's origin and escape the sandbox.
-      // Omitting it keeps this frame's origin an opaque, unique "null".
       sandbox="allow-scripts"
       srcDoc={srcDoc}
       style={{

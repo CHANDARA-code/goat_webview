@@ -11,7 +11,9 @@ export const DeviceSimulator: React.FC<DeviceSimulatorProps> = ({ showControls =
   return (
     <div className={styles.simulatorContainer} data-testid="live-device-simulator">
       {/* 1. Interactive Mobile Frame (iPhone 16 Pro / Pixel 9 Pro) */}
-      <DeviceFrame />
+      <div className={styles.frameScaleBox}>
+        <DeviceFrame zoom={1} />
+      </div>
 
       {/* 2. Mock Hardware Controls Panel */}
       {showControls && <MockHardwareControls />}
