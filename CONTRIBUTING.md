@@ -57,7 +57,7 @@ This repository strictly enforces the [Conventional Commits](https://www.convent
 - `feat(payments): implement App2App deep-link return verifier and universal link protection (task 10206 L5)`
 - `feat: implement native print sheet & sandboxed PDF export controller (task 10185)`
 - `feat: implement popup window open & target _blank modal/browser handler (task 10183)`
-- `docs(rules): update CODE_RULE.md with Husky pre-commit standards`
+- `docs: document soft-keyboard and viewport insets for host integrators`
 - `test(docs): update sidebar normalization check in tier2 tests and wire verify-all.sh gate`
 - `chore(deps): bump androidx.webkit from 1.10.0 to 1.11.0`
 
@@ -74,7 +74,7 @@ Before submitting a Pull Request, ensure every step of this checklist is complet
    git checkout -b feat/10201-cross-miniapp
    ```
 2. **Code Implementation**:
-   - Follow SOLID design principles and OWASP MASVS v2.0 security rules in [`CODE_RULE.md`](./CODE_RULE.md).
+   - Follow SOLID design principles and the OWASP MASVS v2.0 security rules below.
    - Core Android SDK binary size must remain `<500 KB`.
    - WebKit calls must execute strictly on the Main/UI thread; disk and network I/O must execute on IO dispatchers.
 3. **Add Tests (>90% Branch Coverage)**:
@@ -203,7 +203,7 @@ This gate enforces:
 
 ## 🛡️ Security & Code Quality Standards
 
-Contributors must strictly adhere to [`CODE_RULE.md`](./CODE_RULE.md):
+Contributors must strictly adhere to the following:
 - **OWASP MASVS v2.0 Compliance**: Legacy `@JavascriptInterface` is strictly forbidden. All communication must utilize `WebViewCompat.addWebMessageListener` restricted exclusively to `https://appassets.androidplatform.net`.
 - **Zip Slip Prevention**: All archive decompressions must assert canonical path containment: `file.canonicalPath.startsWith(stagingDir.canonicalPath)`.
 - **Zero Plaintext PII**: Never log tokens, passwords, GPS coordinates, or PII in logcat or console outputs.

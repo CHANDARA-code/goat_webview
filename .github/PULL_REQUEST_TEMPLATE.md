@@ -25,7 +25,7 @@ $ bash scripts/verify-all.sh
 
 ## Checklist
 
-- [ ] Follows [`CODE_RULE.md`](../CODE_RULE.md) (SOLID, OWASP MASVS v2.0)
+- [ ] Follows the standards in [`CONTRIBUTING.md`](../CONTRIBUTING.md) (SOLID, OWASP MASVS v2.0)
 - [ ] WebKit/WebView calls stay on the Main/UI thread; disk and network I/O on IO dispatchers
 - [ ] No new public API break, or the break is called out explicitly below
 - [ ] Docs updated if behaviour or a public API changed

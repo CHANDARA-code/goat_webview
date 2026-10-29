@@ -250,21 +250,16 @@ npm install @goat/appservice @goat/core
 └─────────────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
-For complete technical specifications, sequence diagrams, and interface contracts, see [`PROJECT.md`](./PROJECT.md).
-
 ---
 
 ## 🔗 Documentation & References
 
 - 🤖 [**llm_integrate.md**](./llm_integrate.md) — Single-file integration reference for developers and coding agents: which package, minimal host snippet per platform, the bridge model, drop-in migration, and the gotchas.
 - 📋 [**CONTRIBUTING.md**](./CONTRIBUTING.md) — Contribution workflow, branch conventions, and PR checklist.
-- 🛡️ [**CODE_RULE.md**](./CODE_RULE.md) — Principal engineering standards, OWASP MASVS v2.0 compliance, and memory rules.
 - 🤝 [**CODE_OF_CONDUCT.md**](./CODE_OF_CONDUCT.md) — Expected conduct for everyone participating here.
 - 🔐 [**SECURITY.md**](./SECURITY.md) — How to report a vulnerability, and this release's known limitations.
 - 📝 [**CHANGELOG.md**](./CHANGELOG.md) — Release notes and milestone progress in Keep-a-Changelog format.
-- 🧪 [**TEST_INFRA.md**](./TEST_INFRA.md) — The 4-tier E2E test infrastructure and how to run each suite.
 - 💳 [**payment-gate-way-arch.md**](./payment-gate-way-arch.md) — Payment proxy and security-gate architecture.
-- 📐 [**PROJECT.md**](./PROJECT.md) — Showcase app architecture across all five host platforms.
 
 ### Package-Specific Documentation
 

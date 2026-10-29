@@ -298,7 +298,7 @@ the engine's Kotlin source by `packages/adapter-dsl/src/__tests__/features.test.
 
 ## 9. Security invariants the host must uphold
 
-Do not "simplify" past any of these — each is load-bearing and enforced by `CODE_RULE.md` +
+Do not "simplify" past any of these — each is load-bearing and enforced by the checks in
 `scripts/`:
 
 1. **No `@JavascriptInterface`.** Only `WebMessageListener` / `WKScriptMessageHandlerWithReply`,
@@ -356,7 +356,7 @@ loudly when a toolchain or device is absent rather than passing silently.
   injects the CSS vars, and Android has no observer at all — the host must push the inset and the
   page must scroll the focused field itself. See §12; skipping it costs input lag and fields stuck
   under the keyboard.
-- **AAR size:** `android/core` currently ships above the `CODE_RULE.md` 500 KB target because the
+- **AAR size:** `android/core` currently ships above the 500 KB target because the
   18-domain dispatcher still lives inline; the interim CI budget is 1,600 KB. Feature code is
   already split into `feature-*` modules — do not merge it back.
 
@@ -521,8 +521,7 @@ it back through the engine's console forwarding rather than drawing values on th
 
 | Topic | File |
 |---|---|
-| Engineering standards & security invariants | `CODE_RULE.md` |
-| Showcase architecture across 5 hosts | `PROJECT.md` |
+| Engineering standards & security invariants | `CONTRIBUTING.md` |
 | Per-platform host integration | `docs-site/docs/getting-started/host-*.md` |
 | Full 18-domain / 210-action API catalog | `docs-site/docs/api/` |
 | Payment gateway threat model & 5-layer gate | `payment-gate-way-arch.md` |
@@ -530,5 +529,5 @@ it back through the engine's console forwarding rather than drawing values on th
 | Flutter migration coverage matrix | `goat_webview_compat/MIGRATION.md` |
 | React Native migration coverage matrix | `react-native-goat-webview-compat/MIGRATION.md` |
 | DSL adapter per-feature state | `packages/adapter-dsl/README.md` |
-| Test infrastructure (4-tier E2E) | `TEST_INFRA.md`, `TEST_READY.md` |
+| Test infrastructure (4-tier E2E) | `CONTRIBUTING.md`, `tests/` |
 | Release notes | `CHANGELOG.md` |
