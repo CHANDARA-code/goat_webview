@@ -4,12 +4,12 @@ import { CodeBlockCopy } from '../Common/CodeBlockCopy';
 import styles from './ComponentShowcase.module.css';
 
 const COLOR_PRESETS = [
-  { name: 'Slate Dark', color: '#1e293b', textColor: '#ffffff' },
-  { name: 'Indigo Accent', color: '#4f46e5', textColor: '#ffffff' },
-  { name: 'Emerald Green', color: '#059669', textColor: '#ffffff' },
-  { name: 'Crimson Red', color: '#e11d48', textColor: '#ffffff' },
-  { name: 'Amber Gold', color: '#d97706', textColor: '#ffffff' },
-  { name: 'Clean White', color: '#ffffff', textColor: '#0f172a' },
+  { name: 'Warm Clay Dark', color: '#1A1917', textColor: '#F4F3EE' },
+  { name: 'Clay Primary', color: '#C15F3C', textColor: '#FFFFFF' },
+  { name: 'Sage Green', color: '#4A7862', textColor: '#FFFFFF' },
+  { name: 'Warm Amber', color: '#B08838', textColor: '#FFFFFF' },
+  { name: 'Terracotta', color: '#B3492F', textColor: '#FFFFFF' },
+  { name: 'Warm Clay Light', color: '#FAF9F5', textColor: '#1F1E1C' },
 ];
 
 export const NavigationBarPlayground: React.FC = () => {
@@ -31,7 +31,7 @@ export const NavigationBarPlayground: React.FC = () => {
     triggerHaptic('light');
     await callBridge(
       'NAV_BAR_SET_COLOR',
-      { color, textColor, isDark: textColor === '#ffffff' },
+      { color, textColor, isDark: textColor === '#FFFFFF' || textColor === '#ffffff' || textColor === '#F4F3EE' },
       'Navigation'
     );
   };
@@ -196,7 +196,7 @@ await GoatWebView.channel.invokeMethod('setNavBar', {
                 title={preset.name}
               />
             ))}
-            <span style={{ fontSize: '11px', color: '#94a3b8', marginLeft: '8px' }}>
+            <span style={{ fontSize: '11px', color: 'var(--goat-text-secondary)', marginLeft: '8px' }}>
               Current: <code>{navBar.backgroundColor}</code>
             </span>
           </div>
@@ -221,7 +221,7 @@ await GoatWebView.channel.invokeMethod('setNavBar', {
             max={100}
             value={navBar.progress.percent}
             onChange={(e) => handleProgressChange(parseInt(e.target.value, 10))}
-            style={{ width: '100%', accentColor: '#6366f1' }}
+            style={{ width: '100%', accentColor: 'var(--goat-primary)' }}
           />
         </div>
 
@@ -260,8 +260,8 @@ await GoatWebView.channel.invokeMethod('setNavBar', {
                 padding: '4px 10px',
                 borderRadius: '4px',
                 border: 'none',
-                background: selectedLang === lang ? '#6366f1' : '#1e293b',
-                color: selectedLang === lang ? '#ffffff' : '#94a3b8',
+                background: selectedLang === lang ? 'var(--goat-primary)' : 'var(--goat-fill-tertiary)',
+                color: selectedLang === lang ? 'var(--goat-text-on-primary)' : 'var(--goat-text-secondary)',
                 fontSize: '11px',
                 fontWeight: 600,
                 cursor: 'pointer',

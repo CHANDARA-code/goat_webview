@@ -59,7 +59,7 @@ export const PreviewFrame: React.FC<PreviewFrameProps> = ({ code }) => {
         width: '100%',
         height: '100%',
         border: 'none',
-        background: '#ffffff',
+        background: 'var(--goat-bg-container)',
         borderRadius: '8px',
       }}
     />

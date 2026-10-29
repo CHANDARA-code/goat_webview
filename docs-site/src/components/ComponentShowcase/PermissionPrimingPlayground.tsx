@@ -114,7 +114,7 @@ final granted = await GoatWebView.channel.invokeMethod<bool>('requestPermissionW
             {Object.entries(permissionDialog.statusMap).map(([key, val]) => (
               <div key={key} style={{ display: 'flex', justifyContent: 'space-between', padding: '3px 6px', background: 'rgba(255,255,255,0.05)', borderRadius: '4px' }}>
                 <span style={{ textTransform: 'capitalize' }}>{key}</span>
-                <span style={{ fontWeight: 700, color: val === 'granted' ? '#10b981' : val === 'denied' ? '#ef4444' : '#94a3b8' }}>
+                <span style={{ fontWeight: 700, color: val === 'granted' ? 'var(--goat-success)' : val === 'denied' ? 'var(--goat-error)' : 'var(--goat-text-secondary)' }}>
                   {val.toUpperCase()}
                 </span>
               </div>
@@ -143,8 +143,8 @@ final granted = await GoatWebView.channel.invokeMethod<bool>('requestPermissionW
                 padding: '4px 10px',
                 borderRadius: '4px',
                 border: 'none',
-                background: selectedLang === lang ? '#6366f1' : '#1e293b',
-                color: selectedLang === lang ? '#ffffff' : '#94a3b8',
+                background: selectedLang === lang ? 'var(--goat-primary)' : 'var(--goat-fill-tertiary)',
+                color: selectedLang === lang ? 'var(--goat-text-on-primary)' : 'var(--goat-text-secondary)',
                 fontSize: '11px',
                 fontWeight: 600,
                 cursor: 'pointer',

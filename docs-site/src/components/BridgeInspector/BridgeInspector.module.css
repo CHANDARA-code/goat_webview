@@ -1,12 +1,10 @@
-/* Bridge IPC Inspector Styles */
-
 .inspectorWrapper {
   display: flex;
   flex-direction: column;
   height: 100%;
   min-height: 520px;
-  background: var(--ifm-background-surface-color, #1e293b);
-  border: 1px solid var(--ifm-color-emphasis-300, #334155);
+  background: var(--goat-bg-container);
+  border: 1px solid var(--goat-border);
   border-radius: 12px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
@@ -16,11 +14,11 @@
 
 .headerBar {
   display: flex;
-  justifyContent: space-between;
+  justify-content: space-between;
   align-items: center;
   padding: 12px 16px;
-  border-bottom: 1px solid var(--ifm-color-emphasis-200, #334155);
-  background: var(--ifm-color-emphasis-100, #131c2e);
+  border-bottom: 1px solid var(--goat-split);
+  background: var(--goat-bg-elevated);
   flex-shrink: 0;
 }
 
@@ -30,7 +28,7 @@
   gap: 8px;
   font-size: 14px;
   font-weight: 700;
-  color: var(--ifm-heading-color, #ffffff);
+  color: var(--goat-text-heading);
 }
 
 .actionControls {
@@ -43,10 +41,10 @@
   display: flex;
   gap: 16px;
   padding: 8px 16px;
-  background: rgba(15, 23, 42, 0.6);
-  border-bottom: 1px solid var(--ifm-color-emphasis-200, #334155);
+  background: var(--goat-fill-quaternary);
+  border-bottom: 1px solid var(--goat-split);
   font-size: 11px;
-  color: #94a3b8;
+  color: var(--goat-text-secondary);
   flex-shrink: 0;
   flex-wrap: wrap;
 }
@@ -59,16 +57,15 @@
 
 .statValue {
   font-weight: 700;
-  color: #f1f5f9;
+  color: var(--goat-text);
 }
 
-/* Thread Lane Filter Tabs Bar */
 .laneTabBar {
   display: flex;
   gap: 6px;
   padding: 8px 16px;
-  background: #090d16;
-  border-bottom: 1px solid var(--ifm-color-emphasis-200, #1e293b);
+  background: var(--goat-bg-base);
+  border-bottom: 1px solid var(--goat-split);
   overflow-x: auto;
   align-items: center;
 }
@@ -82,45 +79,45 @@
   font-size: 11px;
   font-weight: 600;
   cursor: pointer;
-  border: 1px solid #334155;
-  background: #1e293b;
-  color: #94a3b8;
+  border: 1px solid var(--goat-border);
+  background: var(--goat-bg-container);
+  color: var(--goat-text-secondary);
   transition: all 0.15s ease;
   white-space: nowrap;
 }
 
 .laneTabBtn:hover {
-  background: #334155;
-  color: #ffffff;
-  border-color: #475569;
+  background: var(--goat-fill-secondary);
+  color: var(--goat-text);
+  border-color: var(--goat-border-strong);
 }
 
 .laneTabActiveAll {
-  background: #334155 !important;
-  color: #f8fafc !important;
-  border-color: #64748b !important;
+  background: var(--goat-fill-secondary) !important;
+  color: var(--goat-text) !important;
+  border-color: var(--goat-border-strong) !important;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 .laneTabActiveWorker {
-  background: rgba(168, 85, 247, 0.2) !important;
-  color: #c084fc !important;
-  border-color: #a855f7 !important;
-  box-shadow: 0 0 8px rgba(168, 85, 247, 0.3);
+  background: var(--goat-primary-bg) !important;
+  color: var(--goat-primary) !important;
+  border-color: var(--goat-primary-border) !important;
+  box-shadow: 0 0 8px var(--goat-control-outline);
 }
 
 .laneTabActiveNative {
-  background: rgba(59, 130, 246, 0.2) !important;
-  color: #60a5fa !important;
-  border-color: #3b82f6 !important;
-  box-shadow: 0 0 8px rgba(59, 130, 246, 0.3);
+  background: var(--goat-info-bg) !important;
+  color: var(--goat-info) !important;
+  border-color: var(--goat-info-border) !important;
+  box-shadow: 0 0 8px rgba(79, 109, 143, 0.3);
 }
 
 .laneTabActiveHost {
-  background: rgba(16, 185, 129, 0.2) !important;
-  color: #34d399 !important;
-  border-color: #10b981 !important;
-  box-shadow: 0 0 8px rgba(16, 185, 129, 0.3);
+  background: var(--goat-success-bg) !important;
+  color: var(--goat-success) !important;
+  border-color: var(--goat-success-border) !important;
+  box-shadow: 0 0 8px rgba(74, 120, 98, 0.3);
 }
 
 .laneBadgeCount {
@@ -129,7 +126,7 @@
   border-radius: 9999px;
   font-size: 10px;
   font-weight: 700;
-  background: rgba(0, 0, 0, 0.4);
+  background: var(--goat-fill-secondary);
   color: inherit;
 }
 
@@ -137,8 +134,8 @@
   display: flex;
   gap: 8px;
   padding: 8px 16px;
-  background: var(--ifm-color-emphasis-100, #0f172a);
-  border-bottom: 1px solid var(--ifm-color-emphasis-200, #334155);
+  background: var(--goat-bg-container);
+  border-bottom: 1px solid var(--goat-split);
   align-items: center;
   flex-wrap: wrap;
   flex-shrink: 0;
@@ -149,18 +146,18 @@
   min-width: 160px;
   padding: 5px 10px;
   border-radius: 6px;
-  border: 1px solid var(--ifm-color-emphasis-300, #475569);
-  background: #090d16;
-  color: #ffffff;
+  border: 1px solid var(--goat-border);
+  background: var(--goat-bg-base);
+  color: var(--goat-text);
   font-size: 12px;
 }
 
 .domainSelect {
   padding: 5px 8px;
   border-radius: 6px;
-  border: 1px solid var(--ifm-color-emphasis-300, #475569);
-  background: #090d16;
-  color: #ffffff;
+  border: 1px solid var(--goat-border);
+  background: var(--goat-bg-base);
+  color: var(--goat-text);
   font-size: 12px;
 }
 
@@ -179,26 +176,26 @@
   align-items: center;
   justify-content: center;
   height: 240px;
-  color: #64748b;
+  color: var(--goat-text-secondary);
   gap: 8px;
   font-size: 13px;
 }
 
 .traceCard {
-  border: 1px solid var(--ifm-color-emphasis-200, #334155);
+  border: 1px solid var(--goat-border);
   border-radius: 8px;
-  background: var(--ifm-color-emphasis-100, #0f172a);
+  background: var(--goat-bg-container);
   overflow: hidden;
   transition: border-color 0.15s ease;
 }
 
 .traceCard:hover {
-  border-color: var(--ifm-color-primary, #6366f1);
+  border-color: var(--goat-primary);
 }
 
 .traceSummary {
   display: flex;
-  justifyContent: space-between;
+  justify-content: space-between;
   align-items: center;
   padding: 8px 12px;
   cursor: pointer;
@@ -213,7 +210,6 @@
   flex-wrap: wrap;
 }
 
-/* Lane Badges */
 .laneBadge {
   display: inline-flex;
   align-items: center;
@@ -222,31 +218,31 @@
   font-weight: 700;
   padding: 2px 6px;
   border-radius: 4px;
-  font-family: monospace;
+  font-family: var(--ifm-font-family-monospace);
 }
 
 .laneBadgeWorker {
-  background: rgba(168, 85, 247, 0.15);
-  color: #c084fc;
-  border: 1px solid rgba(168, 85, 247, 0.4);
+  background: var(--goat-primary-bg);
+  color: var(--goat-primary);
+  border: 1px solid var(--goat-primary-border);
 }
 
 .laneBadgeNative {
-  background: rgba(59, 130, 246, 0.15);
-  color: #60a5fa;
-  border: 1px solid rgba(59, 130, 246, 0.4);
+  background: var(--goat-info-bg);
+  color: var(--goat-info);
+  border: 1px solid var(--goat-info-border);
 }
 
 .laneBadgeHost {
-  background: rgba(16, 185, 129, 0.15);
-  color: #34d399;
-  border: 1px solid rgba(16, 185, 129, 0.4);
+  background: var(--goat-success-bg);
+  color: var(--goat-success);
+  border: 1px solid var(--goat-success-border);
 }
 
 .laneBadgeReply {
-  background: rgba(14, 165, 233, 0.15);
-  color: #38bdf8;
-  border: 1px solid rgba(14, 165, 233, 0.4);
+  background: var(--goat-info-bg);
+  color: var(--goat-info);
+  border: 1px solid var(--goat-info-border);
 }
 
 .domainBadge {
@@ -255,25 +251,25 @@
   text-transform: uppercase;
   padding: 2px 6px;
   border-radius: 4px;
-  background: #334155;
-  color: #94a3b8;
+  background: var(--goat-fill-secondary);
+  color: var(--goat-text-secondary);
 }
 
 .seqBadge {
   font-size: 10px;
   font-weight: 600;
-  font-family: monospace;
+  font-family: var(--ifm-font-family-monospace);
   padding: 1px 4px;
   border-radius: 3px;
-  background: #1e293b;
-  color: #cbd5e1;
-  border: 1px solid #475569;
+  background: var(--goat-bg-base);
+  color: var(--goat-text-secondary);
+  border: 1px solid var(--goat-border);
 }
 
 .actionName {
   font-weight: 700;
-  font-family: monospace;
-  color: #38bdf8;
+  font-family: var(--ifm-font-family-monospace);
+  color: var(--goat-primary);
 }
 
 .traceRight {
@@ -283,9 +279,9 @@
 }
 
 .latencyBadge {
-  font-family: monospace;
+  font-family: var(--ifm-font-family-monospace);
   font-size: 11px;
-  color: #94a3b8;
+  color: var(--goat-text-secondary);
 }
 
 .statusBadge {
@@ -297,43 +293,42 @@
 }
 
 .statusSuccess {
-  background: rgba(16, 185, 129, 0.2);
-  color: #34d399;
-  border: 1px solid #059669;
+  background: var(--goat-success-bg);
+  color: var(--goat-success);
+  border: 1px solid var(--goat-success-border);
 }
 
 .statusError {
-  background: rgba(239, 68, 68, 0.2);
-  color: #f87171;
-  border: 1px solid #dc2626;
+  background: var(--goat-error-bg);
+  color: var(--goat-error);
+  border: 1px solid var(--goat-error-border);
 }
 
 .statusPending {
-  background: rgba(245, 158, 11, 0.2);
-  color: #fbbf24;
-  border: 1px solid #d97706;
+  background: var(--goat-warning-bg);
+  color: var(--goat-warning);
+  border: 1px solid var(--goat-warning-border);
 }
 
 .traceDetail {
   padding: 10px 12px;
-  border-top: 1px solid var(--ifm-color-emphasis-200, #1e293b);
-  background: #090d16;
-  font-family: monospace;
+  border-top: 1px solid var(--goat-split);
+  background: var(--goat-bg-base);
+  font-family: var(--ifm-font-family-monospace);
   font-size: 11px;
 }
 
-/* 3-Stage Latency Waterfall Styles */
 .waterfallContainer {
   margin-bottom: 12px;
   padding: 10px 12px;
-  background: #0f172a;
-  border: 1px solid #334155;
+  background: var(--goat-bg-base);
+  border: 1px solid var(--goat-border);
   border-radius: 8px;
 }
 
 .waterfallHeader {
   display: flex;
-  justifyContent: space-between;
+  justify-content: space-between;
   align-items: center;
   margin-bottom: 8px;
 }
@@ -341,7 +336,7 @@
 .waterfallTitle {
   font-size: 12px;
   font-weight: 700;
-  color: #f1f5f9;
+  color: var(--goat-text-heading);
   display: flex;
   align-items: center;
   gap: 6px;
@@ -352,9 +347,9 @@
   font-weight: 700;
   padding: 2px 6px;
   border-radius: 4px;
-  background: rgba(16, 185, 129, 0.15);
-  color: #34d399;
-  border: 1px solid rgba(16, 185, 129, 0.3);
+  background: var(--goat-success-bg);
+  color: var(--goat-success);
+  border: 1px solid var(--goat-success-border);
 }
 
 .waterfallBar {
@@ -362,23 +357,23 @@
   height: 12px;
   border-radius: 6px;
   overflow: hidden;
-  background: #1e293b;
+  background: var(--goat-fill-secondary);
   margin-bottom: 8px;
-  border: 1px solid #334155;
+  border: 1px solid var(--goat-border);
 }
 
 .waterfallSegmentWorker {
-  background: linear-gradient(90deg, #9333ea, #a855f7);
+  background: var(--goat-primary);
   transition: width 0.3s ease;
 }
 
 .waterfallSegmentNative {
-  background: linear-gradient(90deg, #2563eb, #3b82f6);
+  background: var(--goat-info);
   transition: width 0.3s ease;
 }
 
 .waterfallSegmentRender {
-  background: linear-gradient(90deg, #059669, #10b981);
+  background: var(--goat-success);
   transition: width 0.3s ease;
 }
 
@@ -391,9 +386,9 @@
 
 .waterfallCard {
   padding: 6px 8px;
-  background: #1e293b;
+  background: var(--goat-bg-elevated);
   border-radius: 6px;
-  border: 1px solid #334155;
+  border: 1px solid var(--goat-border);
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -401,7 +396,7 @@
 
 .waterfallCardLabel {
   font-size: 10px;
-  color: #94a3b8;
+  color: var(--goat-text-secondary);
   display: flex;
   align-items: center;
   gap: 4px;
@@ -411,31 +406,31 @@
 .waterfallCardValue {
   font-size: 13px;
   font-weight: 700;
-  color: #f8fafc;
+  color: var(--goat-text);
 }
 
 .waterfallCardPct {
   font-size: 10px;
-  color: #64748b;
+  color: var(--goat-text-secondary);
 }
 
 .waterfallFormula {
   margin-top: 8px;
   padding-top: 6px;
-  border-top: 1px dashed #334155;
+  border-top: 1px dashed var(--goat-split);
   font-size: 10px;
-  color: #94a3b8;
+  color: var(--goat-text-secondary);
   display: flex;
-  justifyContent: space-between;
+  justify-content: space-between;
   align-items: center;
 }
 
 .btnSmall {
   padding: 4px 8px;
   border-radius: 4px;
-  border: 1px solid #475569;
-  background: #1e293b;
-  color: #cbd5e1;
+  border: 1px solid var(--goat-border);
+  background: var(--goat-bg-container);
+  color: var(--goat-text);
   font-size: 11px;
   font-weight: 600;
   cursor: pointer;
@@ -443,6 +438,6 @@
 }
 
 .btnSmall:hover {
-  background: #334155;
-  color: #ffffff;
+  background: var(--goat-fill-secondary);
+  color: var(--goat-text);
 }

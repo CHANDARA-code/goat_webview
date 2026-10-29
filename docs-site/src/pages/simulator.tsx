@@ -15,10 +15,10 @@ export default function SimulatorPage(): React.ReactElement {
         <main style={{ padding: '24px 20px', maxWidth: '1440px', margin: '0 auto', minHeight: 'calc(100vh - 120px)' }}>
           {/* Header Banner */}
           <div style={{ marginBottom: '24px', textAlign: 'center' }}>
-            <h1 style={{ fontSize: '28px', fontWeight: 800, margin: '0 0 8px 0', background: 'linear-gradient(135deg, #38bdf8, #818cf8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+            <h1 style={{ fontSize: '28px', fontWeight: 800, margin: '0 0 8px 0', background: 'linear-gradient(135deg, var(--goat-primary), var(--goat-primary-hover))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
               Goat Mobile Device Simulator & Bridge Studio
             </h1>
-            <p style={{ fontSize: '14px', color: 'var(--ifm-color-emphasis-700, #94a3b8)', maxWidth: '720px', margin: '0 auto' }}>
+            <p style={{ fontSize: '14px', color: 'var(--goat-text-secondary)', maxWidth: '720px', margin: '0 auto' }}>
               Test your mini-app UI and verify all 197 bridge actions hermetically in your browser with hardware state mocking (GPS, Battery, Network, Biometrics) and live JSON-RPC telemetry.
             </p>
           </div>

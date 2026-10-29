@@ -217,7 +217,7 @@ export const ActionModal: React.FC<ActionModalProps> = ({ action, onClose }) => 
 
             {simulatorResult && (
               <div style={{ marginTop: 12 }}>
-                <Text style={{ fontSize: 12, color: '#10b981', display: 'block', marginBottom: 4 }}>
+                <Text style={{ fontSize: 12, color: 'var(--goat-success)', display: 'block', marginBottom: 4 }}>
                   Telemetry Result ({simulatorResult.latencyMs ?? '?'}ms Mock IPC):
                 </Text>
                 <pre className={styles.simJsonBlock}>

@@ -32,8 +32,8 @@ export const InspectorStats: React.FC<InspectorStatsProps> = ({ traces }) => {
             <Statistic
               title={<span style={{ fontSize: 11 }}>Success Rate</span>}
               value={successRate}
-              suffix={<span style={{ fontSize: 12, color: '#10b981' }}>% ({successCount})</span>}
-              valueStyle={{ color: '#10b981', fontSize: 18 }}
+              suffix={<span style={{ fontSize: 12, color: 'var(--goat-success)' }}>% ({successCount})</span>}
+              valueStyle={{ color: 'var(--goat-success)', fontSize: 18 }}
             />
           </Card>
         </Col>
@@ -42,7 +42,7 @@ export const InspectorStats: React.FC<InspectorStatsProps> = ({ traces }) => {
             <Statistic
               title={<span style={{ fontSize: 11 }}>Errors</span>}
               value={errorCount}
-              valueStyle={{ color: errorCount > 0 ? '#ef4444' : undefined, fontSize: 18 }}
+              valueStyle={{ color: errorCount > 0 ? 'var(--goat-error)' : undefined, fontSize: 18 }}
             />
           </Card>
         </Col>
@@ -51,8 +51,8 @@ export const InspectorStats: React.FC<InspectorStatsProps> = ({ traces }) => {
             <Statistic
               title={<span style={{ fontSize: 11 }}>Avg Latency</span>}
               value={avgLatency}
-              suffix={<span style={{ fontSize: 12, color: '#38bdf8' }}>ms</span>}
-              valueStyle={{ color: '#38bdf8', fontSize: 18 }}
+              suffix={<span style={{ fontSize: 12, color: 'var(--goat-primary)' }}>ms</span>}
+              valueStyle={{ color: 'var(--goat-primary)', fontSize: 18 }}
             />
           </Card>
         </Col>

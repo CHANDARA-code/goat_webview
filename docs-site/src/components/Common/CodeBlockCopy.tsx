@@ -24,8 +24,8 @@ export const CodeBlockCopy: React.FC<CodeBlockCopyProps> = ({ code, language = '
       position: 'relative',
       borderRadius: '8px',
       overflow: 'hidden',
-      border: '1px solid var(--ifm-color-emphasis-300, #334155)',
-      backgroundColor: '#0f172a',
+      border: '1px solid var(--goat-border)',
+      backgroundColor: 'var(--goat-bg-container)',
       margin: '8px 0',
       fontFamily: 'monospace',
       fontSize: '12px',
@@ -35,9 +35,9 @@ export const CodeBlockCopy: React.FC<CodeBlockCopyProps> = ({ code, language = '
         justifyContent: 'space-between',
         alignItems: 'center',
         padding: '6px 12px',
-        backgroundColor: '#1e293b',
-        borderBottom: '1px solid #334155',
-        color: '#94a3b8',
+        backgroundColor: 'var(--goat-bg-elevated)',
+        borderBottom: '1px solid var(--goat-split)',
+        color: 'var(--goat-text-secondary)',
         fontSize: '11px',
         fontWeight: 600,
       }}>
@@ -45,8 +45,8 @@ export const CodeBlockCopy: React.FC<CodeBlockCopyProps> = ({ code, language = '
         <button
           onClick={handleCopy}
           style={{
-            background: copied ? '#10b981' : '#334155',
-            color: '#ffffff',
+            background: copied ? 'var(--goat-success)' : 'var(--goat-fill-secondary)',
+            color: copied ? 'var(--goat-text-light-solid)' : 'var(--goat-text)',
             border: 'none',
             borderRadius: '4px',
             padding: '3px 8px',
@@ -64,8 +64,8 @@ export const CodeBlockCopy: React.FC<CodeBlockCopyProps> = ({ code, language = '
         margin: 0,
         padding: '12px',
         overflowX: 'auto',
-        color: '#e2e8f0',
-        backgroundColor: '#0f172a',
+        color: 'var(--goat-text)',
+        backgroundColor: 'var(--goat-bg-container)',
         lineHeight: 1.5,
       }}>
         <code>{code}</code>

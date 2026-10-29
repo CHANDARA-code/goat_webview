@@ -87,21 +87,21 @@ await GoatWebView.channel.invokeMethod('hapticFeedback', {
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
             <button
               className={styles.actionButton}
-              style={{ background: '#059669' }}
+              style={{ background: 'var(--goat-success)' }}
               onClick={() => handleTrigger('success')}
             >
               Success Pattern
             </button>
             <button
               className={styles.actionButton}
-              style={{ background: '#d97706' }}
+              style={{ background: 'var(--goat-warning)' }}
               onClick={() => handleTrigger('warning')}
             >
               Warning Pattern
             </button>
             <button
               className={styles.actionButton}
-              style={{ background: '#dc2626' }}
+              style={{ background: 'var(--goat-error)' }}
               onClick={() => handleTrigger('error')}
             >
               Error Pattern
@@ -117,10 +117,10 @@ await GoatWebView.channel.invokeMethod('hapticFeedback', {
 
         {/* Last Triggered Status */}
         {lastHaptic && (
-          <div style={{ gridColumn: 'span 2', padding: '8px 12px', background: 'rgba(99, 102, 241, 0.1)', borderRadius: '6px', border: '1px solid rgba(99, 102, 241, 0.3)', fontSize: '11px' }}>
+          <div style={{ gridColumn: 'span 2', padding: '8px 12px', background: 'var(--goat-primary-bg)', borderRadius: '6px', border: '1px solid var(--goat-primary-border)', fontSize: '11px' }}>
             <span>Last Haptic Event: </span>
-            <strong style={{ color: '#818cf8', textTransform: 'uppercase' }}>{lastHaptic.type}</strong>
-            <span style={{ color: '#94a3b8', marginLeft: '8px' }}>
+            <strong style={{ color: 'var(--goat-primary)', textTransform: 'uppercase' }}>{lastHaptic.type}</strong>
+            <span style={{ color: 'var(--goat-text-secondary)', marginLeft: '8px' }}>
               ({new Date(lastHaptic.timestamp).toLocaleTimeString()})
             </span>
           </div>
@@ -138,8 +138,8 @@ await GoatWebView.channel.invokeMethod('hapticFeedback', {
                 padding: '4px 10px',
                 borderRadius: '4px',
                 border: 'none',
-                background: selectedLang === lang ? '#6366f1' : '#1e293b',
-                color: selectedLang === lang ? '#ffffff' : '#94a3b8',
+                background: selectedLang === lang ? 'var(--goat-primary)' : 'var(--goat-fill-tertiary)',
+                color: selectedLang === lang ? 'var(--goat-text-on-primary)' : 'var(--goat-text-secondary)',
                 fontSize: '11px',
                 fontWeight: 600,
                 cursor: 'pointer',

@@ -48,8 +48,8 @@ const DEFAULT_HARDWARE_STATE: MockHardwareState = {
 const DEFAULT_NAVBAR_STATE: NavBarState = {
   title: 'Goat Mini App',
   subtitle: 'High-Performance Engine',
-  backgroundColor: '#1e293b',
-  textColor: '#ffffff',
+  backgroundColor: '#26241F',
+  textColor: '#F4F3EE',
   isDark: true,
   progress: {
     visible: true,
@@ -114,9 +114,9 @@ export const DEFAULT_PLAYGROUND_CODE = `<!DOCTYPE html>
 <html>
   <head>
     <style>
-      body { font-family: -apple-system, sans-serif; padding: 16px; color: #f1f5f9; }
-      button { padding: 10px 14px; border-radius: 8px; border: none; background: #6366f1; color: #fff; font-weight: 600; }
-      pre { background: #0f172a; padding: 10px; border-radius: 8px; font-size: 11px; overflow-x: auto; }
+      body { font-family: -apple-system, sans-serif; padding: 16px; color: #F4F3EE; }
+      button { padding: 10px 14px; border-radius: 8px; border: none; background: #C15F3C; color: #fff; font-weight: 600; }
+      pre { background: #1A1917; padding: 10px; border-radius: 8px; font-size: 11px; overflow-x: auto; }
     </style>
   </head>
   <body>
@@ -368,8 +368,8 @@ export const SimulatorProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         }
         case 'NAV_BAR_SET_COLOR':
         case 'SET_NAV_BAR_COLOR': {
-          const color = payload.color ?? '#1e293b';
-          const textColor = payload.textColor ?? '#ffffff';
+          const color = payload.color ?? '#26241F';
+          const textColor = payload.textColor ?? '#F4F3EE';
           const isDark = payload.isDark ?? true;
           setNavBar((prev) => ({ ...prev, backgroundColor: color, textColor, isDark }));
           response = { success: true, backgroundColor: color, textColor, isDark };

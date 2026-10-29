@@ -17,7 +17,7 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({
   const [expanded, setExpanded] = useState(defaultExpanded);
 
   if (data === undefined || data === null) {
-    return <span style={{ color: '#94a3b8', fontStyle: 'italic', fontSize: '11px' }}>null</span>;
+    return <span style={{ color: 'var(--goat-text-tertiary)', fontStyle: 'italic', fontSize: '11px' }}>null</span>;
   }
 
   const jsonString = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
@@ -36,8 +36,8 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({
   return (
     <div style={{
       borderRadius: '6px',
-      border: '1px solid var(--ifm-color-emphasis-200, #334155)',
-      backgroundColor: '#090d16',
+      border: '1px solid var(--goat-border)',
+      backgroundColor: 'var(--goat-bg-elevated)',
       fontSize: '11px',
       fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
       overflow: 'hidden',
@@ -51,22 +51,22 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({
             justifyContent: 'space-between',
             alignItems: 'center',
             padding: '4px 8px',
-            backgroundColor: '#131b2e',
-            borderBottom: expanded ? '1px solid #1e293b' : 'none',
-            color: '#94a3b8',
+            backgroundColor: 'var(--goat-bg-container)',
+            borderBottom: expanded ? '1px solid var(--goat-split)' : 'none',
+            color: 'var(--goat-text-secondary)',
             cursor: 'pointer',
             userSelect: 'none',
           }}
         >
-          <span style={{ fontWeight: 600, color: '#38bdf8' }}>
+          <span style={{ fontWeight: 600, color: 'var(--goat-primary)' }}>
             {expanded ? '-' : '+'} {label}
           </span>
           <button
             onClick={handleCopy}
             style={{
-              background: copied ? '#10b981' : '#1e293b',
-              color: '#ffffff',
-              border: '1px solid #334155',
+              background: copied ? 'var(--goat-success)' : 'var(--goat-fill-secondary)',
+              color: copied ? 'var(--goat-text-light-solid)' : 'var(--goat-text)',
+              border: '1px solid var(--goat-border)',
               borderRadius: '3px',
               padding: '2px 6px',
               fontSize: '10px',
@@ -83,8 +83,8 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({
           padding: '8px 10px',
           maxHeight,
           overflowY: 'auto',
-          color: '#38bdf8',
-          backgroundColor: '#090d16',
+          color: 'var(--goat-primary)',
+          backgroundColor: 'var(--goat-bg-elevated)',
           whiteSpace: 'pre-wrap',
           wordBreak: 'break-all',
           lineHeight: 1.4,

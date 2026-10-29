@@ -15,10 +15,10 @@ export default function ShowcasePage(): React.ReactElement {
         <main style={{ padding: '24px 20px', maxWidth: '1440px', margin: '0 auto', minHeight: 'calc(100vh - 120px)' }}>
           {/* Header */}
           <div style={{ marginBottom: '24px' }}>
-            <h1 style={{ fontSize: '28px', fontWeight: 800, margin: '0 0 8px 0', color: 'var(--ifm-heading-color, #ffffff)' }}>
+            <h1 style={{ fontSize: '28px', fontWeight: 800, margin: '0 0 8px 0', color: 'var(--goat-text-heading)' }}>
               Native Component Showcase & Playgrounds
             </h1>
-            <p style={{ fontSize: '14px', color: 'var(--ifm-color-emphasis-700, #94a3b8)', margin: 0 }}>
+            <p style={{ fontSize: '14px', color: 'var(--goat-text-secondary)', margin: 0 }}>
               Explore the 6 core native UI components designed for high-performance mini-app experiences with instant preview, customizable parameters, and multi-language SDK snippets.
             </p>
           </div>

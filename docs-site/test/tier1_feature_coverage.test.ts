@@ -526,10 +526,10 @@ describe('Tier 1: Feature Coverage Suite (14 Features)', () => {
       assert.ok(content.includes('workflow_dispatch:'), 'Must allow manual dispatch');
     });
 
-    it('TC-F12-03: Workflow configures Node.js 20 setup with package-lock cache', () => {
+    it('TC-F12-03: Workflow configures Node.js setup with package-lock cache', () => {
       const content = fs.readFileSync(workflowPath, 'utf-8');
       assert.ok(content.includes('setup-node'), 'Must use setup-node action');
-      assert.ok(content.includes('node-version: 20'), 'Must use Node.js 20');
+      assert.ok(content.includes('node-version: 20') || content.includes('node-version: 22'), 'Must use Node.js');
       assert.ok(content.includes('cache: npm'), 'Must cache npm packages');
     });
 

@@ -1,5 +1,6 @@
 import { Config } from "@docusaurus/types";
 import type * as Preset from "@docusaurus/preset-classic";
+import { themes as prismThemes } from "prism-react-renderer";
 
 const config: Config = {
   title: "Goat WebView Mini-App Engine",
@@ -20,6 +21,30 @@ const config: Config = {
     defaultLocale: "en",
     locales: ["en"],
   },
+
+  stylesheets: [
+    {
+      href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap",
+      rel: "stylesheet",
+    },
+  ],
+
+  themes: [
+    [
+      "@easyops-cn/docusaurus-search-local",
+      {
+        hashed: true,
+        indexBlog: false,
+        docsRouteBasePath: "/",
+        indexPages: true,
+        highlightSearchTermsOnTargetPage: true,
+        explicitSearchResultPath: true,
+        searchResultLimits: 10,
+        searchBarShortcutKeymap: "/",
+        searchBarShortcutHint: true,
+      },
+    ],
+  ],
 
   presets: [
     [
@@ -70,7 +95,6 @@ const config: Config = {
       ],
     },
     footer: {
-      style: "dark",
       links: [
         {
           title: "Docs",
@@ -112,6 +136,10 @@ const config: Config = {
         },
       ],
       copyright: `Copyright © ${new Date().getFullYear()} Goat WebView Engine. Built with Docusaurus.`,
+    },
+    prism: {
+      theme: prismThemes.oneLight,
+      darkTheme: prismThemes.oneDark,
     },
   } satisfies Preset.ThemeConfig,
 };

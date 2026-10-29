@@ -68,8 +68,8 @@ export const DeviceScreenContent: React.FC = () => {
         height: '100%',
         width: '100%',
         position: 'relative',
-        backgroundColor: isDark ? '#0b1120' : '#f8fafc',
-        color: isDark ? '#f1f5f9' : '#0f172a',
+        backgroundColor: 'var(--goat-bg-base)',
+        color: 'var(--goat-text)',
         fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
         overflow: 'hidden',
       }}
@@ -165,7 +165,7 @@ export const DeviceScreenContent: React.FC = () => {
               style={{
                 height: '100%',
                 width: `${navBar.progress.percent}%`,
-                backgroundColor: '#38bdf8',
+                backgroundColor: 'var(--goat-primary)',
                 transition: 'width 0.3s ease',
               }}
             />
@@ -194,8 +194,8 @@ export const DeviceScreenContent: React.FC = () => {
           <div
             style={{
               padding: '6px 12px',
-              background: '#ef4444',
-              color: '#ffffff',
+              background: 'var(--goat-error)',
+              color: 'var(--goat-text-light-solid)',
               fontSize: '11px',
               fontWeight: 700,
               textAlign: 'center',
@@ -212,7 +212,7 @@ export const DeviceScreenContent: React.FC = () => {
 
         {/* Quick Component Launch Grid */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          <div style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', color: isDark ? '#94a3b8' : '#64748b' }}>
+          <div style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', color: 'var(--goat-text-secondary)' }}>
             Goat Native Capabilities
           </div>
 
@@ -226,9 +226,9 @@ export const DeviceScreenContent: React.FC = () => {
               style={{
                 padding: '10px 8px',
                 borderRadius: '8px',
-                border: isDark ? '1px solid #334155' : '1px solid #e2e8f0',
-                background: isDark ? '#1e293b' : '#ffffff',
-                color: isDark ? '#f8fafc' : '#0f172a',
+                border: '1px solid var(--goat-border)',
+                background: 'var(--goat-bg-container)',
+                color: 'var(--goat-text)',
                 fontSize: '11px',
                 fontWeight: 600,
                 cursor: 'pointer',
@@ -240,7 +240,7 @@ export const DeviceScreenContent: React.FC = () => {
             >
               <span style={{ fontSize: '16px' }}><InboxOutlined /></span>
               <span>Bottom Sheet</span>
-              <span style={{ fontSize: '9px', color: '#94a3b8', fontWeight: 400 }}>Interactive modal sheet</span>
+              <span style={{ fontSize: '9px', color: 'var(--goat-text-tertiary)', fontWeight: 400 }}>Interactive modal sheet</span>
             </button>
 
             <button
@@ -251,9 +251,9 @@ export const DeviceScreenContent: React.FC = () => {
               style={{
                 padding: '10px 8px',
                 borderRadius: '8px',
-                border: isDark ? '1px solid #334155' : '1px solid #e2e8f0',
-                background: isDark ? '#1e293b' : '#ffffff',
-                color: isDark ? '#f8fafc' : '#0f172a',
+                border: '1px solid var(--goat-border)',
+                background: 'var(--goat-bg-container)',
+                color: 'var(--goat-text)',
                 fontSize: '11px',
                 fontWeight: 600,
                 cursor: 'pointer',
@@ -265,7 +265,7 @@ export const DeviceScreenContent: React.FC = () => {
             >
               <span style={{ fontSize: '16px' }}><LockOutlined /></span>
               <span>Biometrics</span>
-              <span style={{ fontSize: '9px', color: '#94a3b8', fontWeight: 400 }}>FaceID / BiometricPrompt</span>
+              <span style={{ fontSize: '9px', color: 'var(--goat-text-tertiary)', fontWeight: 400 }}>FaceID / BiometricPrompt</span>
             </button>
 
             <button
@@ -276,9 +276,9 @@ export const DeviceScreenContent: React.FC = () => {
               style={{
                 padding: '10px 8px',
                 borderRadius: '8px',
-                border: isDark ? '1px solid #334155' : '1px solid #e2e8f0',
-                background: isDark ? '#1e293b' : '#ffffff',
-                color: isDark ? '#f8fafc' : '#0f172a',
+                border: '1px solid var(--goat-border)',
+                background: 'var(--goat-bg-container)',
+                color: 'var(--goat-text)',
                 fontSize: '11px',
                 fontWeight: 600,
                 cursor: 'pointer',
@@ -290,7 +290,7 @@ export const DeviceScreenContent: React.FC = () => {
             >
               <span style={{ fontSize: '16px' }}><CameraOutlined /></span>
               <span>Permissions</span>
-              <span style={{ fontSize: '9px', color: '#94a3b8', fontWeight: 400 }}>2-Stage rationale priming</span>
+              <span style={{ fontSize: '9px', color: 'var(--goat-text-tertiary)', fontWeight: 400 }}>2-Stage rationale priming</span>
             </button>
 
             <button
@@ -301,9 +301,9 @@ export const DeviceScreenContent: React.FC = () => {
               style={{
                 padding: '10px 8px',
                 borderRadius: '8px',
-                border: isDark ? '1px solid #334155' : '1px solid #e2e8f0',
-                background: isDark ? '#1e293b' : '#ffffff',
-                color: isDark ? '#f8fafc' : '#0f172a',
+                border: '1px solid var(--goat-border)',
+                background: 'var(--goat-bg-container)',
+                color: 'var(--goat-text)',
                 fontSize: '11px',
                 fontWeight: 600,
                 cursor: 'pointer',
@@ -315,7 +315,7 @@ export const DeviceScreenContent: React.FC = () => {
             >
               <span style={{ fontSize: '16px' }}><SafetyCertificateOutlined /></span>
               <span>External Link</span>
-              <span style={{ fontSize: '9px', color: '#94a3b8', fontWeight: 400 }}>Anti-phishing verification</span>
+              <span style={{ fontSize: '9px', color: 'var(--goat-text-tertiary)', fontWeight: 400 }}>Anti-phishing verification</span>
             </button>
           </div>
         </div>
@@ -325,20 +325,20 @@ export const DeviceScreenContent: React.FC = () => {
           style={{
             padding: '10px',
             borderRadius: '8px',
-            background: isDark ? '#131c2e' : '#f1f5f9',
-            border: isDark ? '1px solid #1e293b' : '1px solid #cbd5e1',
+            background: 'var(--goat-fill-tertiary)',
+            border: '1px solid var(--goat-border)',
             fontSize: '11px',
           }}
         >
-          <div style={{ fontWeight: 700, marginBottom: '6px', color: '#38bdf8', display: 'flex', justifyContent: 'space-between' }}>
+          <div style={{ fontWeight: 700, marginBottom: '6px', color: 'var(--goat-primary)', display: 'flex', justifyContent: 'space-between' }}>
             <span>Telemetry Sensor Data</span>
-            <span style={{ fontSize: '10px', color: '#94a3b8' }}>{isIos ? 'iOS 18.2' : 'Android 15'}</span>
+            <span style={{ fontSize: '10px', color: 'var(--goat-text-secondary)' }}>{isIos ? 'iOS 18.2' : 'Android 15'}</span>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', fontSize: '10px' }}>
-            <div>GPS: <strong style={{ color: '#10b981' }}>{hardware.gps.name?.split(',')[0] || 'Custom'}</strong></div>
-            <div>Net: <strong style={{ color: '#6366f1' }}>{hardware.network.type.toUpperCase()} ({hardware.network.latencyMs}ms)</strong></div>
+            <div>GPS: <strong style={{ color: 'var(--goat-success)' }}>{hardware.gps.name?.split(',')[0] || 'Custom'}</strong></div>
+            <div>Net: <strong style={{ color: 'var(--goat-primary)' }}>{hardware.network.type.toUpperCase()} ({hardware.network.latencyMs}ms)</strong></div>
             <div>Battery: <strong>{hardware.battery.level}% {hardware.battery.charging ? '[C]' : ''}</strong></div>
-            <div>Bio: <strong style={{ color: hardware.biometrics.mockResult === 'success' ? '#10b981' : '#ef4444' }}>{hardware.biometrics.mockResult.toUpperCase()}</strong></div>
+            <div>Bio: <strong style={{ color: hardware.biometrics.mockResult === 'success' ? 'var(--goat-success)' : 'var(--goat-error)' }}>{hardware.biometrics.mockResult.toUpperCase()}</strong></div>
           </div>
         </div>
 
@@ -347,8 +347,8 @@ export const DeviceScreenContent: React.FC = () => {
           style={{
             padding: '10px',
             borderRadius: '8px',
-            background: isDark ? '#1e293b' : '#ffffff',
-            border: isDark ? '1px solid #334155' : '1px solid #e2e8f0',
+            background: 'var(--goat-bg-container)',
+            border: '1px solid var(--goat-border)',
           }}
         >
           <div style={{ fontSize: '11px', fontWeight: 700, marginBottom: '6px' }}>Haptic Feedback Triggers</div>
@@ -361,8 +361,8 @@ export const DeviceScreenContent: React.FC = () => {
                   padding: '4px 8px',
                   borderRadius: '4px',
                   border: 'none',
-                  background: type === 'success' ? '#059669' : type === 'error' ? '#dc2626' : type === 'warning' ? '#d97706' : '#4f46e5',
-                  color: '#ffffff',
+                  background: type === 'success' ? 'var(--goat-success)' : type === 'error' ? 'var(--goat-error)' : type === 'warning' ? 'var(--goat-warning)' : 'var(--goat-primary)',
+                  color: 'var(--goat-text-light-solid)',
                   fontSize: '10px',
                   fontWeight: 600,
                   cursor: 'pointer',
@@ -401,7 +401,7 @@ export const DeviceScreenContent: React.FC = () => {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: isDark ? '#1e293b' : '#ffffff',
+              backgroundColor: 'var(--goat-bg-elevated)',
               borderTopLeftRadius: '20px',
               borderTopRightRadius: '20px',
               padding: '12px 16px 24px 16px',
@@ -418,7 +418,7 @@ export const DeviceScreenContent: React.FC = () => {
               style={{
                 width: '40px',
                 height: '4px',
-                backgroundColor: isDark ? '#475569' : '#cbd5e1',
+                backgroundColor: 'var(--goat-border-strong)',
                 borderRadius: '4px',
                 margin: '0 auto 12px auto',
                 cursor: 'grab',
@@ -436,7 +436,7 @@ export const DeviceScreenContent: React.FC = () => {
                 style={{
                   background: 'none',
                   border: 'none',
-                  color: '#94a3b8',
+                  color: 'var(--goat-text-secondary)',
                   fontSize: '16px',
                   fontWeight: 700,
                   cursor: 'pointer',
@@ -447,7 +447,7 @@ export const DeviceScreenContent: React.FC = () => {
             </div>
 
             {/* Sheet Tabs */}
-            <div style={{ display: 'flex', gap: '6px', marginBottom: '12px', borderBottom: '1px solid #334155', paddingBottom: '6px' }}>
+            <div style={{ display: 'flex', gap: '6px', marginBottom: '12px', borderBottom: '1px solid var(--goat-split)', paddingBottom: '6px' }}>
               {bottomSheet.tabs.map((tab) => (
                 <button
                   key={tab.id}
@@ -459,8 +459,8 @@ export const DeviceScreenContent: React.FC = () => {
                     padding: '4px 8px',
                     borderRadius: '4px',
                     border: 'none',
-                    background: bottomSheet.activeTab === tab.id ? '#6366f1' : 'transparent',
-                    color: bottomSheet.activeTab === tab.id ? '#ffffff' : '#94a3b8',
+                    background: bottomSheet.activeTab === tab.id ? 'var(--goat-primary)' : 'transparent',
+                    color: bottomSheet.activeTab === tab.id ? 'var(--goat-text-on-primary)' : 'var(--goat-text-secondary)',
                     fontSize: '11px',
                     fontWeight: 600,
                     cursor: 'pointer',
@@ -472,7 +472,7 @@ export const DeviceScreenContent: React.FC = () => {
             </div>
 
             {/* Sheet Tab Content */}
-            <div style={{ fontSize: '12px', lineHeight: 1.4, color: isDark ? '#cbd5e1' : '#475569', marginBottom: '16px' }}>
+            <div style={{ fontSize: '12px', lineHeight: 1.4, color: 'var(--goat-text-secondary)', marginBottom: '16px' }}>
               {bottomSheet.tabs.find((t) => t.id === bottomSheet.activeTab)?.content}
             </div>
 
@@ -487,9 +487,9 @@ export const DeviceScreenContent: React.FC = () => {
                   flex: 1,
                   padding: '6px',
                   borderRadius: '6px',
-                  border: '1px solid #475569',
-                  background: bottomSheet.currentSnapIndex === 0 ? '#334155' : 'transparent',
-                  color: isDark ? '#ffffff' : '#000000',
+                  border: '1px solid var(--goat-border)',
+                  background: bottomSheet.currentSnapIndex === 0 ? 'var(--goat-fill-secondary)' : 'transparent',
+                  color: 'var(--goat-text)',
                   fontSize: '10px',
                   fontWeight: 600,
                   cursor: 'pointer',
@@ -506,9 +506,9 @@ export const DeviceScreenContent: React.FC = () => {
                   flex: 1,
                   padding: '6px',
                   borderRadius: '6px',
-                  border: '1px solid #475569',
-                  background: bottomSheet.currentSnapIndex === 1 ? '#334155' : 'transparent',
-                  color: isDark ? '#ffffff' : '#000000',
+                  border: '1px solid var(--goat-border)',
+                  background: bottomSheet.currentSnapIndex === 1 ? 'var(--goat-fill-secondary)' : 'transparent',
+                  color: 'var(--goat-text)',
                   fontSize: '10px',
                   fontWeight: 600,
                   cursor: 'pointer',
@@ -525,9 +525,9 @@ export const DeviceScreenContent: React.FC = () => {
                   flex: 1,
                   padding: '6px',
                   borderRadius: '6px',
-                  border: '1px solid #475569',
-                  background: bottomSheet.currentSnapIndex === 2 ? '#334155' : 'transparent',
-                  color: isDark ? '#ffffff' : '#000000',
+                  border: '1px solid var(--goat-border)',
+                  background: bottomSheet.currentSnapIndex === 2 ? 'var(--goat-fill-secondary)' : 'transparent',
+                  color: 'var(--goat-text)',
                   fontSize: '10px',
                   fontWeight: 600,
                   cursor: 'pointer',
@@ -556,7 +556,7 @@ export const DeviceScreenContent: React.FC = () => {
         >
           <div
             style={{
-              backgroundColor: isDark ? '#1e293b' : '#ffffff',
+              backgroundColor: 'var(--goat-bg-container)',
               borderRadius: '16px',
               padding: '18px',
               width: '100%',
@@ -571,7 +571,7 @@ export const DeviceScreenContent: React.FC = () => {
             <div style={{ fontSize: '13px', fontWeight: 700, marginBottom: '6px' }}>
               Stage 1: Rationale Priming
             </div>
-            <div style={{ fontSize: '11px', color: isDark ? '#94a3b8' : '#64748b', lineHeight: 1.4, marginBottom: '14px' }}>
+            <div style={{ fontSize: '11px', color: 'var(--goat-text-secondary)', lineHeight: 1.4, marginBottom: '14px' }}>
               To scan QR codes and authenticate merchant payments, Goat WebView requires access to your camera sensor.
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
@@ -581,8 +581,8 @@ export const DeviceScreenContent: React.FC = () => {
                   padding: '8px',
                   borderRadius: '8px',
                   border: 'none',
-                  background: '#6366f1',
-                  color: '#ffffff',
+                  background: 'var(--goat-primary)',
+                  color: 'var(--goat-text-on-primary)',
                   fontSize: '12px',
                   fontWeight: 600,
                   cursor: 'pointer',
@@ -597,7 +597,7 @@ export const DeviceScreenContent: React.FC = () => {
                   borderRadius: '8px',
                   border: 'none',
                   background: 'transparent',
-                  color: '#94a3b8',
+                  color: 'var(--goat-text-secondary)',
                   fontSize: '11px',
                   cursor: 'pointer',
                 }}
@@ -625,20 +625,20 @@ export const DeviceScreenContent: React.FC = () => {
         >
           <div
             style={{
-              backgroundColor: isDark ? '#1e293b' : '#f8fafc',
+              backgroundColor: 'var(--goat-bg-container)',
               borderRadius: isIos ? '14px' : '20px',
               padding: '16px',
               width: '100%',
               maxWidth: '250px',
               textAlign: 'center',
               boxShadow: '0 8px 30px rgba(0,0,0,0.5)',
-              border: isDark ? '1px solid #334155' : '1px solid #e2e8f0',
+              border: '1px solid var(--goat-border)',
             }}
           >
             <div style={{ fontSize: '13px', fontWeight: 700, marginBottom: '4px' }}>
               {isIos ? '“Goat Mini App” Would Like to Access the Camera' : 'Allow Goat WebView to take pictures and record video?'}
             </div>
-            <div style={{ fontSize: '10px', color: '#94a3b8', marginBottom: '12px' }}>
+            <div style={{ fontSize: '10px', color: 'var(--goat-text-secondary)', marginBottom: '12px' }}>
               Required for fast barcode scanning & identity verification.
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
@@ -648,8 +648,8 @@ export const DeviceScreenContent: React.FC = () => {
                   padding: '8px',
                   borderRadius: '6px',
                   border: 'none',
-                  background: '#0284c7',
-                  color: '#ffffff',
+                  background: 'var(--goat-primary)',
+                  color: 'var(--goat-text-on-primary)',
                   fontSize: '11px',
                   fontWeight: 600,
                   cursor: 'pointer',
@@ -662,9 +662,9 @@ export const DeviceScreenContent: React.FC = () => {
                 style={{
                   padding: '6px',
                   borderRadius: '6px',
-                  border: '1px solid #475569',
+                  border: '1px solid var(--goat-border)',
                   background: 'transparent',
-                  color: isDark ? '#f1f5f9' : '#0f172a',
+                  color: 'var(--goat-text)',
                   fontSize: '11px',
                   cursor: 'pointer',
                 }}
@@ -678,7 +678,7 @@ export const DeviceScreenContent: React.FC = () => {
                   borderRadius: '6px',
                   border: 'none',
                   background: 'transparent',
-                  color: '#ef4444',
+                  color: 'var(--goat-error)',
                   fontSize: '11px',
                   fontWeight: 600,
                   cursor: 'pointer',
@@ -707,31 +707,31 @@ export const DeviceScreenContent: React.FC = () => {
         >
           <div
             style={{
-              backgroundColor: isDark ? '#1e293b' : '#ffffff',
+              backgroundColor: 'var(--goat-bg-container)',
               borderRadius: '14px',
               padding: '16px',
               width: '100%',
               maxWidth: '260px',
               textAlign: 'center',
               boxShadow: '0 8px 30px rgba(0,0,0,0.5)',
-              border: '1px solid #ef4444',
+              border: '1px solid var(--goat-error)',
             }}
           >
             <div style={{ fontSize: '28px', marginBottom: '6px' }}><SafetyCertificateOutlined /></div>
-            <div style={{ fontSize: '13px', fontWeight: 700, color: '#ef4444', marginBottom: '4px' }}>
+            <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--goat-error)', marginBottom: '4px' }}>
               External Domain Warning
             </div>
-            <div style={{ fontSize: '10px', color: isDark ? '#cbd5e1' : '#475569', marginBottom: '8px' }}>
+            <div style={{ fontSize: '10px', color: 'var(--goat-text-secondary)', marginBottom: '8px' }}>
               You are navigating outside the sandboxed mini-app domain:
             </div>
             <div
               style={{
                 padding: '4px 8px',
                 borderRadius: '4px',
-                background: isDark ? '#0f172a' : '#f1f5f9',
+                background: 'var(--goat-fill-tertiary)',
                 fontFamily: 'monospace',
                 fontSize: '10px',
-                color: '#38bdf8',
+                color: 'var(--goat-primary)',
                 wordBreak: 'break-all',
                 marginBottom: '10px',
               }}
@@ -745,7 +745,7 @@ export const DeviceScreenContent: React.FC = () => {
                 alignItems: 'center',
                 gap: '6px',
                 fontSize: '10px',
-                color: '#94a3b8',
+                color: 'var(--goat-text-secondary)',
                 marginBottom: '12px',
                 justifyContent: 'center',
                 cursor: 'pointer',
@@ -768,9 +768,9 @@ export const DeviceScreenContent: React.FC = () => {
                   flex: 1,
                   padding: '7px',
                   borderRadius: '6px',
-                  border: '1px solid #475569',
+                  border: '1px solid var(--goat-border)',
                   background: 'transparent',
-                  color: isDark ? '#cbd5e1' : '#475569',
+                  color: 'var(--goat-text-secondary)',
                   fontSize: '11px',
                   fontWeight: 600,
                   cursor: 'pointer',
@@ -785,8 +785,8 @@ export const DeviceScreenContent: React.FC = () => {
                   padding: '7px',
                   borderRadius: '6px',
                   border: 'none',
-                  background: '#ef4444',
-                  color: '#ffffff',
+                  background: 'var(--goat-error)',
+                  color: 'var(--goat-text-light-solid)',
                   fontSize: '11px',
                   fontWeight: 600,
                   cursor: 'pointer',
@@ -815,7 +815,7 @@ export const DeviceScreenContent: React.FC = () => {
         >
           <div
             style={{
-              backgroundColor: isDark ? '#1e293b' : '#ffffff',
+              backgroundColor: 'var(--goat-bg-container)',
               borderRadius: '20px',
               padding: '20px',
               width: '100%',
@@ -834,10 +834,10 @@ export const DeviceScreenContent: React.FC = () => {
                 borderRadius: '50%',
                 backgroundColor:
                   biometricsModal.state === 'matched'
-                    ? 'rgba(16, 185, 129, 0.2)'
+                    ? 'var(--goat-success-bg)'
                     : biometricsModal.state === 'failed' || biometricsModal.state === 'locked'
-                    ? 'rgba(239, 68, 68, 0.2)'
-                    : 'rgba(99, 102, 241, 0.2)',
+                    ? 'var(--goat-error-bg)'
+                    : 'var(--goat-primary-bg)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -861,7 +861,7 @@ export const DeviceScreenContent: React.FC = () => {
               {isIos ? 'Face ID' : 'BiometricPrompt'}
             </div>
 
-            <div style={{ fontSize: '10px', color: '#94a3b8', marginBottom: '8px' }}>
+            <div style={{ fontSize: '10px', color: 'var(--goat-text-secondary)', marginBottom: '8px' }}>
               {biometricsModal.reason}
             </div>
 
@@ -871,10 +871,10 @@ export const DeviceScreenContent: React.FC = () => {
                 fontWeight: 600,
                 color:
                   biometricsModal.state === 'matched'
-                    ? '#10b981'
+                    ? 'var(--goat-success)'
                     : biometricsModal.state === 'failed' || biometricsModal.state === 'locked'
-                    ? '#ef4444'
-                    : '#38bdf8',
+                    ? 'var(--goat-error)'
+                    : 'var(--goat-primary)',
               }}
             >
               {biometricsModal.state === 'scanning'
@@ -897,8 +897,8 @@ export const DeviceScreenContent: React.FC = () => {
             bottom: '40px',
             left: '50%',
             transform: 'translateX(-50%)',
-            backgroundColor: '#0f172a',
-            color: '#ffffff',
+            backgroundColor: 'var(--goat-bg-elevated)',
+            color: 'var(--goat-text)',
             padding: '6px 12px',
             borderRadius: '20px',
             fontSize: '10px',
@@ -906,7 +906,7 @@ export const DeviceScreenContent: React.FC = () => {
             boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
             zIndex: 90,
             whiteSpace: 'nowrap',
-            border: '1px solid #334155',
+            border: '1px solid var(--goat-border)',
           }}
         >
           {toastMessage}

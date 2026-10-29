@@ -104,14 +104,14 @@ final result = await GoatWebView.channel.invokeMethod<Map<String, dynamic>>('bio
             </button>
             <button
               className={`${styles.secondaryButton} ${hardware.biometrics.mockResult === 'fail' ? styles.actionButton : ''}`}
-              style={hardware.biometrics.mockResult === 'fail' ? { background: '#ef4444', borderColor: '#ef4444' } : {}}
+              style={hardware.biometrics.mockResult === 'fail' ? { background: 'var(--goat-error)', borderColor: 'var(--goat-error)' } : {}}
               onClick={() => updateHardware('biometrics', { ...hardware.biometrics, mockResult: 'fail' })}
             >
               Fail (Mismatch)
             </button>
             <button
               className={`${styles.secondaryButton} ${hardware.biometrics.mockResult === 'locked' ? styles.actionButton : ''}`}
-              style={hardware.biometrics.mockResult === 'locked' ? { background: '#f59e0b', borderColor: '#f59e0b' } : {}}
+              style={hardware.biometrics.mockResult === 'locked' ? { background: 'var(--goat-warning)', borderColor: 'var(--goat-warning)' } : {}}
               onClick={() => updateHardware('biometrics', { ...hardware.biometrics, mockResult: 'locked' })}
             >
               Lockout (5 Fails)
@@ -131,9 +131,9 @@ final result = await GoatWebView.channel.invokeMethod<Map<String, dynamic>>('bio
 
       {/* Result Display */}
       {lastAuthResult && (
-        <div style={{ marginBottom: '16px', padding: '10px 14px', borderRadius: '8px', background: '#090d16', border: '1px solid #1e293b', fontSize: '11px', fontFamily: 'monospace' }}>
-          <div style={{ fontWeight: 700, color: '#38bdf8', marginBottom: '4px' }}>Latest Biometric Return Envelope:</div>
-          <pre style={{ margin: 0, color: lastAuthResult.success ? '#34d399' : '#f87171', whiteSpace: 'pre-wrap' }}>
+        <div style={{ marginBottom: '16px', padding: '10px 14px', borderRadius: '8px', background: 'var(--goat-bg-elevated)', border: '1px solid var(--goat-border)', fontSize: '11px', fontFamily: 'monospace' }}>
+          <div style={{ fontWeight: 700, color: 'var(--goat-primary)', marginBottom: '4px' }}>Latest Biometric Return Envelope:</div>
+          <pre style={{ margin: 0, color: lastAuthResult.success ? 'var(--goat-success)' : 'var(--goat-error)', whiteSpace: 'pre-wrap' }}>
             {JSON.stringify(lastAuthResult, null, 2)}
           </pre>
         </div>
@@ -150,8 +150,8 @@ final result = await GoatWebView.channel.invokeMethod<Map<String, dynamic>>('bio
                 padding: '4px 10px',
                 borderRadius: '4px',
                 border: 'none',
-                background: selectedLang === lang ? '#6366f1' : '#1e293b',
-                color: selectedLang === lang ? '#ffffff' : '#94a3b8',
+                background: selectedLang === lang ? 'var(--goat-primary)' : 'var(--goat-fill-tertiary)',
+                color: selectedLang === lang ? 'var(--goat-text-on-primary)' : 'var(--goat-text-secondary)',
                 fontSize: '11px',
                 fontWeight: 600,
                 cursor: 'pointer',

@@ -34,8 +34,8 @@ const EmbeddedPlaygroundInner: React.FC<EmbeddedPlaygroundProps> = ({
       style={{
         margin: '24px 0',
         borderRadius: '12px',
-        border: '1px solid var(--ifm-color-emphasis-300, #334155)',
-        backgroundColor: 'var(--ifm-background-surface-color, #0f172a)',
+        border: '1px solid var(--goat-border)',
+        backgroundColor: 'var(--goat-bg-container)',
         overflow: 'hidden',
         boxShadow: '0 8px 32px rgba(0, 0, 0, 0.25)',
       }}
@@ -46,8 +46,8 @@ const EmbeddedPlaygroundInner: React.FC<EmbeddedPlaygroundProps> = ({
         <div
           style={{
             padding: '12px 18px',
-            borderBottom: '1px solid var(--ifm-color-emphasis-300, #334155)',
-            backgroundColor: 'rgba(255, 255, 255, 0.03)',
+            borderBottom: '1px solid var(--goat-split)',
+            backgroundColor: 'var(--goat-fill-quaternary)',
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
@@ -55,12 +55,12 @@ const EmbeddedPlaygroundInner: React.FC<EmbeddedPlaygroundProps> = ({
         >
           <div>
             {title && (
-              <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--ifm-color-primary, #38bdf8)' }}>
+              <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--goat-primary)' }}>
                 {title}
               </div>
             )}
             {description && (
-              <div style={{ fontSize: '11px', color: 'var(--ifm-color-emphasis-600, #94a3b8)', marginTop: '2px' }}>
+              <div style={{ fontSize: '11px', color: 'var(--goat-text-secondary)', marginTop: '2px' }}>
                 {description}
               </div>
             )}
@@ -70,8 +70,8 @@ const EmbeddedPlaygroundInner: React.FC<EmbeddedPlaygroundProps> = ({
               fontSize: '10px',
               padding: '2px 8px',
               borderRadius: '12px',
-              backgroundColor: '#6366f1',
-              color: '#ffffff',
+              backgroundColor: 'var(--goat-primary)',
+              color: 'var(--goat-text-on-primary)',
               fontWeight: 600,
             }}
           >

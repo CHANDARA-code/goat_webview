@@ -144,7 +144,7 @@ export const BridgeInspector: React.FC = () => {
       label: (
         <span>
           <GlobalOutlined /> All Lanes{' '}
-          <Badge count={laneCounts.all} overflowCount={999} style={{ backgroundColor: '#475569', marginLeft: 4 }} />
+          <Badge count={laneCounts.all} overflowCount={999} style={{ backgroundColor: 'var(--goat-text-secondary)', marginLeft: 4 }} />
         </span>
       ),
       value: 'all',
@@ -153,7 +153,7 @@ export const BridgeInspector: React.FC = () => {
       label: (
         <span>
           <ThunderboltOutlined /> AppService -&gt; AppView{' '}
-          <Badge count={laneCounts.appservice_to_appview} overflowCount={999} style={{ backgroundColor: '#6366f1', marginLeft: 4 }} />
+          <Badge count={laneCounts.appservice_to_appview} overflowCount={999} style={{ backgroundColor: 'var(--goat-primary)', marginLeft: 4 }} />
         </span>
       ),
       value: 'appservice_to_appview',
@@ -162,7 +162,7 @@ export const BridgeInspector: React.FC = () => {
       label: (
         <span>
           <MobileOutlined /> AppView -&gt; Native{' '}
-          <Badge count={laneCounts.appview_to_native} overflowCount={999} style={{ backgroundColor: '#10b981', marginLeft: 4 }} />
+          <Badge count={laneCounts.appview_to_native} overflowCount={999} style={{ backgroundColor: 'var(--goat-success)', marginLeft: 4 }} />
         </span>
       ),
       value: 'appview_to_native',
@@ -171,7 +171,7 @@ export const BridgeInspector: React.FC = () => {
       label: (
         <span>
           <RollbackOutlined /> Native -&gt; AppView{' '}
-          <Badge count={laneCounts.native_to_appview} overflowCount={999} style={{ backgroundColor: '#38bdf8', marginLeft: 4 }} />
+          <Badge count={laneCounts.native_to_appview} overflowCount={999} style={{ backgroundColor: 'var(--goat-info)', marginLeft: 4 }} />
         </span>
       ),
       value: 'native_to_appview',

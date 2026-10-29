@@ -129,7 +129,7 @@ await GoatWebView.channel.invokeMethod('openExternalLink', {
           </div>
           <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
             {externalLinkDialog.sessionAllowedHosts.length === 0 ? (
-              <span style={{ fontSize: '11px', color: '#94a3b8', fontStyle: 'italic' }}>
+              <span style={{ fontSize: '11px', color: 'var(--goat-text-secondary)', fontStyle: 'italic' }}>
                 No domains currently bypassed in this session.
               </span>
             ) : (
@@ -140,8 +140,8 @@ await GoatWebView.channel.invokeMethod('openExternalLink', {
                     fontSize: '11px',
                     padding: '3px 8px',
                     borderRadius: '4px',
-                    background: '#065f46',
-                    color: '#34d399',
+                    background: 'var(--goat-success-bg)',
+                    color: 'var(--goat-success)',
                     fontFamily: 'monospace',
                   }}
                 >
@@ -164,8 +164,8 @@ await GoatWebView.channel.invokeMethod('openExternalLink', {
                 padding: '4px 10px',
                 borderRadius: '4px',
                 border: 'none',
-                background: selectedLang === lang ? '#6366f1' : '#1e293b',
-                color: selectedLang === lang ? '#ffffff' : '#94a3b8',
+                background: selectedLang === lang ? 'var(--goat-primary)' : 'var(--goat-fill-tertiary)',
+                color: selectedLang === lang ? 'var(--goat-text-on-primary)' : 'var(--goat-text-secondary)',
                 fontSize: '11px',
                 fontWeight: 600,
                 cursor: 'pointer',

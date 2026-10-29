@@ -1,43 +1,31 @@
-import React from 'react';
-import { ConfigProvider, App, theme } from 'antd';
-import { useColorMode } from '@docusaurus/theme-common';
+import React, { useSyncExternalStore } from 'react';
+import { ConfigProvider, App } from 'antd';
+import { getAntdTheme } from '../../theme/goatTheme';
+import type { ThemeMode } from '../../theme/goatTheme';
 
 export interface GoatAntdProviderProps {
   children: React.ReactNode;
 }
 
-function useSafeColorMode(): 'dark' | 'light' {
-  try {
-    const { colorMode } = useColorMode();
-    return colorMode === 'light' ? 'light' : 'dark';
-  } catch {
-    return 'dark';
-  }
+function readColorMode(): ThemeMode {
+  return document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+}
+
+function subscribeColorMode(onChange: () => void): () => void {
+  const observer = new MutationObserver(onChange);
+  observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  return () => observer.disconnect();
+}
+
+function useHtmlColorMode(): ThemeMode {
+  return useSyncExternalStore(subscribeColorMode, readColorMode, () => 'light');
 }
 
 export const GoatAntdProvider: React.FC<GoatAntdProviderProps> = ({ children }) => {
-  const colorMode = useSafeColorMode();
-  const isDark = colorMode === 'dark';
-
-  const themeConfig = {
-    algorithm: isDark ? theme.darkAlgorithm : theme.defaultAlgorithm,
-    token: {
-      colorPrimary: '#6366f1',
-      colorSuccess: '#10b981',
-      colorError: '#ef4444',
-      colorWarning: '#f59e0b',
-      colorInfo: '#38bdf8',
-      colorBgBase: isDark ? '#0f172a' : '#ffffff',
-      colorBgContainer: isDark ? '#1e293b' : '#ffffff',
-      colorBorder: isDark ? '#334155' : '#e2e8f0',
-      colorText: isDark ? '#f8fafc' : '#0f172a',
-      borderRadius: 8,
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-    },
-  };
+  const colorMode = useHtmlColorMode();
 
   return (
-    <ConfigProvider theme={themeConfig}>
+    <ConfigProvider theme={getAntdTheme(colorMode)}>
       <App>{children}</App>
     </ConfigProvider>
   );

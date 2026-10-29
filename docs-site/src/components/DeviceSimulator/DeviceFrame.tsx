@@ -55,7 +55,7 @@ export const DeviceFrame: React.FC = () => {
               style={{
                 height: '100%',
                 width: `${hardware.battery.level}%`,
-                backgroundColor: hardware.battery.level > 20 ? '#10b981' : '#ef4444',
+                backgroundColor: hardware.battery.level > 20 ? 'var(--goat-success)' : 'var(--goat-error)',
                 borderRadius: '1px',
               }}
             />

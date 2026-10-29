@@ -125,12 +125,12 @@ export const TraceItemAccordion: React.FC<TraceItemAccordionProps> = ({ trace, o
               fontWeight: 600,
               color:
                 trace.latencyMs < 5
-                  ? '#34d399'
+                  ? 'var(--goat-success)'
                   : trace.latencyMs < 50
-                  ? '#38bdf8'
+                  ? 'var(--goat-info)'
                   : trace.latencyMs < 120
-                  ? '#fbbf24'
-                  : '#f87171',
+                  ? 'var(--goat-warning)'
+                  : 'var(--goat-error)',
             }}
           >
             {trace.latencyMs}ms
@@ -179,24 +179,24 @@ export const TraceItemAccordion: React.FC<TraceItemAccordionProps> = ({ trace, o
 
                   <div
                     className={styles.waterfallBar}
-                    style={{ height: 8, borderRadius: 4, display: 'flex', overflow: 'hidden', margin: '8px 0', backgroundColor: '#334155' }}
+                    style={{ height: 8, borderRadius: 4, display: 'flex', overflow: 'hidden', margin: '8px 0', backgroundColor: 'var(--goat-fill-secondary)' }}
                   >
-                    <div className={styles.waterfallSegmentWorker} style={{ width: `${workerPct}%`, backgroundColor: '#c084fc' }} />
-                    <div className={styles.waterfallSegmentNative} style={{ width: `${nativePct}%`, backgroundColor: '#60a5fa' }} />
-                    <div className={styles.waterfallSegmentRender} style={{ width: `${domPct}%`, backgroundColor: '#34d399' }} />
+                    <div className={styles.waterfallSegmentWorker} style={{ width: `${workerPct}%`, backgroundColor: 'var(--goat-primary)' }} />
+                    <div className={styles.waterfallSegmentNative} style={{ width: `${nativePct}%`, backgroundColor: 'var(--goat-info)' }} />
+                    <div className={styles.waterfallSegmentRender} style={{ width: `${domPct}%`, backgroundColor: 'var(--goat-success)' }} />
                   </div>
 
                   <div className={styles.waterfallGrid} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginTop: 8 }}>
                     <div className={styles.waterfallCard}>
-                      <Text style={{ fontSize: 10, color: '#c084fc', display: 'block' }}>T_worker_ipc</Text>
+                      <Text style={{ fontSize: 10, color: 'var(--goat-primary)', display: 'block' }}>T_worker_ipc</Text>
                       <Text strong style={{ fontSize: 12 }}>{workerIpcLatency} ms</Text>
                     </div>
                     <div className={styles.waterfallCard}>
-                      <Text style={{ fontSize: 10, color: '#60a5fa', display: 'block' }}>T_native_exec</Text>
+                      <Text style={{ fontSize: 10, color: 'var(--goat-info)', display: 'block' }}>T_native_exec</Text>
                       <Text strong style={{ fontSize: 12 }}>{nativeExecLatency} ms</Text>
                     </div>
                     <div className={styles.waterfallCard}>
-                      <Text style={{ fontSize: 10, color: '#34d399', display: 'block' }}>T_dom_flush</Text>
+                      <Text style={{ fontSize: 10, color: 'var(--goat-success)', display: 'block' }}>T_dom_flush</Text>
                       <Text strong style={{ fontSize: 12 }}>{domRenderLatency} ms</Text>
                     </div>
                   </div>

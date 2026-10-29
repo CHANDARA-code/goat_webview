@@ -187,7 +187,7 @@ export const MockHardwareControls: React.FC = () => {
           <div style={{ width: '100%' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, marginBottom: 2 }}>
               <Text type="secondary">Battery Level</Text>
-              <Text style={{ color: '#10b981', fontWeight: 600 }}>{hardware.battery.level}%</Text>
+              <Text style={{ color: 'var(--goat-success)', fontWeight: 600 }}>{hardware.battery.level}%</Text>
             </div>
             <Slider
               min={0}

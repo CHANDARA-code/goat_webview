@@ -93,13 +93,13 @@ export const QuickSearchModal: React.FC<QuickSearchModalProps> = ({
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                backgroundColor: idx === selectedIndex ? '#334155' : 'transparent',
+                backgroundColor: idx === selectedIndex ? 'var(--goat-fill-secondary)' : 'transparent',
                 marginBottom: 4,
               }}
             >
               <div className={styles.resultItemLeft}>
                 <code className={styles.resultActionName}>{action.action}</code>
-                <span className={styles.resultDesc} style={{ fontSize: 12, color: '#94a3b8', marginLeft: 8 }}>
+                <span className={styles.resultDesc} style={{ fontSize: 12, color: 'var(--goat-text-secondary)', marginLeft: 8 }}>
                   {action.description}
                 </span>
               </div>
@@ -109,7 +109,7 @@ export const QuickSearchModal: React.FC<QuickSearchModalProps> = ({
         )}
       </div>
 
-      <div style={{ marginTop: 12, paddingTop: 8, borderTop: '1px solid #334155', display: 'flex', gap: 16, fontSize: 11, color: '#94a3b8' }}>
+      <div style={{ marginTop: 12, paddingTop: 8, borderTop: '1px solid var(--goat-split)', display: 'flex', gap: 16, fontSize: 11, color: 'var(--goat-text-secondary)' }}>
         <span>Navigation: <kbd>Up</kbd> <kbd>Down</kbd></span>
         <span>Select: <kbd>ENTER</kbd></span>
         <span>Close: <kbd>ESC</kbd></span>
